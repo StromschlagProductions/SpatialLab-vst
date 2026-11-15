@@ -326,25 +326,36 @@ void SpatialLabEditor::paint(juce::Graphics& g)
 void SpatialLabEditor::drawLighting(juce::Graphics& g)
 {
     const bool aged = isEpisodeIV();
-    const std::array<float, 4> tubeX {1216, 1290, 1361, 1424};
-    for (unsigned i = 0; i < tubeX.size(); ++i)
+    const std::array<float, 4> tubeCentres {1235, 1307, 1376, 1441};
+    const std::array<float, 4> tubeWidths {58, 54, 49, 54};
+    for (unsigned i = 0; i < tubeCentres.size(); ++i)
     {
         juce::Graphics::ScopedSaveState state(g);
-        juce::Path glass; glass.addRoundedRectangle(tubeX[i], 133, 32, 80, 13);
+        const float centre = tubeCentres[i], half = tubeWidths[i] * 0.5f;
+        // Entire glass envelope, including the baked-in bright lower glow; stop above the metal base.
+        juce::Path glass;
+        glass.startNewSubPath(centre-half,208);
+        glass.lineTo(centre-half,153);
+        glass.cubicTo(centre-half,117,centre+half,117,centre+half,153);
+        glass.lineTo(centre+half,208);
+        glass.quadraticTo(centre+half,218,centre+half-8,218);
+        glass.lineTo(centre-half+8,218);
+        glass.quadraticTo(centre-half,218,centre-half,208);
+        glass.closeSubPath();
         g.reduceClipRegion(glass);
         const float strength = spatiallab::retro::tubeGlow(animationSeconds, i, aged);
-        const float spare = i == 2 ? 0.55f : 1.0f;
+        const float spare = i == 2 ? 0.65f : 1.0f;
         // Darken baked-in light as well as add light: a bright raster cannot visibly dim otherwise.
-        g.setColour(juce::Colours::black.withAlpha((1 - strength * spare) * 0.92f)); g.fillPath(glass);
+        g.setColour(juce::Colours::black.withAlpha((1 - strength * spare) * 0.97f)); g.fillPath(glass);
         g.setGradientFill(juce::ColourGradient(juce::Colour(0xffff9219).withAlpha(strength * 0.64f * spare),
-            tubeX[i] + 16, 195, juce::Colour(0xffc1510b).withAlpha(0.02f), tubeX[i] + 16, 137, false));
+            centre, 195, juce::Colour(0xffc1510b).withAlpha(0.02f), centre, 130, false));
         g.fillPath(glass);
-        for (float dx : {11.0f, 22.0f})
+        for (float dx : {-8.0f, 8.0f})
         {
             g.setColour(juce::Colour(0xffff901f).withAlpha(strength * 0.65f * spare));
-            g.drawLine(tubeX[i]+dx,171,tubeX[i]+dx,201,4.5f);
+            g.drawLine(centre+dx,171,centre+dx,201,4.5f);
             g.setColour(juce::Colour(0xffffb444).withAlpha(strength * 0.95f * spare));
-            g.drawLine(tubeX[i]+dx,173,tubeX[i]+dx,200,1.25f);
+            g.drawLine(centre+dx,173,centre+dx,200,1.25f);
         }
     }
     const std::array<juce::Colour,3> lensColours {juce::Colour(0xffb2ef48),juce::Colour(0xffffba39),juce::Colour(0xff84d6ff)};

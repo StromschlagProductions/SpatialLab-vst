@@ -15,7 +15,7 @@ for folder in sorted(root.glob('Episode-*/*/*')):
     ox, oy = (width-1672*scale)/2, (height-941*scale)/2
     def box(x,y,w,h):
         return tuple(round(v) for v in (ox+x*scale,oy+y*scale,ox+(x+w)*scale,oy+(y+h)*scale))
-    regions = {f'tube-{i}':box(x,145,32,65) for i,x in enumerate((1216,1290,1361,1424))}
+    regions = {f'tube-{i}':box(x-20,142,40,72) for i,x in enumerate((1235,1307,1376,1441))}
     regions.update({'power-lens':box(934,190,33,30),'aux-amber':box(845,740,23,30),'aux-blue':box(925,740,23,30)})
     changes = {}
     for name,rect in regions.items():
@@ -37,8 +37,8 @@ for folder in sorted(root.glob('Episode-*/*/*')):
     assert len(tube_frames) == (48 if folder.name == 'Silent' else 16)
     # Separate evidence for every actual upper-right glass tube over the longer silence recording.
     if folder.name == 'Silent':
-        for i,x in enumerate((1216,1290,1361,1424)):
-            rect = tuple(round(v*scale) for v in (x-1199,145-116,x+32-1199,210-116))
+        for i,x in enumerate((1235,1307,1376,1441)):
+            rect = tuple(round(v*scale) for v in (x-20-1199,142-116,x+20-1199,214-116))
             brightness = [sum(ImageStat.Stat(f.crop(rect)).mean)/3 for f in tube_frames]
             assert max(brightness)-min(brightness) >= 5, f'{folder}/tube-{i}: no visible rise/fall'
             steps = [b-a for a,b in zip(brightness,brightness[1:])]
