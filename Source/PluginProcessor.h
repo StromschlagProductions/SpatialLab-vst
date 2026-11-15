@@ -10,6 +10,7 @@ public:
     void releaseResources() override {}
     void reset() override { engine.reset(); }
     void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlockBypassed(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     bool isBusesLayoutSupported(const BusesLayout&) const override;
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
@@ -28,6 +29,6 @@ public:
 private:
     static juce::AudioProcessorValueTreeState::ParameterLayout makeParameters();
     spatiallab::Engine engine;
-    std::atomic<float> *room, *mix, *decay, *damping, *width, *output;
+    std::atomic<float> *room, *earlyLate, *decay, *damping, *width, *output;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpatialLabProcessor)
 };

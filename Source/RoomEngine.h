@@ -8,6 +8,7 @@
 namespace spatiallab
 {
 struct Stereo { float left = 0.0f, right = 0.0f; };
+struct Reflections { Stereo early, late; };
 
 // A finite-duration linear ramp. Targets may be refreshed each host block.
 class Ramp
@@ -39,7 +40,7 @@ inline constexpr std::array<RoomSpec, 3> rooms {{
 class Room
 {
 public:
-    void prepare(double rate, const RoomSpec& spec)
+    void prepare(double rate, const RoomSpec& spec, float decay, float damping)
     {
         sampleRate = rate;
         for (std::size_t i = 0; i < lines.size(); ++i)
@@ -47,7 +48,7 @@ public:
             lines[i].assign(static_cast<std::size_t>(std::max(1.0, std::round(rate * spec.delaysMs[i] * 0.001))), 0.0f);
             positions[i] = 0;
             delaySeconds[i] = static_cast<float>(lines[i].size() / rate);
-            feedback[i].reset(rate, gain(spec.rt60, delaySeconds[i]));
+            feedback[i].reset(rate, gain(spec.rt60 * decay, delaySeconds[i]));
         }
         earlyL.assign(static_cast<std::size_t>(rate * 0.05) + 2, 0.0f);
         earlyR = earlyL;
@@ -56,14 +57,23 @@ public:
             tapsL[i] = static_cast<std::size_t>(std::round(rate * spec.earlyMs[i] * 0.001));
             tapsR[i] = static_cast<std::size_t>(std::round(rate * (spec.earlyMs[i] * 1.071f + 0.37f) * 0.001));
         }
-        pole.reset(rate, coefficient(spec.cutoff));
+        pole.reset(rate, coefficient(spec.cutoff * (1.4f - damping)));
+        lastDecay = decay; lastDamping = damping;
         filtered.fill(0.0f); earlyPos = 0;
     }
     void set(float decay, float damping, const RoomSpec& spec) noexcept
     {
-        for (std::size_t i = 0; i < feedback.size(); ++i)
-            feedback[i].set(gain(spec.rt60 * decay, delaySeconds[i]));
-        pole.set(coefficient(spec.cutoff * (1.4f - damping)));
+        if (decay != lastDecay)
+        {
+            for (std::size_t i = 0; i < feedback.size(); ++i)
+                feedback[i].set(gain(spec.rt60 * decay, delaySeconds[i]));
+            lastDecay = decay;
+        }
+        if (damping != lastDamping)
+        {
+            pole.set(coefficient(spec.cutoff * (1.4f - damping)));
+            lastDamping = damping;
+        }
     }
     void reset() noexcept
     {
@@ -72,19 +82,19 @@ public:
         std::fill(earlyR.begin(), earlyR.end(), 0.0f);
         positions.fill(0); filtered.fill(0); earlyPos = 0;
     }
-    Stereo process(float left, float right) noexcept
+    Reflections process(float left, float right) noexcept
     {
         earlyL[earlyPos] = left; earlyR[earlyPos] = right;
         Stereo early;
         constexpr std::array<float, 6> tapGain {0.30f, -0.23f, 0.19f, 0.15f, -0.12f, 0.09f};
         for (std::size_t i = 0; i < tapGain.size(); ++i)
         {
-            const auto l = (earlyPos + earlyL.size() - tapsL[i]) % earlyL.size();
-            const auto r = (earlyPos + earlyR.size() - tapsR[i]) % earlyR.size();
+            const auto l = earlyPos >= tapsL[i] ? earlyPos - tapsL[i] : earlyPos + earlyL.size() - tapsL[i];
+            const auto r = earlyPos >= tapsR[i] ? earlyPos - tapsR[i] : earlyPos + earlyR.size() - tapsR[i];
             early.left += tapGain[i] * (0.8f * earlyL[l] + 0.2f * earlyR[l]);
             early.right += tapGain[i] * (0.8f * earlyR[r] + 0.2f * earlyL[r]);
         }
-        earlyPos = (earlyPos + 1) % earlyL.size();
+        if (++earlyPos == earlyL.size()) earlyPos = 0;
         std::array<float, 8> y {};
         float sum = 0;
         const float p = pole.next();
@@ -102,18 +112,19 @@ public:
         {
             lines[i][positions[i]] = 0.20f * (injectionL[i] * left + injectionR[i] * right)
                 + feedback[i].next() * (filtered[i] - 0.25f * sum);
-            positions[i] = (positions[i] + 1) % lines[i].size();
+            if (++positions[i] == lines[i].size()) positions[i] = 0;
             // Different readout vectors avoid a direct comb-like stereo image.
             late.left += y[i] * injectionR[i] * 0.25f;
             late.right += y[i] * injectionL[(i + 3) % 8] * 0.25f;
         }
-        return {early.left + late.left, early.right + late.right};
+        return {early, late};
     }
 private:
     static float gain(float rt60, float delay) noexcept { return std::pow(10.0f, -3.0f * delay / rt60); }
     float coefficient(float hz) const noexcept
     { return std::exp(-6.28318530718f * std::min(hz, static_cast<float>(sampleRate * 0.45)) / static_cast<float>(sampleRate)); }
     double sampleRate = 48000;
+    float lastDecay = 1, lastDamping = 0.5f;
     std::array<std::vector<float>, 8> lines;
     std::vector<float> earlyL, earlyR;
     std::array<std::size_t, 8> positions {};
@@ -127,45 +138,49 @@ private:
 class Engine
 {
 public:
-    void prepare(double rate, int room, float mixValue, float decay, float damping, float widthValue, float gainValue)
+    void prepare(double rate, int room, float balanceValue, float decay, float damping, float widthValue, float gainValue)
     {
         for (std::size_t i = 0; i < reverbs.size(); ++i)
         {
-            reverbs[i].prepare(rate, rooms[i]);
+            reverbs[i].prepare(rate, rooms[i], decay, damping);
             weights[i].reset(rate, static_cast<int>(i) == room ? 1.0f : 0.0f);
         }
-        mix.reset(rate, mixValue); width.reset(rate, widthValue); output.reset(rate, gainValue);
-        set(room, mixValue, decay, damping, widthValue, gainValue);
+        balance.reset(rate, balanceValue); width.reset(rate, widthValue); output.reset(rate, gainValue);
+        set(room, balanceValue, decay, damping, widthValue, gainValue);
     }
-    void set(int room, float mixValue, float decay, float damping, float widthValue, float gainValue) noexcept
+    void set(int room, float balanceValue, float decay, float damping, float widthValue, float gainValue) noexcept
     {
         for (std::size_t i = 0; i < reverbs.size(); ++i)
         {
             reverbs[i].set(decay, damping, rooms[i]);
             weights[i].set(static_cast<int>(i) == room ? 1.0f : 0.0f);
         }
-        mix.set(mixValue); width.set(widthValue); output.set(gainValue);
+        balance.set(balanceValue); width.set(widthValue); output.set(gainValue);
     }
     void reset() noexcept { for (auto& room : reverbs) room.reset(); }
     Stereo process(float left, float right) noexcept
     {
-        Stereo wet;
+        Stereo early, late;
         // All rooms run continuously: changing rooms never clears or allocates delay memory.
         for (std::size_t i = 0; i < reverbs.size(); ++i)
         {
             const auto value = reverbs[i].process(left, right);
             const float w = weights[i].next();
-            wet.left += value.left * w; wet.right += value.right * w;
+            early.left += value.early.left * w; early.right += value.early.right * w;
+            late.left += value.late.left * w; late.right += value.late.right * w;
         }
+        // Midpoint preserves the original early + late voicing; endpoints isolate either field.
+        const float b = balance.next();
+        const Stereo wet {2.0f * ((1.0f - b) * early.left + b * late.left),
+                          2.0f * ((1.0f - b) * early.right + b * late.right)};
         const float mid = (wet.left + wet.right) * 0.5f;
         const float side = (wet.left - wet.right) * 0.5f * width.next();
-        const float m = mix.next(), g = output.next();
-        return {g * ((1.0f - m) * left + m * (mid + side)),
-                g * ((1.0f - m) * right + m * (mid - side))};
+        const float g = output.next();
+        return {g * (mid + side), g * (mid - side)};
     }
 private:
     std::array<Room, 3> reverbs;
     std::array<Ramp, 3> weights;
-    Ramp mix, width, output;
+    Ramp balance, width, output;
 };
 }

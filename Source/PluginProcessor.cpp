@@ -10,11 +10,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout SpatialLabProcessor::makePar
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id, 1}, name,
             juce::NormalisableRange<float>{lo, hi}, initial));
     };
-    add("mix", "Dry / Wet", 0.0f, 1.0f, 0.25f);
+    add("earlyLate", "Early / Late Balance", 0.0f, 1.0f, 0.5f);
     add("decay", "Decay multiplier", 0.5f, 2.0f, 1.0f);
     add("damping", "Damping", 0.0f, 1.0f, 0.5f);
     add("width", "Stereo width", 0.0f, 1.0f, 1.0f);
-    add("output", "Output (dB)", -24.0f, 6.0f, 0.0f);
+    add("output", "Wet Output Level (dB)", -24.0f, 6.0f, 0.0f);
     return layout;
 }
 
@@ -22,7 +22,7 @@ SpatialLabProcessor::SpatialLabProcessor()
     : AudioProcessor(BusesProperties().withInput("Input", juce::AudioChannelSet::stereo(), true)
                                      .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
       parameters(*this, nullptr, "SpatialLabState", makeParameters()),
-      room(parameters.getRawParameterValue("room")), mix(parameters.getRawParameterValue("mix")),
+      room(parameters.getRawParameterValue("room")), earlyLate(parameters.getRawParameterValue("earlyLate")),
       decay(parameters.getRawParameterValue("decay")), damping(parameters.getRawParameterValue("damping")),
       width(parameters.getRawParameterValue("width")), output(parameters.getRawParameterValue("output"))
 {
@@ -38,7 +38,7 @@ bool SpatialLabProcessor::isBusesLayoutSupported(const BusesLayout& layout) cons
 
 void SpatialLabProcessor::prepareToPlay(double rate, int)
 {
-    engine.prepare(rate, juce::roundToInt(room->load()), mix->load(), decay->load(), damping->load(),
+    engine.prepare(rate, juce::roundToInt(room->load()), earlyLate->load(), decay->load(), damping->load(),
         width->load(), juce::Decibels::decibelsToGain(output->load()));
     setLatencySamples(0);
 }
@@ -46,7 +46,7 @@ void SpatialLabProcessor::prepareToPlay(double rate, int)
 void SpatialLabProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
-    engine.set(juce::roundToInt(room->load()), mix->load(), decay->load(), damping->load(), width->load(),
+    engine.set(juce::roundToInt(room->load()), earlyLate->load(), decay->load(), damping->load(), width->load(),
         juce::Decibels::decibelsToGain(output->load()));
     const int inputs = getTotalNumInputChannels(), outputs = getTotalNumOutputChannels();
     auto* left = buffer.getWritePointer(0);
@@ -61,6 +61,13 @@ void SpatialLabProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::M
     }
 }
 
+void SpatialLabProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
+{
+    // A send must never add another direct signal when the host invokes plugin bypass.
+    processBlock(buffer, midi);
+    buffer.clear();
+}
+
 juce::AudioProcessorEditor* SpatialLabProcessor::createEditor()
 {
     return new juce::GenericAudioProcessorEditor(*this);
@@ -69,15 +76,30 @@ juce::AudioProcessorEditor* SpatialLabProcessor::createEditor()
 void SpatialLabProcessor::getStateInformation(juce::MemoryBlock& destination)
 {
     auto state = parameters.copyState();
-    state.setProperty("schemaVersion", 1, nullptr);
+    state.setProperty("schemaVersion", 2, nullptr);
     if (auto xml = state.createXml()) copyXmlToBinary(*xml, destination);
 }
 
 void SpatialLabProcessor::setStateInformation(const void* data, int size)
 {
-    if (auto xml = getXmlFromBinary(data, size))
-        if (xml->hasTagName(parameters.state.getType()) && xml->getIntAttribute("schemaVersion") == 1)
-            parameters.replaceState(juce::ValueTree::fromXml(*xml));
+    auto xml = getXmlFromBinary(data, size);
+    if (xml == nullptr || !xml->hasTagName(parameters.state.getType())) return;
+    const int version = xml->getIntAttribute("schemaVersion");
+    if (version != 1 && version != 2) return;
+    auto state = juce::ValueTree::fromXml(*xml);
+    if (version == 1)
+    {
+        // Preserve existing wet controls, discard the obsolete insert mix value.
+        for (int i = state.getNumChildren(); --i >= 0;)
+            if (state.getChild(i).getProperty("id").toString() == "mix")
+                state.removeChild(i, nullptr);
+        juce::ValueTree balanceState("PARAM");
+        balanceState.setProperty("id", "earlyLate", nullptr);
+        balanceState.setProperty("value", 0.5f, nullptr);
+        state.appendChild(balanceState, nullptr);
+        state.setProperty("schemaVersion", 2, nullptr);
+    }
+    parameters.replaceState(state);
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new SpatialLabProcessor(); }

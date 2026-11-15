@@ -25,6 +25,9 @@ jobs:
         run: cmake --build build --config Release --parallel 2
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
+      - name: Profile DSP at 44.1 and 48 kHz (informational)
+        shell: pwsh
+        run: ./build/Release/SpatialLabDspBenchmark.exe | Tee-Object -FilePath build/dsp-benchmark.csv
       - name: Record toolchain
         shell: pwsh
         run: |
@@ -38,6 +41,7 @@ jobs:
           path: |
             build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3
             build/toolchain.txt
+            build/dsp-benchmark.csv
           if-no-files-found: error
   dsp-sanitizers:
     runs-on: ubuntu-24.04

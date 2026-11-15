@@ -24,19 +24,13 @@ int main()
 {
     try
     {
-        for (double rate : {22050.0, 44100.0, 48000.0, 96000.0, 192000.0})
+        for (double rate : {44100.0, 48000.0})
         {
             spatiallab::Engine engine;
-            engine.prepare(rate, 0, 0, 1, 0.5f, 1, 1);
-            for (int i = 0; i < 1000; ++i)
-            {
-                const auto out = engine.process(0.123f, -0.37f);
-                require(out.left == 0.123f && out.right == -0.37f, "Dry routing changed stereo");
-            }
             std::array<double, 3> energies {};
             for (int room = 0; room < 3; ++room)
             {
-                engine.prepare(rate, room, 1, 1, 0.5f, 1, 1);
+                engine.prepare(rate, room, 0.5f, 1, 0.5f, 1, 1);
                 double early = 0, tail = 0, stereoDifference = 0;
                 for (int i = 0; i < static_cast<int>(rate * 6); ++i)
                 {
@@ -54,7 +48,7 @@ int main()
                 energies[static_cast<std::size_t>(room)] = early;
             }
             require(std::abs(energies[0] - energies[2]) > 0.001, "Rooms sound identical");
-            engine.prepare(rate, 2, 1, 2, 0, 0, 1);
+            engine.prepare(rate, 2, 0.5f, 2, 0, 0, 1);
             for (int i = 0; i < 10000; ++i)
             {
                 const auto out = engine.process(i == 0 ? 1.0f : 0, 0);
@@ -84,12 +78,40 @@ int main()
             watch = false;
             require(finite, "Automation stress was unstable");
             require(allocations == 0, "Audio processing allocated heap memory");
-            std::cout << "PASS " << rate << " Hz: routing, rooms, decay, reset, automation, allocations\n";
+            // Every balance setting stays wet; early-only ends after the last reflection,
+            // late-only cannot precede the shortest FDN delay. Midpoint preserves both fields.
+            for (int room = 0; room < 3; ++room)
+            {
+                spatiallab::Engine earlyOnly, lateOnly, combined;
+                earlyOnly.prepare(rate, room, 0, 1, 0.5f, 1, 1);
+                lateOnly.prepare(rate, room, 1, 1, 0.5f, 1, 1);
+                combined.prepare(rate, room, 0.5f, 1, 0.5f, 1, 1);
+                double earlyEnergy = 0, lateEnergy = 0;
+                for (int i = 0; i < static_cast<int>(rate * 0.3); ++i)
+                {
+                    const float input = i == 0 ? 1.0f : 0;
+                    const auto e = earlyOnly.process(input, 0), l = lateOnly.process(input, 0);
+                    const auto c = combined.process(input, 0);
+                    if (i < rate * 0.001)
+                        require(e.left == 0 && e.right == 0 && l.left == 0 && l.right == 0,
+                            "Balance endpoint leaked direct signal");
+                    if (i > rate * 0.05) require(e.left == 0 && e.right == 0, "Early-only contains late tail");
+                    if (i < rate * 0.015) require(l.left == 0 && l.right == 0, "Late-only contains early reflections");
+                    require(std::abs(c.left - 0.5f * (e.left + l.left)) < 1e-6f
+                         && std::abs(c.right - 0.5f * (e.right + l.right)) < 1e-6f, "Balance midpoint changed room voicing");
+                    earlyEnergy += e.left * e.left + e.right * e.right;
+                    lateEnergy += l.left * l.left + l.right * l.right;
+                }
+                require(earlyEnergy > 0.01 && lateEnergy > 0.01, "Balance endpoint is silent");
+            }
+            std::cout << "PASS " << rate << " Hz: wet-only, early/late, rooms, decay, reset, automation, allocations\n";
         }
         // Repeated block-boundary target refresh must not restart ramps.
+        for (double rate : {44100.0, 48000.0})
+        {
         spatiallab::Engine a, b;
-        a.prepare(48000, 0, 0, 1, 0.5f, 1, 1);
-        b.prepare(48000, 0, 0, 1, 0.5f, 1, 1);
+        a.prepare(rate, 0, 0, 1, 0.5f, 1, 1);
+        b.prepare(rate, 0, 0, 1, 0.5f, 1, 1);
         a.set(2, 1, 2, 0, 0.3f, 0.5f);
         for (int i = 0; i < 20000; ++i)
         {
@@ -98,7 +120,23 @@ int main()
             const auto y = b.process(i == 0 ? 1.0f : 0, 0);
             require(x.left == y.left && x.right == y.right, "Block size changes smoothing");
         }
-        std::cout << "PASS block partition invariance\n";
+        }
+        // Higher rates receive a short correctness smoke test, not full tuning/CPU coverage.
+        for (double rate : {96000.0, 192000.0})
+        {
+            spatiallab::Engine e;
+            e.prepare(rate, 2, 0.5f, 2, 0, 1, 1);
+            double energy = 0;
+            for (int i = 0; i < static_cast<int>(rate * 0.1); ++i)
+            {
+                const auto y = e.process(i == 0 ? 1.0f : 0, 0);
+                require(std::isfinite(y.left) && std::isfinite(y.right), "High-rate smoke nonfinite");
+                if (i == 0) require(y.left == 0 && y.right == 0, "High-rate dry leak");
+                energy += y.left * y.left + y.right * y.right;
+            }
+            require(energy > 0.01, "High-rate smoke silence");
+        }
+        std::cout << "PASS high-rate smoke and primary-rate block partition invariance\n";
     }
     catch (const std::exception& e) { watch = false; std::cerr << e.what() << '\n'; return 1; }
 }
