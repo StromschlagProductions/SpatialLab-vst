@@ -29,8 +29,8 @@ void SpatialLabProcessor::timerCallback()
     if (revision == notifiedRevision) return;
     notifiedRevision = revision;
     // Report current values, not a queued neutral value that could overwrite later automation.
-    size->sendValueChangedMessageToListeners(size->getValue());
-    tone->sendValueChangedMessageToListeners(tone->getValue());
+    size->sendValueChangedMessageToListeners(size->get());
+    tone->sendValueChangedMessageToListeners(tone->get());
 }
 
 bool SpatialLabProcessor::isBusesLayoutSupported(const BusesLayout& layout) const
