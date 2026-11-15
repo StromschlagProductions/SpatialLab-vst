@@ -36,6 +36,7 @@ for folder in sorted(root.glob('Episode-*/*/*')):
     tube_frames = [Image.open(p).convert('RGB') for p in sorted(folder.glob('Tubes-*.png'))]
     assert len(tube_frames) == (48 if folder.name == 'Silent' else 16)
     # Separate evidence for every actual upper-right glass tube over the longer silence recording.
+    tube_levels = {}
     if folder.name == 'Silent':
         for i,x in enumerate((1235,1307,1376,1441)):
             rect = tuple(round(v*scale) for v in (x-20-1199,142-116,x+20-1199,214-116))
@@ -43,13 +44,20 @@ for folder in sorted(root.glob('Episode-*/*/*')):
             assert max(brightness)-min(brightness) >= 5, f'{folder}/tube-{i}: no visible rise/fall'
             steps = [b-a for a,b in zip(brightness,brightness[1:])]
             assert max(steps)>0.25 and min(steps)<-0.25, f'{folder}/tube-{i}: missing rising or falling phase'
+        for i,(x,width_native) in enumerate(zip((1235,1307,1376,1441),(58,54,49,54))):
+            # Include the whole glass body, not just newly drawn central filaments.
+            rect = tuple(round(v*scale) for v in (x-width_native/2+2-1199,148-116,x+width_native/2-2-1199,214-116))
+            brightness = [sum(ImageStat.Stat(f.crop(rect)).mean)/3 for f in tube_frames]
+            lo,hi = min(brightness),max(brightness)
+            assert hi>15 and lo>0.5 and lo/hi<0.50, f'{folder}/tube-{i}: no convincing residual ember ({lo:.1f}/{hi:.1f})'
+            tube_levels[str(i)] = {'minimum_rgb_mean':round(lo,3),'maximum_rgb_mean':round(hi,3),'rest_peak_ratio':round(lo/hi,3)}
         assert times[-1]-times[0] >= 14, 'Tube evidence must cover several full slow phases'
     tube_palette = tube_frames[0].quantize(colors=256)
     tube_gif = [f.quantize(palette=tube_palette) for f in tube_frames]
     durations = [max(20,round((b-a)*1000)) for a,b in zip(times,times[1:])] + [333]
     tube_gif[0].save(folder/'Actual-Tube-Detail-Sequence.gif',save_all=True,append_images=tube_gif[1:],
                      duration=durations,loop=0,optimize=False,disposal=2)
-    report.append({'capture':str(folder.relative_to(root)),'max_pair_mean_absolute_change_255':changes})
+    report.append({'capture':str(folder.relative_to(root)),'max_pair_mean_absolute_change_255':changes,'silent_glass_brightness':tube_levels})
     print('OK visible screen animation:',folder,changes)
 assert len(report) == 8, 'Expected both skins, both large sizes, silence and audio'
 (root/'lighting-visibility.json').write_text(json.dumps(report,indent=2)+'\n')
