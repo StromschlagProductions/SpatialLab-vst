@@ -110,6 +110,24 @@ int main()
                     require(found && observed.parameter("size")->getValue() == 0.5f && observed.parameter("tone")->getValue() == 0.5f,
                             "Preset path not synchronized with existing room reset");
                 }
+                editor->setSize(1003,565);
+                for (bool skin : {false,true})
+                {
+                    editor->setEpisodeIV(skin,false);
+                    std::array<std::uint64_t,3> fingerprints {};
+                    for (int roomIndex = 0; roomIndex < 3; ++roomIndex)
+                    {
+                        set(observed,"room",static_cast<float>(roomIndex));
+                        const auto image = editor->createComponentSnapshot(editor->getLocalBounds());
+                        auto hash = std::uint64_t{1469598103934665603ull};
+                        // Furniture region only: exclude the changing room-name heading.
+                        for (int y = 238; y < 315; y += 2) for (int x = 337; x < 574; x += 2)
+                        { hash ^= image.getPixelAt(x,y).getARGB(); hash *= 1099511628211ull; }
+                        fingerprints[static_cast<std::size_t>(roomIndex)] = hash;
+                    }
+                    require(fingerprints[0] != fingerprints[1] && fingerprints[1] != fingerprints[2]
+                        && fingerprints[0] != fingerprints[2], "CRT room geometry not distinct in both skins");
+                }
             }
             {
                 SpatialLabEditor reopened(observed, preferences.getFile());

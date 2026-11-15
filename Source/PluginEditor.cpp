@@ -190,13 +190,12 @@ void SpatialLabEditor::drawCrt(juce::Graphics& g)
 {
     juce::Path clip; clip.addRoundedRectangle(514, 306, 491, 324, 48);
     g.saveState(); g.reduceClipRegion(clip);
-    // Keep the accepted wireframe/furniture pixels exactly as supplied. Only the old
-    // baked-in trace is replaced; this is a stylised display, not a physical room model.
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff170e04), 755, 515, dark, 755, 622, false));
-    g.fillRect(545, 514, 435, 108);
+    // Clear only the glass region. The immutable artwork still supplies the bezel.
+    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff201405), 755, 461, dark, 516, 310, true));
+    g.fillAll();
     const int room = selectedRoom();
-    g.setColour(dark.withAlpha(0.86f)); g.fillRoundedRectangle(641, 313, 234, 25, 3);
-    text(g, names[static_cast<std::size_t>(room)].toUpperCase(), 647, 313, 222, 25, 17, amber, juce::Justification::centred);
+    drawRoomGeometry(g, room);
+    text(g, names[static_cast<std::size_t>(room)].toUpperCase(), 647, 314, 222, 25, 17, amber, juce::Justification::centred);
     // A deliberately stylised signal trace, driven only by the observed wet level.
     juce::Path trace; trace.startNewSubPath(554, 574);
     for (int x = 554; x <= 967; x += 3)
@@ -211,6 +210,82 @@ void SpatialLabEditor::drawCrt(juce::Graphics& g)
     for (int y = 309; y < 632; y += 4)
     { g.setColour(juce::Colours::black.withAlpha(0.14f)); g.drawHorizontalLine(y, 514, 1005); }
     g.restoreState();
+}
+
+void SpatialLabEditor::drawRoomGeometry(juce::Graphics& g, int room)
+{
+    const auto line = [&g](float x, float y, float x2, float y2, float brightness = 0.78f)
+    { g.setColour(amber.withAlpha(brightness)); g.drawLine(x,y,x2,y2,1.15f); };
+    const auto polygon = [&g](std::initializer_list<juce::Point<float>> points)
+    {
+        juce::Path path; auto it = points.begin(); path.startNewSubPath(*it++);
+        while (it != points.end()) path.lineTo(*it++);
+        path.closeSubPath(); g.setColour(amber.withAlpha(0.85f)); g.strokePath(path,juce::PathStrokeType(1.4f));
+    };
+    // Original, fixed perspective; no camera motion or physical scene simulation.
+    polygon({{558,350},{958,350},{958,526},{558,526}});
+    polygon({{668,392},{839,392},{839,470},{668,470}});
+    line(558,350,668,392); line(958,350,839,392);
+    line(558,526,668,470); line(958,526,839,470);
+    for (int i = 1; i < 8; ++i)
+    {
+        const float f = i / 8.0f;
+        line(558 + 400*f,526,668 + 171*f,470,0.25f);
+        line(558 + 400*f,350,668 + 171*f,392,0.16f);
+    }
+    for (float y : {486.0f,505.0f}) line(558,y,958,y,0.20f);
+    for (float y : {405.0f,430.0f,454.0f})
+    { line(558,y,668,392+(y-350)*78/176,0.15f); line(839,392+(y-350)*78/176,958,y,0.15f); }
+    if (room == 0)
+    {
+        // Sofa: back, seat, arms and feet; floor lamp with a tapered shade.
+        g.setColour(amber.withAlpha(0.9f)); g.drawRoundedRectangle(710,430,100,31,4,1.5f);
+        polygon({{710,449},{810,449},{824,465},{698,465}});
+        polygon({{698,446},{710,449},{710,470},{698,467}});
+        polygon({{810,449},{824,446},{824,467},{810,470}});
+        line(698,467,824,467); line(706,469,706,478); line(816,469,816,478);
+        line(760,431,760,450,0.65f); line(713,458,809,458,0.4f);
+        polygon({{886,421},{895,398},{913,398},{923,421}});
+        line(904,421,904,492); line(890,493,918,493); line(904,491,890,493); line(904,491,918,493);
+        polygon({{584,444},{614,447},{614,494},{584,500}});
+    }
+    else if (room == 1)
+    {
+        // Compact cabinets and worktop, sink/spout, side fridge.
+        polygon({{684,442},{821,442},{834,450},{691,450}});
+        polygon({{691,450},{834,450},{834,481},{691,481}});
+        for (float x : {719.0f,747.0f,775.0f,804.0f})
+        { line(x,450,x,480); line(x-6,459,x-3,459); }
+        polygon({{684,398},{828,398},{828,426},{684,426}});
+        for (float x : {732.0f,780.0f}) line(x,399,x,425);
+        line(723,410,723,418); line(771,410,771,418); line(818,410,818,418);
+        g.setColour(amber.withAlpha(0.9f)); g.drawEllipse(702,441,30,7,1.3f);
+        line(718,440,718,428); line(718,428,728,428); line(728,428,728,433);
+        for (float x : {777.0f,791.0f})
+        { g.setColour(amber.withAlpha(0.8f)); g.drawEllipse(x,442,7,4,1); }
+        polygon({{858,410},{882,402},{903,412},{903,487},{858,487}});
+        line(882,402,882,482); line(858,435,882,435); line(878,442,878,453);
+    }
+    else
+    {
+        // Tiled walls, bathtub with inset rim, pedestal basin, tap and mirror.
+        for (float x : {692.0f,716.0f,740.0f,764.0f,788.0f,812.0f}) line(x,393,x,470,0.20f);
+        for (float y : {410.0f,429.0f,448.0f}) line(668,y,839,y,0.20f);
+        polygon({{686,452},{775,452},{806,470},{714,470}});
+        polygon({{691,456},{773,456},{797,467},{716,467}});
+        polygon({{686,452},{714,470},{714,488},{689,472}});
+        polygon({{714,470},{806,470},{801,488},{714,488}});
+        line(699,452,699,438); line(699,438,711,438); line(711,438,711,442);
+        line(719,488,719,494); line(793,488,793,494);
+        g.setColour(amber.withAlpha(0.85f)); g.drawRoundedRectangle(851,399,44,32,3,1.5f);
+        line(856,427,887,403,0.23f); line(888,426,892,422,0.23f);
+        g.setColour(amber.withAlpha(0.9f)); g.drawEllipse(848,443,48,10,1.4f);
+        polygon({{849,449},{861,461},{883,461},{895,449}});
+        line(869,461,869,490); line(876,461,876,490); line(862,490,883,490);
+        line(871,442,871,434); line(871,434,879,434); line(879,434,879,438);
+    }
+    // Sparse target-computer registration ticks; all remain amber monochrome.
+    for (float x : {542.0f,977.0f}) for (float y : {374.0f,431.0f,488.0f}) line(x,y,x+7,y,0.35f);
 }
 
 void SpatialLabEditor::paint(juce::Graphics& g)
