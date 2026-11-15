@@ -56,7 +56,11 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     setResizable(true, true);
     setResizeLimits(1003, 565, 1672, 941);
     getConstrainer()->setFixedAspectRatio(panelWidth / panelHeight);
-    setSize(1003, 565);
+    const int savedWidth = guiSettings->getIntValue("windowWidth", 1504);
+    const int savedHeight = guiSettings->getIntValue("windowHeight", 846);
+    const bool validSize = savedWidth >= 1003 && savedWidth <= 1672 && savedHeight >= 565 && savedHeight <= 941
+        && std::abs(savedWidth / static_cast<double>(savedHeight) - panelWidth / panelHeight) < 0.004;
+    setSize(validSize ? savedWidth : 1504, validSize ? savedHeight : 846);
     processor.gui.peak.store(0, std::memory_order_relaxed);
     processor.gui.observing.store(true, std::memory_order_relaxed);
     timerCallback(); startTimerHz(30);
@@ -65,6 +69,9 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
 SpatialLabEditor::~SpatialLabEditor()
 {
     stopTimer();
+    guiSettings->setValue("windowWidth", getWidth());
+    guiSettings->setValue("windowHeight", getHeight());
+    guiSettings->saveIfNeeded();
     processor.gui.observing.store(false, std::memory_order_relaxed);
     for (auto& button : presets) button.setLookAndFeel(nullptr);
     for (auto* button : {&episodeSwitch, &listUp, &listDown}) button->setLookAndFeel(nullptr);
@@ -318,45 +325,59 @@ void SpatialLabEditor::paint(juce::Graphics& g)
 
 void SpatialLabEditor::drawLighting(juce::Graphics& g)
 {
-    // Restrict light to the actual lens/glass surfaces. No detached glow circles.
+    const bool aged = isEpisodeIV();
     const std::array<float, 4> tubeX {1216, 1290, 1361, 1424};
     for (unsigned i = 0; i < tubeX.size(); ++i)
     {
         juce::Graphics::ScopedSaveState state(g);
         juce::Path glass; glass.addRoundedRectangle(tubeX[i], 133, 32, 80, 13);
         g.reduceClipRegion(glass);
-        const float strength = spatiallab::retro::light(animationSeconds,i,signal);
-        const float spare = i == 2 ? 0.25f : 1.0f;
-        g.setColour(juce::Colours::black.withAlpha((0.75f - strength) * 0.19f)); g.fillPath(glass);
-        g.setGradientFill(juce::ColourGradient(juce::Colour(0xffffa52b).withAlpha(strength * 0.16f * spare),
-            tubeX[i] + 16, 194, juce::Colour(0xffc1510b).withAlpha(0.008f), tubeX[i] + 16, 139, false));
+        const float strength = spatiallab::retro::light(animationSeconds, i, i == 1 ? signal : 0, aged);
+        const float spare = i == 2 ? 0.55f : 1.0f;
+        // Darken baked-in light as well as add light: a bright raster cannot visibly dim otherwise.
+        g.setColour(juce::Colours::black.withAlpha((1 - strength * spare) * 0.76f)); g.fillPath(glass);
+        g.setGradientFill(juce::ColourGradient(juce::Colour(0xffffa52b).withAlpha(strength * 0.64f * spare),
+            tubeX[i] + 16, 195, juce::Colour(0xffc1510b).withAlpha(0.02f), tubeX[i] + 16, 137, false));
         g.fillPath(glass);
-        g.setColour(juce::Colour(0xffffc064).withAlpha(strength * 0.34f * spare));
-        g.drawLine(tubeX[i] + 11, 173, tubeX[i] + 11, 201, 1.2f);
-        g.drawLine(tubeX[i] + 22, 173, tubeX[i] + 22, 201, 1.2f);
+        for (float dx : {11.0f, 22.0f})
+        {
+            g.setColour(juce::Colour(0xffff901f).withAlpha(strength * 0.65f * spare));
+            g.drawLine(tubeX[i]+dx,171,tubeX[i]+dx,201,4.5f);
+            g.setColour(juce::Colour(0xffffdf91).withAlpha(strength * 0.95f * spare));
+            g.drawLine(tubeX[i]+dx,173,tubeX[i]+dx,200,1.25f);
+        }
     }
     const std::array<juce::Colour,3> lensColours {juce::Colour(0xffb2ef48),juce::Colour(0xffffba39),juce::Colour(0xff84d6ff)};
     const std::array<float,3> centres {521,605,688};
-    const std::array<float,3> levels {ready ? 1.0f : 0.0f,activity,signal};
+    // Activity is based on measured wet level, not simply on the host calling processBlock.
+    const std::array<float,3> levels {ready ? 1.0f : 0.0f, std::sqrt(signal), signal};
     for (unsigned i = 0; i < 3; ++i)
     {
-        const float rhythm = spatiallab::retro::light(animationSeconds,i + 4,levels[i]);
-        // Only the inner luminous lens: preserve the original bezel, reflections and screws.
+        const float rhythm = spatiallab::retro::light(animationSeconds,i + 4,levels[i],aged);
         juce::Graphics::ScopedSaveState state(g);
-        juce::Path lens; lens.addEllipse(centres[i] - 6, 758, 12, 13); g.reduceClipRegion(lens);
-        g.setColour(juce::Colours::black.withAlpha((1 - levels[i]) * 0.72f + (0.75f - rhythm) * 0.12f)); g.fillPath(lens);
-        g.setColour(lensColours[i].withAlpha(levels[i] * rhythm * 0.15f)); g.fillPath(lens);
+        juce::Path lens; lens.addEllipse(centres[i] - 6,758,12,13); g.reduceClipRegion(lens);
+        const float level = levels[i] * rhythm;
+        g.setColour(juce::Colours::black.withAlpha(0.92f * (1-level))); g.fillPath(lens);
+        g.setGradientFill(juce::ColourGradient(lensColours[i].brighter(0.5f).withAlpha(level * 0.85f),
+            centres[i]-1,762,lensColours[i].withAlpha(level * 0.18f),centres[i]+6,769,true));
+        g.fillPath(lens);
     }
-    const std::array<juce::Rectangle<float>,7> lenses {{
-        {934,190,33,30},{1001,190,31,30},{800,740,25,30},{845,740,23,30},
-        {880,740,23,30},{925,740,23,30},{978,740,23,30}}};
+    const std::array<juce::Rectangle<float>,7> lenses {{{934,190,33,30},{1001,190,31,30},
+        {800,740,25,30},{845,740,23,30},{880,740,23,30},{925,740,23,30},{978,740,23,30}}};
+    const std::array<juce::Colour,7> lensTints {juce::Colour(0xff8ddfff),juce::Colour(0xffff5732),
+        juce::Colour(0xffffecd1),juce::Colour(0xffffc42b),juce::Colour(0xffffa21d),
+        juce::Colour(0xff78b4df),juce::Colour(0xffff4926)};
     for (unsigned i = 0; i < lenses.size(); ++i)
     {
         juce::Graphics::ScopedSaveState state(g);
         juce::Path lens; lens.addRoundedRectangle(lenses[i],3); g.reduceClipRegion(lens);
-        const float rhythm = spatiallab::retro::light(animationSeconds,i + 3,i % 3 == 0 ? signal : 0);
-        g.setColour(juce::Colours::black.withAlpha((0.75f - rhythm) * 0.12f)); g.fillPath(lens);
-        g.setColour(juce::Colour(0xffffdeb0).withAlpha(rhythm * 0.035f)); g.fillPath(lens);
+        float rhythm = spatiallab::retro::light(animationSeconds,i+9,i % 3 == 0 ? signal : 0,aged);
+        if (i == 1 || i == 5) rhythm *= spatiallab::retro::indicatorGate(animationSeconds,i);
+        g.setColour(juce::Colours::black.withAlpha((1-rhythm)*0.85f)); g.fillPath(lens);
+        const auto centre = lenses[i].getCentre();
+        g.setGradientFill(juce::ColourGradient(lensTints[i].withAlpha(rhythm*0.72f),centre.x,centre.y,
+            lensTints[i].withAlpha(0.02f),centre.x,lenses[i].getBottom(),true));
+        g.fillPath(lens);
     }
 }
 
@@ -366,6 +387,7 @@ void SpatialLabEditor::drawEpisodeSwitch(juce::Graphics& graphics, juce::Button&
     auto& g = graphics;
     g.addTransform(juce::AffineTransform::scale(button.getWidth() / 273.0f, button.getHeight() / 67.0f));
     const bool right = button.getToggleState();
+    const auto metal = [right](juce::Colour clean, juce::Colour worn) { return right ? worn : clean; };
     const auto label = juce::Colour(0xff35271e);
     g.setColour(label);
     g.setFont(juce::FontOptions(17.5f, juce::Font::bold));
@@ -374,12 +396,12 @@ void SpatialLabEditor::drawEpisodeSwitch(juce::Graphics& graphics, juce::Button&
     g.drawFittedText("EPISODE IV", 183, 19, 90, 29, juce::Justification::centred, 1, 0.72f);
     // Recessed socket, cast shadow and concentric machined/chrome surfaces.
     g.setColour(juce::Colours::black.withAlpha(0.32f)); g.fillRoundedRectangle(100, 10, 77, 53, 25);
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xffe3d8c5), 130, 5,
-                                         juce::Colour(0xff403c35), 144, 59, false));
+    g.setGradientFill(juce::ColourGradient(metal(juce::Colour(0xffe3d8c5), juce::Colour(0xff918273)), 130, 5,
+                                         metal(juce::Colour(0xff403c35), juce::Colour(0xff302a24)), 144, 59, false));
     g.fillRoundedRectangle(99, 5, 76, 53, 25);
-    g.setColour(juce::Colour(0xff4b453b)); g.drawRoundedRectangle(99, 5, 76, 53, 25, 1.3f);
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff33312b), 137, 12,
-                                         juce::Colour(0xffaaa392), 137, 53, false));
+    g.setColour(metal(juce::Colour(0xff4b453b), juce::Colour(0xff3c3025))); g.drawRoundedRectangle(99, 5, 76, 53, 25, 1.3f);
+    g.setGradientFill(juce::ColourGradient(metal(juce::Colour(0xff33312b), juce::Colour(0xff201c18)), 137, 12,
+                                         metal(juce::Colour(0xffaaa392), juce::Colour(0xff65594a)), 137, 53, false));
     g.fillRoundedRectangle(105, 11, 64, 41, 20);
     g.setColour(juce::Colour(0xff12120f)); g.fillEllipse(121, 18, 32, 29);
     const float tip = right ? 157.0f : 117.0f;
@@ -387,14 +409,43 @@ void SpatialLabEditor::drawEpisodeSwitch(juce::Graphics& graphics, juce::Button&
     stem.startNewSubPath(133, 27); stem.lineTo(tip, 20); stem.lineTo(tip + (right ? 3 : -3), 36);
     stem.lineTo(141, 40); stem.closeSubPath();
     juce::DropShadow(juce::Colours::black.withAlpha(0.65f), 4, {0, 4}).drawForPath(g, stem);
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xfff3e8d6), 136, 21,
-                                         juce::Colour(0xff68665e), 136, 40, false));
+    g.setGradientFill(juce::ColourGradient(metal(juce::Colour(0xfff3e8d6), juce::Colour(0xffa1947d)), 136, 21,
+                                         metal(juce::Colour(0xff68665e), juce::Colour(0xff4d483e)), 136, 40, false));
     g.fillPath(stem); g.setColour(juce::Colour(0xff4b4a42)); g.strokePath(stem, juce::PathStrokeType(1));
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xfff8eedb), tip - 6, 17,
-                                         juce::Colour(0xff79786d), tip + 7, 41, false));
+    g.setGradientFill(juce::ColourGradient(metal(juce::Colour(0xfff8eedb), juce::Colour(0xffb2a489)), tip - 6, 17,
+                                         metal(juce::Colour(0xff79786d), juce::Colour(0xff625344)), tip + 7, 41, false));
     g.fillRoundedRectangle(tip - 9, 16, 18, 28, 7);
     g.setColour(juce::Colour(0xff4b4840)); g.drawRoundedRectangle(tip - 9, 16, 18, 28, 7, 1);
-    g.setColour(juce::Colours::white.withAlpha(0.8f)); g.drawLine(tip - 5, 20, tip - 5, 32, 1.5f);
+    g.setColour(juce::Colours::white.withAlpha(right ? 0.27f : 0.8f)); g.drawLine(tip - 5, 20, tip - 5, 32, 1.5f);
+    if (right)
+    {
+        // Deterministic material wear clipped to the complete mount and the lever surfaces.
+        const auto wear = [&g](const juce::Path& surface, unsigned seed, int count)
+        {
+            juce::Graphics::ScopedSaveState clip(g); g.reduceClipRegion(surface);
+            for (int i = 0; i < count; ++i)
+            {
+                const auto n = seed + static_cast<unsigned>(i) * 7u;
+                const float x = 98 + spatiallab::retro::randomUnit(n) * 78;
+                const float y = 5 + spatiallab::retro::randomUnit(n+1) * 54;
+                g.setColour((i % 4 == 0 ? juce::Colour(0xff96522c) : juce::Colour(0xff211b14)).withAlpha(i % 4 == 0 ? 0.58f : 0.40f));
+                g.fillEllipse(x,y,1.2f+spatiallab::retro::randomUnit(n+2)*2.6f,0.8f+spatiallab::retro::randomUnit(n+3)*1.5f);
+                if (i % 3 == 0)
+                {
+                    g.setColour(juce::Colour(0xffd6c3a0).withAlpha(0.38f));
+                    g.drawLine(x,y,x+2+spatiallab::retro::randomUnit(n+4)*5,y-1,0.65f);
+                }
+            }
+        };
+        juce::Path rim, inner, cap;
+        rim.addRoundedRectangle(99,5,76,53,25); inner.addRoundedRectangle(106,12,62,39,19);
+        rim.setUsingNonZeroWinding(false); rim.addPath(inner); wear(rim,41,115);
+        wear(stem,357,50); cap.addRoundedRectangle(tip-9,16,18,28,7); wear(cap,719,65);
+        g.setColour(juce::Colour(0xff31251b).withAlpha(0.7f));
+        g.drawRoundedRectangle(101,7,72,49,24,1.7f);
+        g.setColour(juce::Colour(0xff785034).withAlpha(0.6f));
+        g.drawRoundedRectangle(105,11,64,41,20,1.2f);
+    }
     if (hover || button.hasKeyboardFocus(true))
     {
         g.setColour(amber.withAlpha(0.8f)); g.drawRoundedRectangle(97, 3, 80, 57, 26, 1);

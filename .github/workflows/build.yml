@@ -19,30 +19,38 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check --target .ci-tools cmake==3.31.6
           "$pwd/.ci-tools/cmake/data/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: Originalgrafiken unverändert prüfen
-        run: python Tools/check_episode_artwork.py
+      - name: Originalgrafiken und Phase-2-Audio bytegenau unverändert prüfen
+        run: |
+          python Tools/check_episode_artwork.py
+          python Tools/check_protected_audio.py
       - name: Configure (JUCE 8.0.6, VS 2022 x64)
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
       - name: Build VST3 and tests
         run: cmake --build build --config Release --parallel 2
       - name: Hersteller und Plugin-Identität am gebauten Modul verifizieren
-        run: python Tools/check_vst3_manufacturer.py build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3/Contents/Resources/moduleinfo.json
+        run: python Tools/check_vst3_manufacturer.py build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3/Contents/Resources/moduleinfo.json build/SpatialLab.vcxproj
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
-      - name: Capture real editor and DPI renders
+      - name: Capture real large editors and silent/audio animation sequences
         shell: pwsh
         run: |
           foreach ($episode in @("I", "IV")) {
-            foreach ($room in @(0, 1, 2)) {
-              $folder = "build/gui-preview/Episode-$episode/Room-$room"
-              $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode", "--room=$room" -PassThru
-              if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "GUI capture timed out" }
-              if ($preview.ExitCode -ne 0) { throw "GUI capture failed" }
-              if (-not (Test-Path "$folder/Windows-Editor-Screenshot.png")) { throw "No real screenshot produced" }
-              python Tools/validate_gui_capture.py $folder
-              if ($LASTEXITCODE -ne 0) { throw "PNG validation failed" }
+            foreach ($size in @("1504x846", "1672x941")) {
+              foreach ($mode in @("Silent", "Audio")) {
+                $folder = "build/gui-preview/Episode-$episode/$size/$mode"
+                $previewArgs = @("--output=$folder", "--episode=$episode", "--size=$size", "--sequence")
+                if ($mode -eq "Silent") { $previewArgs += "--silent" }
+                $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList $previewArgs -PassThru
+                if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "GUI capture timed out" }
+                if ($preview.ExitCode -ne 0) { throw "GUI capture failed" }
+                python Tools/validate_gui_capture.py $folder $size
+                if ($LASTEXITCODE -ne 0) { throw "PNG validation failed" }
+              }
             }
           }
+          python -m pip install --disable-pip-version-check Pillow==11.3.0
+          python Tools/check_lighting_capture.py build/gui-preview
+          if ($LASTEXITCODE -ne 0) { throw "Visible animation verification failed" }
       - name: Alte und neue Raum-Impulsantworten bei beiden Zielraten vergleichen
         shell: pwsh
         run: |

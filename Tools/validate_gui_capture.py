@@ -5,12 +5,9 @@ import sys
 import zlib
 
 folder = pathlib.Path(sys.argv[1])
-expected = {
-    "Windows-Editor-Screenshot.png": (1003, 565),
-    "JUCE-Editor-Render-100.png": (1003, 565),
-    "JUCE-Editor-Render-125.png": (1254, 706),
-    "JUCE-Editor-Render-150.png": (1504, 848),
-}
+dimensions = tuple(map(int,sys.argv[2].split("x"))) if len(sys.argv)>2 else (1504,846)
+expected = {"Windows-Editor-Screenshot.png": dimensions,"JUCE-Editor-Render-100.png": dimensions}
+expected.update({p.name: dimensions for p in folder.glob("Frame-*.png")})
 for name, dimensions in expected.items():
     data = (folder / name).read_bytes()
     assert data[:8] == b"\x89PNG\r\n\x1a\n", name

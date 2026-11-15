@@ -31,7 +31,7 @@ inline std::unique_ptr<juce::PropertiesFile> openPreferences(const juce::File& o
     if (overrideFile == juce::File())
     {
         auto legacyOptions = options;
-        // Historical path only: never rename identity codes or overwrite legacy preferences.
+        // Only migrate a cosmetic preference; the old plugin identity is not retained.
         legacyOptions.folderName = "Stromschlag Productions";
         migrateEpisode(*current, legacyOptions.getDefaultFile());
     }

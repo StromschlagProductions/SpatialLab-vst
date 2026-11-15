@@ -55,3 +55,7 @@ Episode IV (verwittert) ist die Standardansicht, Episode I die fabrikneue Varian
 ## Entwicklungsphase 2
 
 Hersteller: **Stromschlag Audio**. Plugin-Identität/Audio-State bleiben kompatibel; die alte Episode-Vorliebe wird bei Bedarf migriert. Die drei Raumabstimmungen sind als kompaktere Sprachräume neu vorgeschlagen. Eigenständige bernsteinfarbene CRT-Ansichten folgen der Raumwahl, dezente Röhren-/Linsenanimationen bleiben vom DSP getrennt. [Details und Prüfverfahren](docs/phase2/PHASE2.md) · [Akustik und A/B-Messwerte](docs/phase2/AKUSTIK.md). Die endgültige Klangabstimmung erfordert einen erneuten Hörtest.
+
+## Phase 2.1
+
+Aktuelle Herstelleridentität: **Stromschlag Audio**, `Strm` / `SpLb`, Bundle-ID `com.stromschlagaudio.spatiallab`. Neue Standardgröße 1504×846 mit separater Größenwiederherstellung, sichtbarere Lichtanimationen und verwitterte Episode-IV-Schalterfassung. Die freigegebene Phase-2-Akustik bleibt unverändert. [Änderungen, Identitätswechsel und Windows-Installation](docs/phase2.1/PHASE2_1.md).

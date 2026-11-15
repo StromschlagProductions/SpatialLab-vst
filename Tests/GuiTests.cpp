@@ -64,7 +64,7 @@ int main()
             {
                 auto editor = std::make_unique<SpatialLabEditor>(observed, preferences.getFile());
                 require(editor->isEpisodeIV(), "Fresh GUI must default to Episode IV");
-                require(editor->getWidth() == 1003 && editor->getHeight() == 565, "Wrong reference aspect/default size");
+                require(editor->getWidth() == 1504 && editor->getHeight() == 846, "Wrong reference aspect/default size");
                 int knobs = 0;
                 for (auto* child : editor->getChildren()) if (dynamic_cast<juce::Slider*>(child)) ++knobs;
                 require(knobs == 2 && observed.getParameters().size() == 3, "Extra audio control");
@@ -90,7 +90,7 @@ int main()
                     for (int c = 0; c < 2; ++c) for (int i = 0; i < 64; ++i)
                         require(a.getSample(c, i) == b.getSample(c, i), "Episode selection changed audio");
                 }
-                for (auto dimensions : {std::pair<int,int>{1003,565}, {1254,706}, {1504,848}})
+                for (auto dimensions : {std::pair<int,int>{1003,565}, {1504,846}, {1672,941}})
                 {
                     editor->setSize(dimensions.first, dimensions.second);
                     const auto control = toggle->getBounds().toFloat();
@@ -131,7 +131,19 @@ int main()
             }
             {
                 SpatialLabEditor reopened(observed, preferences.getFile());
+                require(reopened.getWidth() == 1003 && reopened.getHeight() == 565, "Window size not restored");
                 require(!reopened.isEpisodeIV(), "Separate GUI preference not restored");
+            }
+            {
+                juce::PropertiesFile bad(preferences.getFile(), spatiallab::gui::preferenceOptions());
+                bad.setValue("windowWidth", 50000); bad.setValue("windowHeight", -1); bad.saveIfNeeded();
+                SpatialLabEditor safe(observed, preferences.getFile());
+                require(safe.getWidth() == 1504 && safe.getHeight() == 846, "Invalid size not rejected");
+                observed.getStateInformation(after);
+                // State may have changed only through the explicit preset tests above.
+                juce::MemoryBlock stable; observed.getStateInformation(stable);
+                safe.setSize(1672,941); safe.setEpisodeIV(true,false);
+                observed.getStateInformation(after); require(after == stable,"Resize altered audio state");
             }
             require(!observed.gui.observing.load(), "Closed editor still observes audio");
             const auto blocks = observed.gui.blocks.load();

@@ -23,9 +23,17 @@ public:
     {
         bool episodeIV = true;
         int roomIndex = 0;
+        int width = 1504, height = 846;
         const auto tokens = juce::StringArray::fromTokens(args, true);
         for (const auto& token : tokens)
         {
+            if (token == "--silent") silent = true;
+            if (token == "--sequence") sequence = true;
+            if (token.startsWith("--size="))
+            {
+                const auto dimensions = juce::StringArray::fromTokens(token.fromFirstOccurrenceOf("=",false,false),"x","");
+                if (dimensions.size() == 2) { width = dimensions[0].getIntValue(); height = dimensions[1].getIntValue(); }
+            }
             if (token == "--episode=I") episodeIV = false;
             if (token.startsWith("--room=")) roomIndex = juce::jlimit(0,2,token.fromFirstOccurrenceOf("=",false,false).getIntValue());
             if (token.startsWith("--output=")) output = juce::File::getCurrentWorkingDirectory().getChildFile(token.fromFirstOccurrenceOf("=", false, false).unquoted());
@@ -34,11 +42,25 @@ public:
         auto* room = processor->parameter("room");
         room->setValueNotifyingHost(room->convertTo0to1(static_cast<float>(roomIndex)));
         processor->prepareToPlay(48000, 1600);
+#if JUCE_WINDOWS
+        // CI's desktop must contain the entire visible editor; never capture clipped/off-screen pixels.
+        if (GetSystemMetrics(SM_CXSCREEN) < 1800 || GetSystemMetrics(SM_CYSCREEN) < 1000)
+        {
+            DEVMODE mode {}; mode.dmSize = sizeof(mode);
+            if (EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &mode))
+            {
+                mode.dmPelsWidth = 1920; mode.dmPelsHeight = 1080;
+                mode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+                ChangeDisplaySettings(&mode, 0);
+            }
+        }
+#endif
         window = std::make_unique<PreviewWindow>();
         window->setUsingNativeTitleBar(true);
         auto* editor = output == juce::File() ? new SpatialLabEditor(*processor)
             : new SpatialLabEditor(*processor, output.getChildFile("preview.gui.settings"));
         if (output != juce::File()) editor->setEpisodeIV(episodeIV, false);
+        editor->setSize(width,height);
         window->setContentOwned(editor, true);
         window->setTopLeftPosition(0, 0);
         window->setVisible(true);
@@ -65,21 +87,24 @@ private:
         juce::AudioBuffer<float> buffer(2, 1600);
         for (int i = 0; i < buffer.getNumSamples(); ++i)
         {
-            const float sample = std::sin(static_cast<float>(samples++) * 0.037f) * 0.16f;
+            const float sample = std::sin(static_cast<float>(samples++) * 0.037f) * (silent ? 0.0f : 0.16f);
             buffer.setSample(0, i, sample); buffer.setSample(1, i, sample * 0.73f);
         }
         juce::MidiBuffer midi; processor->processBlock(buffer, midi);
         if (output == juce::File() || ++frames < 24) return;
-        capturing = true; stopTimer();
+        if (sequence && (frames-24) % 10 != 0) return;
+        capturing = true;
         output.createDirectory();
         auto* editor = window->getContentComponent();
-        for (float factor : {1.0f, 1.25f, 1.5f})
-            writeImage(editor->createComponentSnapshot(editor->getLocalBounds(), true, factor),
-                "JUCE-Editor-Render-" + juce::String(juce::roundToInt(factor * 100)) + ".png");
+        if (captures == 0)
+            writeImage(editor->createComponentSnapshot(editor->getLocalBounds()), "JUCE-Editor-Render-100.png");
 #if JUCE_WINDOWS
         // Actual desktop pixels of the visible production editor, not a concept render.
         const auto bounds = editor->getScreenBounds();
         const int w = bounds.getWidth(), h = bounds.getHeight();
+        if (bounds.getX()<0 || bounds.getY()<0 || bounds.getRight()>GetSystemMetrics(SM_CXSCREEN)
+            || bounds.getBottom()>GetSystemMetrics(SM_CYSCREEN))
+        { setApplicationReturnValue(1); quit(); return; }
         HDC screen = GetDC(nullptr), memory = CreateCompatibleDC(screen);
         HBITMAP bitmap = CreateCompatibleBitmap(screen, w, h);
         auto old = SelectObject(memory, bitmap);
@@ -99,19 +124,23 @@ private:
                         const auto offset = static_cast<std::size_t>((y * w + x) * 4);
                         screenshot.setPixelAt(x, y, juce::Colour(pixels[offset + 2], pixels[offset + 1], pixels[offset]));
                     }
-                writeImage(screenshot, "Windows-Editor-Screenshot.png");
+                if (captures == 0) writeImage(screenshot, "Windows-Editor-Screenshot.png");
+                if (sequence) writeImage(screenshot, "Frame-" + juce::String(captures).paddedLeft('0',3) + ".png");
             }
             else setApplicationReturnValue(1);
         }
         else { SelectObject(memory, old); setApplicationReturnValue(1); }
         DeleteObject(bitmap); DeleteDC(memory); ReleaseDC(nullptr, screen);
 #endif
-        quit();
+        ++captures;
+        capturing = false;
+        if (!sequence || captures >= 16 || getApplicationReturnValue() != 0) { stopTimer(); quit(); }
     }
     juce::File output;
     std::unique_ptr<SpatialLabProcessor> processor;
     std::unique_ptr<juce::DocumentWindow> window;
     int frames = 0, samples = 0;
-    bool capturing = false;
+    int captures = 0;
+    bool capturing = false, silent = false, sequence = false;
 };
 START_JUCE_APPLICATION(Preview)

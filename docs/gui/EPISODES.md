@@ -1,3 +1,5 @@
+Aktuelle Identität, Fenstergröße und Beleuchtung: [Phase 2.1](../phase2.1/PHASE2_1.md).
+
 # Episode I / Episode IV
 
 Die freigegebenen Originale `assets/SpatialLab_Episode_I.png` und `assets/SpatialLab_Episode_IV.png` sind beide 3344×1882 Pixel groß. Sie werden unverändert als JUCE-BinaryData in die VST3 eingebettet, vollständig im ursprünglichen Seitenverhältnis dargestellt und zur Laufzeit nicht aus externen Dateien geladen. `Tools/check_episode_artwork.py` prüft Maße und SHA-256 in CI. Kein Retuschieren, kein neues Logo, keine Farbänderung, kein Beschneiden der Dateien. Frühere Logo-Retuschen und Logo-Überlagerungen sind im aktuellen Editor deaktiviert und nicht mehr als Ressourcen eingebunden.
@@ -6,7 +8,7 @@ Die freigegebenen Originale `assets/SpatialLab_Episode_I.png` und `assets/Spatia
 
 **Episode IV** ist die verwitterte Standardansicht beim ersten Öffnen. Der horizontale mechanische Kippschalter auf der freien Metallfläche unten rechts wechselt unmittelbar zu **Episode I** (links, fabrikneu) bzw. **Episode IV** (rechts). Es gibt keine Überblendung. Die Beschriftung lautet ausschließlich `EPISODE I` und `EPISODE IV`. Fassung, Hebel, Lichtreflexe und Schatten werden im Editor gezeichnet; keine Originalgrafik wird dafür bearbeitet. Die bisherige untere Preset-Bedienung entfällt vollständig. Raumauswahl, Größe und Klang bleiben an ihren Positionen.
 
-Der Schalter besitzt Maus- und Tastaturbedienung (Leertaste/Enter bei Fokus). Im logischen 1672×941-Koordinatensystem belegt er einschließlich Beschriftungen `(1230,746)` bis `(1503,813)` innerhalb der freien Metallfläche. Nieten und erhabener Rahmen bleiben frei. Beide Bilder verwenden dieselben Koordinaten. Die bestehende Knopf-Darstellung entnimmt die zum jeweiligen Skin passenden Originalpixel mit doppelten Quellkoordinaten; die kompletten Hintergrund-PNGs bleiben unverändert. Das Fenster startet weiterhin mit 1003×565 logischen Pixeln und behält sein Seitenverhältnis.
+Der Schalter besitzt Maus- und Tastaturbedienung (Leertaste/Enter bei Fokus). Im logischen 1672×941-Koordinatensystem belegt er einschließlich Beschriftungen `(1230,746)` bis `(1503,813)` innerhalb der freien Metallfläche. Nieten und erhabener Rahmen bleiben frei. Beide Bilder verwenden dieselben Koordinaten. Die bestehende Knopf-Darstellung entnimmt die zum jeweiligen Skin passenden Originalpixel mit doppelten Quellkoordinaten; die kompletten Hintergrund-PNGs bleiben unverändert. Seit Phase 2.1 startet das Fenster ohne gespeicherte Größe mit 1504×846 logischen Pixeln; Minimum 1003×565, Maximum 1672×941. Die letzte Größe wird beim Schließen separat gespeichert. Die Frontplatte behält ihr Seitenverhältnis.
 
 CRT, Signalspur, Lampen und Röhrenglimmen bleiben aktiv. Die dynamische Betriebsanzeige zeigt die tatsächliche Host-Samplerate und Kanalbelegung; ihr Untergrund folgt der gewählten Frontplatte.
 
@@ -18,7 +20,7 @@ Die Standardansicht IV gilt bei fehlender Einstellung; eine bewusst gespeicherte
 
 ## Tests und echte Bilder
 
-Der GUI-Test prüft den Standard IV, die beiden Umschaltstellungen, bytegleichen Audio-State, bitidentische Audiosamples während der Umschaltung, separate Wiederherstellung der GUI-Auswahl sowie die Grenzen der Bedienfläche bei 1003×565, 1254×706 und 1504×848. Die bisherigen DSP- und Prozessor-Tests laufen ebenfalls.
+Der GUI-Test prüft den Standard IV, die beiden Umschaltstellungen, bytegleichen Audio-State, bitidentische Audiosamples während der Umschaltung, separate Wiederherstellung der GUI-Auswahl sowie die Grenzen der Bedienfläche bei 1003×565, 1504×846 und 1672×941. Die bisherigen DSP- und Prozessor-Tests laufen ebenfalls.
 
 Windows-CI öffnet den echten Produktionseditor getrennt für beide Frontplatten und erstellt jeweils einen nativen Windows-Bildschirm-Screenshot sowie gesondert benannte JUCE-Komponenten-Render. Der Vorschauhost verwendet dafür isolierte GUI-Einstellungsdateien und setzt keine Benutzervorliebe um. Beispiel:
 
