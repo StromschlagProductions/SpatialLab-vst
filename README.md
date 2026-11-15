@@ -8,7 +8,7 @@ SPATIAL LAB ist ein bewusst einfach gehaltener Raumhall für Hörspielproduktion
 
 ## ⬇ SPATIAL LAB herunterladen
 
-**[WINDOWS-VST3 ALS ZIP HERUNTERLADEN – HIER KLICKEN]**(https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43733243192/artifacts/14169382572)**
+**[WINDOWS-VST3 ALS ZIP HERUNTERLADEN – HIER KLICKEN]**(https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43738814214/artifacts/14171876875)**
 
 **Das ZIP entpacken und den kompletten Ordner `SpatialLab.vst3` nach `C:\\Program Files\\Common Files\\VST3\\` kopieren.** Der Link führt zum ZIP-Artefakt des erfolgreichen Windows-Builds vom 15. November 2026. Gegebenenfalls ist eine Anmeldung bei GitHub nötig. **Der Testdownload ist zeitlich befristet** und enthält neben `SpatialLab.vst3` auch Prüfdateien und GUI-Vorschaubilder.
 
