@@ -1,39 +1,39 @@
-# Validation record
+# Prüfstand und noch offene Tests
 
-Date: 2026-11-15. Branch: `develop/juce8-room-foundation`. Consult PR #1 checks for the exact tested SHA.
+Stand: 15. November 2026. Audio-Grundlage: Branch `develop/juce8-room-foundation`. Den genau getesteten Commit zeigen die Prüfungen in PR #1.
 
-## Primary rates: 44.1 and 48 kHz
+## Haupt-Abtastraten: 44,1 und 48 kHz
 
-The complete standalone DSP suite runs at both primary rates, checking:
+Die eigenständige DSP-Testsuite läuft bei beiden Haupt-Abtastraten. Sie prüft:
 
-- Distinct nonzero room responses, no direct impulse, stereo diffusion from mono, finite bounded impulses and tail decay.
-- Internal early and late fields remain present, and neutral macros retain the authored preset voicing.
-- Larger Size increases late-tail energy; brighter Tone increases normalized high-frequency (first-difference) tail energy, for every room.
-- Reset and hard room selection clear tails without blending or reviving an old room.
-- Rapid macro automation and repeated room selection stay bounded and perform zero measured ordinary heap allocations.
-- Repeated unchanged targets at different block boundaries produce identical sample smoothing.
+- Unterschiedliche, nicht stumme Raumantworten; kein Direktsignal; Stereodiffusion aus Mono; endliche, begrenzte Impulse und abklingende Hallfahnen.
+- Interne frühe und späte Anteile sowie unveränderten Presetcharakter bei neutralen Makros.
+- Mehr späte Hallenergie bei größerem Größenwert und mehr normierte Hochfrequenzenergie (erste Differenz) bei hellerem Klang – für alle drei Räume.
+- Reset und harten Raumwechsel ohne Überblendung oder Wiederauftauchen einer alten Hallfahne.
+- Schnelle Makroautomation und wiederholte Raumwechsel ohne unbeschränkte Werte und ohne gemessene gewöhnliche Heap-Allokationen.
+- Identische Sample-Glättung bei gleichen Zielwerten und unterschiedlichen Blockgrenzen.
 
-The JUCE processor suite checks exactly three exposed parameters; all supported mono/stereo bus layouts and rejected unsupported layouts; wet routing against the independent engine; callback sizes 0/1/7/64/511/2048; both primary rates and all rooms; send-bypass silence; immediate neutral macro reset on a host-thread room change with no open editor; unchanged-room writes preserving automation; A→B→A between callbacks clearing the old tail; session recall of adjusted macros; schema-1/2 migration to neutral presets; invalid/future state rejection; and editor creation/layout.
+Die JUCE-Prozessortests prüfen genau drei sichtbare Parameter, alle unterstützten Mono-/Stereo-Busbelegungen und die Ablehnung nicht unterstützter Belegungen, den Wet-Signalweg gegen die eigenständige Engine, Blockgrößen 0/1/7/64/511/2048, beide Haupt-Abtastraten und alle Räume. Außerdem werden stummer Send-Bypass, sofortiger neutraler Makro-Reset bei Host-Raumwechsel ohne geöffneten Editor, Erhalt der Automation bei erneuter Wahl desselben Raums, A → B → A zwischen Audiocallbacks, Session-Recall mit angepassten Makros, Migration von Schema 1/2, Ablehnung ungültiger und zukünftiger Zustände sowie Editor-Erstellung und -Layout geprüft.
 
-96/192 kHz get short finite-output/delay smoke tests, not full tuning or CPU coverage. No oversampling is used.
+96 und 192 kHz erhalten kurze Tests auf endliche Ausgaben und Verzögerungen, aber keine vollständige Klangabstimmung oder CPU-Abdeckung. Kein Oversampling.
 
-Local native Release/CTest runs use GCC 14.2/C++17. Local ASan/UBSan runs need `ASAN_OPTIONS=detect_leaks=0` because LeakSanitizer cannot inspect threads inside the Cloud sandbox (ptrace restriction). Linux CI retains the full ASan/UBSan and leak configuration. This is an environment limit, not a disabled CI check.
+Lokale native Release-/CTest-Läufe verwenden GCC 14.2/C++17. Lokale ASan-/UBSan-Läufe benötigen `ASAN_OPTIONS=detect_leaks=0`, weil LeakSanitizer im Cloud-Sandbox-Kontext Threads wegen einer ptrace-Beschränkung nicht prüfen kann. Linux-CI behält die vollständige ASan-/UBSan- und Leak-Konfiguration bei. Das ist eine Einschränkung der lokalen Umgebung, keine deaktivierte CI-Prüfung.
 
-The allocation hook instruments ordinary C++ heap allocations inside standalone DSP, not the host/OS. Neither it nor numerical tests prove hard real-time scheduling or audible quality.
+Die Allokationsmessung erfasst gewöhnliche C++-Heap-Allokationen im eigenständigen DSP, nicht Host oder Betriebssystem. Numerische Tests und Allokationsmessungen beweisen weder harte Echtzeitfähigkeit noch hörbare Qualität.
 
-## CPU observations (informational)
+## CPU-Beobachtungen (informativ)
 
-`SpatialLabDspBenchmark` measures 44.1/48 kHz, mono/stereo, four seconds per case: steady controls, macro automation every 64 frames, and preset changes every 2048 frames. One selected preset processes audio; all memories are preallocated. It reports ns/frame and average percent of one core. Windows CI uploads `dsp-benchmark.csv` with the VST3 bundle and provenance. No machine-dependent timing failure threshold is used.
+`SpatialLabDspBenchmark` misst 44,1/48 kHz, Mono/Stereo und jeweils vier Sekunden pro Fall: unveränderte Regler, Makroautomation alle 64 Frames und Presetwechsel alle 2048 Frames. Es wird immer nur ein ausgewählter Raum verarbeitet; alle Speicher sind vorbereitet. Ausgegeben werden Nanosekunden pro Frame und der mittlere Anteil eines CPU-Kerns. Windows-CI lädt `dsp-benchmark.csv` zusammen mit VST3 und Buildnachweisen hoch. Es gibt keinen maschinenabhängigen Zeit-Grenzwert für einen fehlgeschlagenen Test.
 
-After the static single-active-room revision, local GCC Release samples measured roughly **34–40 ns/frame** (about **0.15–0.20% of one core**) in these short scenarios. The superseded three-engine prototype measured roughly 94–124 ns/frame on the same Cloud machine. These observations include noise and architecture/voicing changes; they do not measure DAW scheduling deadlines, editor/host overhead or the worst individual preset-switch callback.
+Nach der Umstellung auf nur eine aktive Raum-Engine lagen lokale GCC-Release-Messungen bei ungefähr **34–40 ns/Frame** beziehungsweise **0,15–0,20 % eines CPU-Kerns**. Der ältere Prototyp mit drei Engines lag auf derselben Cloud-Maschine bei ungefähr 94–124 ns/Frame. Diese Beobachtungen enthalten Messrauschen und Änderungen an Architektur und Klangabstimmung. Sie erfassen keine DAW-Deadline, keinen Editor-/Host-Overhead und nicht den schlimmsten einzelnen Raumwechsel-Callback.
 
-## Before release: still required
+## Vor einer Veröffentlichung noch erforderlich
 
-- Rescan/load the whole Windows VST3 bundle in at least two DAWs; check return-bus mono/stereo behavior, the three-control editor and its neutral midpoint/reset behavior.
-- Listen to dialogue at 48 kHz and music at 44.1 kHz, plus impulses, sustained tones and transients in every room. Evaluate coloration, density, naturalness, stereo image and mono fold-down.
-- Record/play back Size/Tone automation. Select presets from both the editor and host automation with the editor closed; verify neutral reset and later macro automation. Confirm scene transitions are delegated to Locations rather than expecting a room crossfade.
-- Save/reopen adjusted sessions, duplicate instances, bypass/unbypass, stop/start, change sample rate/buffer size. Note that the plugin mutes its bypass callback, while some DAWs route around it externally.
-- Profile deadlines with many instances at small buffers, including the bounded memory clear on preset selection; average microbenchmark CPU is not a deadline guarantee.
-- Run an independent VST3 validator/pluginval and long sessions; review distribution licensing.
+- Das vollständige Windows-VST3-Bundle in mindestens zwei DAWs laden und neu scannen. Mono-/Stereo-Return, Drei-Regler-Oberfläche und Neutral-/Reset-Verhalten prüfen.
+- Dialog bei 48 kHz und Musik bei 44,1 kHz hören; außerdem Impulse, Dauertöne und Transienten in jedem Raum. Klangfärbung, Dichte, Natürlichkeit, Stereobild und Monokompatibilität beurteilen.
+- Größe/Klang automatisieren und wiedergeben. Raumwechsel über Editor und Hostautomation bei geschlossenem Editor prüfen, einschließlich neutralem Reset und nachfolgender Makroautomation. Szenenwechsel gehören zu LOCATIONS und erwarten keine Raumüberblendung.
+- Angepasste Sessions speichern und erneut öffnen, Instanzen duplizieren, Bypass ein-/ausschalten, Wiedergabe stoppen/starten, Samplerate und Puffergröße ändern. Der Plugin-Bypass-Callback schaltet stumm, manche DAWs leiten das Signal jedoch extern um das Plugin herum.
+- CPU-Deadlines mit vielen Instanzen und kleinen Puffern messen, auch den begrenzten Speicher-Reset bei Raumwechseln. Durchschnittliche Microbenchmark-Werte garantieren keine Echtzeit-Deadline.
+- Unabhängige VST3-Validierung beziehungsweise pluginval, Langzeittests und Prüfung der Distributionslizenz durchführen.
 
-No listening session, DAW certification, independent VST3 validation or signed production release is claimed by this milestone.
+Dieser Meilenstein beansprucht **keine** abgeschlossenen Hörtests, DAW-Zertifizierung, unabhängige VST3-Validierung oder signierte Produktionsfreigabe.

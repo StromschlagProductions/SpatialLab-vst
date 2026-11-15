@@ -1,47 +1,51 @@
-# DSP and host contract — static send effect
+# Technisches Konzept: Statischer Hall für Send-Kanäle
 
-## Exactly three controls
+## Genau drei Bedienelemente
 
-SPATIAL LAB is a static, preset-driven room reverb. Select a room, set the DAW send level, and use Size/Tone only when an adjustment is needed. The editor and host parameter list contain exactly these controls:
+SPATIAL LAB ist ein statischer, presetbasierter Raumhall. Raum auswählen, Send-Pegel in der DAW einstellen und Größe/Klang nur bei Bedarf anpassen.
 
-| ID | UI name | Range | Default |
-| --- | --- | --- | --- |
-| `room` | Raum | Living Room, Kitchen, Bathroom (indices 0–2) | Living Room |
-| `size` | Größe | 0 smaller, 0.5 neutral, 1 larger | 0.5 |
-| `tone` | Klang | 0 darker, 0.5 neutral, 1 brighter | 0.5 |
+| Parameter-ID | Anzeige | Wertebereich | Standard |
+|---|---|---|---|
+| `room` | Raum | Wohnzimmer, Küche, Badezimmer (Indizes 0–2) | Wohnzimmer |
+| `size` | Größe | 0 kleiner, 0,5 neutral, 1 größer | 0,5 |
+| `tone` | Klang | 0 dunkler, 0,5 neutral, 1 heller | 0,5 |
 
-Changing the room resets Size and Tone to 0.5, through both the editor and host automation, even with the editor closed. Writing the same room again is not a change and does not erase macro automation. Both macro ranges are continuous (no 0.01 step quantization). Macro automation after a room event takes effect in host delivery order. Parameters are read once per callback, with 50 ms sample ramps for macro-driven coefficients and voicing; this is block-accurate, not sample-offset VST3 automation. There is no cross-room transition engine, distance model, movement simulation or oversampling. Outdoor presets are a future extension; the first milestone contains the three named indoor rooms.
+Ein Raumwechsel setzt Größe und Klang auf 0,5 zurück – auch bei Host-Automation und geschlossenem Editor. Die erneute Auswahl desselben Raums löscht keine Makroautomation. Beide Makros sind kontinuierlich ohne 0,01-Raster. Nach einem Raumwechsel eingehende Automation gilt in der vom Host gelieferten Reihenfolge. Parameter werden einmal pro Audioblock gelesen; die Koeffizienten und die interne Klangabstimmung gleiten über 50 ms. Das ist blockgenau, keine samplegenaue VST3-Offset-Automation.
 
-Early reflections, late reverb, pre-delay/delay times, diffusion, spectral damping, stereo image and level calibration are internal preset design values, never individual controls. No Dry/Wet, Output Gain, Early/Late, Decay, Damping, Width or hidden automatable expert parameters are exposed. The output is always 100% wet. Direct signal and send level belong to the DAW. The editor shows a neutral midpoint and supports double-click reset for Size/Tone.
+Es gibt keine Raumüberblendung, Entfernungs- oder Bewegungssimulation und kein Oversampling. Außenräume sind eine spätere Erweiterung; der erste Meilenstein enthält drei Innenräume.
 
-## Signal path and preset voicing
+Frühe Reflexionen, Hallfahne, Verzögerungen, Diffusion, spektrale Dämpfung, Stereobild und Pegelabstimmung sind interne Presetwerte. Es gibt weder Dry/Wet, Output Gain noch separate Early/Late-, Decay-, Damping- oder Width-Regler – auch nicht versteckt automatisierbar. Das Ergebnis ist immer 100 % Wet. Direktsignal und Send-Pegel liegen in der DAW. Doppelklick setzt Größe/Klang auf neutral zurück.
 
-Mono input is duplicated before room processing. Mono output averages the internal stereo wet result. Stereo input channels excite the room independently. Supported layouts are mono → mono, mono → stereo and stereo → stereo; surround and stereo → mono are rejected.
+## Signalweg und Raumcharakter
 
-Each preset has six signed early taps with distinct left/right arrivals and an eight-line damped feedback delay network. A Householder matrix scatters delayed signals before per-line attenuation `10^(-3 * delaySeconds / RT60)`. Delay times are fixed per preset and scaled to the actual sample rate during prepare. A one-pole low-pass per line models frequency-dependent decay; all loop gains remain below unity.
+Mono-Eingang wird vor der Hallberechnung auf zwei Kanäle verteilt. Bei Mono-Ausgang wird das interne Stereo-Hallsignal gemittelt. Stereo-Eingänge regen die Raumkanäle unabhängig an. Unterstützt: Mono → Mono, Mono → Stereo, Stereo → Stereo. Surround und Stereo → Mono werden abgelehnt.
 
-Size maps to nominal RT60 multiplier `2^(2*(size-0.5))` (0.5–2). It also changes the internal early/late voicing: early gain `1.2-0.4*size`, late gain `0.65+0.7*size`. Both are unity at neutral. This conveys a smaller/larger room impression without moving delay taps or adding a physical size/distance model. Tone maps preset damping cutoff to `presetCutoff * 2^(2*(tone-0.5))`, clamped below Nyquist. At neutral the preset's authored cutoff is used. The larger and brighter extremes are regression-tested for longer late energy and greater normalized high-frequency energy at both primary rates. These checks do not replace listening.
+Jeder Raum verwendet sechs vorzeichenbehaftete frühe Reflexionen mit unterschiedlichen Links-/Rechts-Ankunftszeiten sowie ein gedämpftes Feedback-Delay-Netzwerk mit acht Leitungen. Eine Householder-Matrix verteilt die verzögerten Signale; die Leitungsdämpfung folgt `10^(-3 * delaySeconds / RT60)`. Verzögerungszeiten sind je Preset festgelegt und werden bei der Vorbereitung auf die Samplerate umgerechnet. Ein einpoliger Tiefpass pro Leitung bildet frequenzabhängiges Abklingen nach; alle Schleifenverstärkungen bleiben unter 1.
 
-Only the selected room processes audio. All preset delay memories are allocated in advance. Selecting another room clears its previous tail, snaps to its current macro settings and starts that preset afresh; no old room tail is blended or revived. This intentional hard preset selection can interrupt sound if switched during playback. It is not designed for automated scene transitions; Locations handles those tasks.
+Größe verändert die nominelle RT60 mit `2^(2*(size-0.5))` (Faktor 0,5 bis 2). Zusätzlich ändern sich intern frühe und späte Anteile: `earlyGain = 1.2 - 0.4*size`, `lateGain = 0.65 + 0.7*size`; neutral sind beide 1. Klang verändert die Dämpfungs-Grenzfrequenz mit `presetCutoff * 2^(2*(tone-0.5))`, begrenzt unterhalb Nyquist. Bei neutral gelten die abgestimmten Presetwerte. Automatische Tests prüfen längere Hallenergie beziehungsweise mehr normierte Hochfrequenzenergie bei den jeweiligen Extremen. Das ersetzt keinen Hörtest.
 
-## Real-time and parameter ownership
+Nur der gewählte Raum berechnet Audio; alle Verzögerungsspeicher werden im Voraus angelegt. Ein Raumwechsel löscht die bisherige Hallfahne, setzt die neuen Makrowerte und startet ohne Überblendung. Dadurch kann ein Wechsel während des Klangs hörbar unterbrechen. Für Szenenbewegungen ist LOCATIONS zuständig.
 
-Vectors allocate only in prepare. Processing and room selection use preallocated buffers, bounded loops, lock-free atomic controls and coefficient ramps. No XML, filesystem, logging, locks, host notification, allocation or OS message posting occurs inside the room-reset callback or DSP path. Unchanged macro values reuse coefficients; ring-buffer wraps use conditional indexing rather than runtime division. Preset selection clears a bounded buffer, so its callback cost is higher than a steady block; CPU benchmarks report that separately.
+## Echtzeitverhalten und Parameterverwaltung
 
-JUCE owns three ranged parameters, rather than an APVTS with obsolete expert parameters. A choice-parameter callback resets the two macro atomics immediately when a different room is written. It increments a lock-free revision. The audio callback consumes that revision too, so even A→B→A between callbacks clears the selected tail. State restore also invalidates any live tail. A message-thread timer reports the **current** macro values to host listeners later; it never writes queued reset values over newer automation. The custom editor polls actual values as well as using JUCE slider attachments for host gestures. No editor or message dispatch is required for the DSP reset itself.
+Dynamische Speicher werden bei `prepare` angelegt. Verarbeitung und Raumwechsel verwenden vorbereitete Puffer, begrenzte Schleifen, lockfreie atomare Steuerwerte und Koeffizientenglättung. Im DSP- und Raumwechselpfad finden weder XML-Verarbeitung, Dateizugriffe, Logging, Locks, Host-Benachrichtigungen, Speicherallokationen noch Betriebssystemnachrichten statt. Unveränderte Makrowerte verwenden vorhandene Koeffizienten; Ringpuffer-Indizes werden ohne Laufzeitdivision zurückgesetzt. Der Raumwechsel löscht begrenzte Speicher und kann deshalb teurer als ein gewöhnlicher Block sein.
 
-`processBlock` follows the actual host buffer size, including zero and oversized callbacks. JUCE disables denormals during processing. Reset clears memory without resizing. State operations and editor/timer work belong outside the audio callback. The usual host lifecycle must synchronize prepare/reset/state restore with processing.
+JUCE verwaltet drei Ranged-Parameter, nicht einen APVTS mit alten Expertenparametern. Ein Choice-Callback setzt bei einem tatsächlichen Raumwechsel beide Makro-Atomics sofort zurück und erhöht eine lockfreie Revision. Der Audiocallback wertet die Revision aus, sodass auch A → B → A zwischen zwei Blöcken die alte Hallfahne löscht. Wiederherstellen eines Zustands verwirft ebenfalls die laufende Hallfahne. Ein Timer im Message-Thread meldet die aktuellen Makrowerte später an Host-Listener, überschreibt aber keine neueren Automationswerte. Der Editor liest die Werte zusätzlich zu JUCE-Slider-Attachments. Für den DSP-Reset ist kein Editor und kein Message-Dispatch erforderlich.
 
-## State and automation migration
+`processBlock` unterstützt auch null, einzelne und größere Hostblöcke. JUCE deaktiviert Denormals während der Verarbeitung. Reset löscht Speicher ohne Resize. State-, Editor- und Timer-Arbeit finden außerhalb des Audiocallbacks statt; der Host-Lebenszyklus muss Prepare, Reset und State-Restore mit der Verarbeitung synchronisieren.
 
-Binary XML root `SpatialLabState`, `schemaVersion=3`, stores room index and Size/Tone values. Restore room first, then the saved macro offsets so session recall preserves adjustments. Invalid roots, unknown versions, out-of-range and nonfinite macro values are rejected. Schema 1/2 prototype states restore only the selected preset, with neutral macros; obsolete mix/gain/early-late/width/decay/damping settings are discarded. Old expert automation IDs are removed, not reused for new meanings; remove those obsolete DAW lanes. Parameter version hints are 1.
+## Projektzustand und Migration
 
-Session state stores controls, not live tails. Plugin manufacturer `StPr`, plugin code `SpLb`, bundle ID `com.stromschlagproductions.spatiallab` remain stable. Do not change room indices or current parameter IDs/ranges after distribution without migration.
+Der binäre XML-Zustand mit Wurzel `SpatialLabState` und `schemaVersion=3` speichert Raumindex und Größe/Klang. Beim Laden wird zuerst der Raum, danach werden die gespeicherten Makrowerte wiederhergestellt. Ungültige Wurzeln, unbekannte Versionen sowie Werte außerhalb des Bereichs oder ohne endlichen Zahlenwert werden abgewiesen.
 
-## Rates, bypass and limits
+Prototypzustände der Schemata 1 und 2 übernehmen nur den Raum mit neutralen Makros. Veraltete Mix-/Gain-/Early-Late-/Width-/Decay-/Damping-Werte werden verworfen. Alte Automations-IDs werden nicht neu belegt; entsprechende DAW-Automationsspuren müssen entfernt werden. Die Parameter-Versionshinweise sind 1.
 
-48 kHz audio drama and 44.1 kHz music receive full regression and CPU coverage. Higher rates (96/192 kHz) get short correctness smoke tests only. No resampling/oversampling is required by this linear design.
+Gespeichert werden Bedienelemente, keine laufenden Hallfahnen. Herstellerkennung `StPr`, Plugincode `SpLb` und Bundle-ID `com.stromschlagproductions.spatiallab` bleiben stabil. Raumindizes, IDs und Bereiche dürfen nach Veröffentlichung nicht ohne Migration geändert werden.
 
-The plugin bypass callback advances the engine and mutes the send. A DAW may implement bypass by routing around the plugin; such external routing is outside the callback's control. Mute the return in that case.
+## Sampleraten, Bypass und Grenzen
 
-The static delays can color sustained tones. Presets are designed acoustic impressions, not measured rooms; listening, host validation and CPU deadline profiling remain required before release. No limiter, physical scene model, measured IR, custom skins or outdoor presets are included in this milestone. The reported host tail is conservatively 6 seconds, not a hard internal truncation; latency is zero.
+44,1 und 48 kHz sind vollständig in Regressionstests und CPU-Messungen abgedeckt. Für 96/192 kHz existieren nur kurze Funktionstests. Oversampling ist für diesen linearen Ansatz nicht erforderlich.
+
+Der Bypass-Callback verarbeitet intern weiter und schaltet den Send-Ausgang stumm. Manche DAWs umgehen das Plugin stattdessen extern; dann muss der Return-Kanal gegebenenfalls stummgeschaltet werden.
+
+Statische Verzögerungen können Dauertöne färben. Die Räume sind gestaltete Klangeindrücke, keine vermessenen Räume. Vor einer Veröffentlichung sind Hörtests, Hostvalidierung und CPU-Deadline-Tests erforderlich. Limiter, physikalisches Szenenmodell, gemessene IRs, zusätzliche Skins und Außenräume gehören nicht zum ersten Meilenstein. Die gemeldete Hallfahne von sechs Sekunden ist konservativ und keine harte interne Begrenzung; Latenz: null.

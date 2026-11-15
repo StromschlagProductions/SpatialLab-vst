@@ -1,49 +1,86 @@
-# SpatialLab
+# SPATIAL LAB – Raumhall für Hörspiele
 
-**Spatial Environments for Audio Drama** · Stromschlag Productions
+**Stromschlag Audio · Windows · VST3 · Stereo**
 
-An initial Windows x64 VST3 **send-only** room effect built with C++17, JUCE **8.0.6** and CMake. Living Room, Kitchen and Bathroom combine distinct early reflections with a damped eight-line feedback delay network. The output is always **100% wet**. Supports mono → mono, mono → stereo and stereo → stereo, host automation and session recall. Development prioritizes **48 kHz for audio drama** and **44.1 kHz for music**. Higher rates have basic correctness coverage but are not tuning or CPU targets. No oversampling is used.
+SPATIAL LAB ist ein bewusst einfach gehaltener Raumhall für Hörspielproduktionen. Statt dutzender technischer Regler wählst du einen Raum und passt bei Bedarf nur **Größe** und **Klang** an. Das Plugin ist für **Send-/FX-Kanäle** gedacht und liefert immer **100 % Hall**, ohne Direktsignal.
 
-This is a development prototype, not a release. See [validation](docs/VALIDATION.md) for tested behavior and remaining listening/host checks. Work takes place on development branches and pull requests; do not merge without review.
+> **Entwicklungsstand:** Noch keine veröffentlichte, hörgetestete Version. Die derzeitige Fassung ist ein Prototyp mit drei Räumen. Bitte nicht als fertige Produktionsfreigabe verstehen.
 
-## Build on Windows
+## ⬇ SPATIAL LAB herunterladen
 
-Install Visual Studio 2022 with **Desktop development with C++**, a Windows SDK, Git and CMake 3.31.6 (minimum supported: 3.22).
+**[WINDOWS-VST3 ALS ZIP HERUNTERLADEN – HIER KLICKEN]**(https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43733243192/artifacts/14169382572)**
 
-```powershell
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
-cmake --build build --config Release --parallel 2
-ctest --test-dir build -C Release --output-on-failure
-```
+**Das ZIP entpacken und den kompletten Ordner `SpatialLab.vst3` nach `C:\\Program Files\\Common Files\\VST3\\` kopieren.** Der Link führt zum ZIP-Artefakt des erfolgreichen Windows-Builds vom 15. November 2026. Gegebenenfalls ist eine Anmeldung bei GitHub nötig. **Der Testdownload ist zeitlich befristet** und enthält neben `SpatialLab.vst3` auch Prüfdateien und GUI-Vorschaubilder.
 
-The first configure downloads JUCE at the immutable commit in `CMakeLists.txt`. The VST3 SDK is supplied by JUCE; no separate SDK checkout is needed. The plugin bundle is `build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3`. Copy the **entire bundle directory** to `C:\Program Files\Common Files\VST3\` and rescan the DAW. Builds never install automatically.
+**⬇ [Spätere freigegebene Versionen (GitHub Releases)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)** – hier gibt es **noch keine** freigegebene Version. Nach Einführung eines Release-Verfahrens soll dies der dauerhafte Download-Einstieg sein, wie bei RADIOPHONE und LOCATIONS.
 
-GitHub Actions builds on `windows-2022` with VS 2022 x64, runs DSP and processor tests, and uploads the complete VST3 bundle, build provenance and an informational CPU benchmark at both primary rates. The Linux job runs the independent DSP tests under AddressSanitizer and UndefinedBehaviorSanitizer. JUCE and Actions are pinned to commit hashes; CMake is version-pinned. Hosted runner/SDK updates mean this is a repeatable build recipe, not a promise of byte-identical binaries. No signing, installer or automatic release is configured.
+## Warum es dieses Plugin gibt
 
-For DSP-only development without JUCE or OS audio/GUI dependencies:
+Für ein Hörspiel braucht eine Szene einen glaubwürdigen akustischen Ort: das gedämpfte Wohnzimmer, die hellere Küche oder das gekachelte Badezimmer. SPATIAL LAB soll diesen Raumklang schnell bereitstellen, ohne dass du für jede Szene eine komplizierte Hallkette aufbauen musst.
 
-```sh
-cmake -S . -B build-dsp -DSPATIALLAB_BUILD_PLUGIN=OFF -DCMAKE_BUILD_TYPE=Release
-cmake --build build-dsp --parallel 2
-ctest --test-dir build-dsp --output-on-failure
-./build-dsp/SpatialLabDspBenchmark
-```
+SPATIAL LAB gestaltet den **festen Hall des Szenenraums**. Für bewegte Figuren, Stimmen hinter Türen und wechselnde Entfernungen ist das separate Plugin [LOCATIONS](https://github.com/StromschlagProductions/Locations-vst) vorgesehen.
 
-## Operation
+## Oberfläche und Vorschau
 
-The editor exposes exactly **Raum**, **Größe** (smaller → neutral → larger) and **Klang** (darker → neutral → brighter). Select a preset and set its send level in the DAW. Changing presets resets both macros to their neutral midpoint, including through host automation. Double-click either macro to reset it manually. No other audio controls or hidden expert automation parameters are present.
+Die Retro-Oberfläche orientiert sich an einer verwitterten Science-Fiction-Gerätefront mit Röhren, Kontrollleuchten und bernsteinfarbenem Bildschirm. Nur Raumauswahl, Größe und Klang steuern den Hall. Die übrigen Geräte-Elemente sind Dekoration oder Statusanzeigen.
 
-The output is always **100% wet**; there is no direct path, output gain or loudness knob. Early reflections, tail, diffusion, delays, damping and stereo voicing are authored internally by the preset. Size changes decay and internal early/late voicing, while Tone changes spectral damping. Room selection replaces the room and clears the previous tail; there are no room blends, distance or movement simulations. Locations handles scene transitions separately.
+**[Echte Windows-GUI-Vorschau und weitere Renderings ansehen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43733243192)** – im Build-Artefakt liegen `Windows-Editor-Screenshot.png` sowie Renderings bei 100, 125 und 150 %. Ein dauerhaft eingebettetes Vorschaubild ergänzen wir, sobald die Logo-Korrektur freigegeben und ein Screenshot ins Repository übernommen ist.
 
-When the host invokes the plugin bypass callback, the send is muted while processing continues. Hosts that route around the plugin control their own external path; mute the return in those hosts. Schema-1/2 prototype sessions restore the selected room with neutral macros; obsolete extra controls are discarded.
-Living Room starts with a short, dark tail (nominal low-frequency RT60 0.48 s), Kitchen is brighter (0.85 s), Bathroom has a longer reflective tail (1.35 s). These are designed room impressions, not measured acoustic models. The reported host tail is conservatively 6 s; latency is zero. Read [DSP and parameter design](docs/DESIGN.md) before extending the engine or changing parameter IDs.
+## Räume und Regler
 
-## Roadmap and licensing
+| Bedienelement | Funktion |
+|---|---|
+| **Raum** | Wohnzimmer, Küche oder Badezimmer auswählen |
+| **Größe** | Raumwirkung kleiner oder größer gestalten; Mitte = neutral |
+| **Klang** | Hall dunkler oder heller gestalten; Mitte = neutral |
 
-Die Retro-Oberfläche ist im separaten GUI-Branch implementiert. Light-/Dark-Skins, weitere Innenräume und kuratierte Outdoor-Presets folgen später; alle verwenden dasselbe Drei-Regler-Konzept. Appearance must never change audio behavior.
+Bei der Auswahl eines anderen Raums springen Größe und Klang auf die neutrale Mittelstellung zurück. Ein Doppelklick setzt jeden der beiden Drehregler ebenfalls zurück. Die DAW kann alle drei Parameter automatisieren und speichert die Einstellungen mit dem Projekt.
 
-The project's distribution license remains undecided. JUCE is third-party software with its own AGPLv3/commercial licensing requirements; review the JUCE license and bundled VST3 SDK notices before distributing any binary. No third-party DSP code, impulse responses or artwork have been copied into the engine.
+| Raum | Klangidee |
+|---|---|
+| **Wohnzimmer** | Eher kurzer, dunkler Nachhall |
+| **Küche** | Hellerer Raum mit deutlicheren Reflexionen |
+| **Badezimmer** | Längerer, reflektierender Hall |
 
-## Retro-Oberfläche (GUI-Branch)
+Die Räume sind klanglich gestaltete Eindrücke, keine vermessenen Impulsantworten. Weitere Innen- und Außenräume sind geplant, aber noch nicht implementiert.
 
-Die Retro-Oberfläche folgt der mitgelieferten Original-Frontplatte; Raumliste und Preset-Pfeile sind zwei Wege für denselben Raumparameter. Größe/Klang lassen sich ziehen und per Doppelklick neutral stellen. Die anderen abgebildeten Tasten/Buchsen sind dekorativ. CRT, Lampen und Röhren reagieren ausschließlich visuell; die Anzeige nennt die tatsächliche Host-Samplerate/Kanalbelegung. Details, Asset-Nachweise und Screenshot-Verfahren: [Retro-GUI](docs/gui/RETRO_GUI.md).
+## Anwendung in der DAW
+
+1. Einen **FX-/Send-Kanal** anlegen und SPATIAL LAB dort einsetzen.
+2. Den passenden Raum auswählen.
+3. Über den **Send-Pegel der DAW** bestimmen, wie viel Hall die Stimme oder das Geräusch erhält.
+4. Nur wenn nötig **Größe** oder **Klang** verändern.
+
+Das Plugin hat absichtlich keinen Dry/Wet-Regler, keinen Ausgangspegel und keine separaten Expertenparameter für Early/Late, Diffusion oder Dämpfung. Der direkte Ton bleibt auf der Quellspur. Ein Raumwechsel erfolgt ohne Überblendung und kann eine laufende Hallfahne abschneiden; er ist nicht als Bewegungsautomation gedacht.
+
+## Installation (Windows, Testversion)
+
+1. Das ZIP über den Testdownload oben laden und entpacken.
+2. Im Archiv den **gesamten Ordner** `SpatialLab.vst3` suchen und nach `C:\Program Files\Common Files\VST3\` kopieren.
+3. DAW neu starten beziehungsweise VST3-Plugins erneut scannen.
+
+Das Testarchiv kann zusätzliche Dateien wie Benchmarks, Werkzeugdaten und Screenshots enthalten. Diese werden **nicht** im VST3-Ordner installiert. Der Build installiert nichts automatisch.
+
+## Technische Angaben
+
+- **Format:** Windows x64, VST3, JUCE 8 und C++17.
+- **Kanäle:** Mono → Mono, Mono → Stereo, Stereo → Stereo.
+- **Abtastraten:** Schwerpunkt 48 kHz für Hörspiele und 44,1 kHz für Musik. 96/192 kHz sind bisher nur grundlegend geprüft.
+- **Signalweg:** Immer 100 % Wet; gemeldete Plugin-Latenz 0; konservativ gemeldete Hallfahne 6 Sekunden.
+- **Hallverfahren:** Raumspezifische frühe Reflexionen und ein gedämpftes Feedback-Delay-Netzwerk.
+- **Bedienung:** Drei Parameter; keine zusätzlichen versteckten Klangregler.
+
+## Entwicklung, Tests und Freigabe
+
+Die Audio-Grundlage und die Retro-GUI werden in getrennten Entwicklungszweigen geprüft. Automatische DSP-, Prozessor- und GUI-Tests sowie Windows-Builds existieren bereits. **Hörtests in echten DAWs, unabhängige VST3-Validierung und die Klärung der Lizenzierung stehen vor einer Veröffentlichung noch aus.** Ein erfolgreicher CI-Build ersetzt diese Prüfungen nicht.
+
+- [Technisches Konzept und Parameter](docs/DESIGN.md)
+- [Bisherige Tests und offene Prüfungen](docs/VALIDATION.md)
+- [Retro-Oberfläche und Screenshot-Verfahren](docs/gui/RETRO_GUI.md)
+- [Windows-Builds und Artefakte](https://github.com/StromschlagProductions/SpatialLab-vst/actions)
+
+**Wichtig zur Lizenz:** Die Veröffentlichungs-Lizenz ist noch nicht festgelegt. Vor der Weitergabe fertiger Binärdateien müssen insbesondere die JUCE- und VST3-SDK-Bedingungen geprüft werden.
+
+## Geplant
+
+Nach den ersten drei Räumen sollen weitere kuratierte Innenräume und Außenumgebungen folgen. Light-/Dark-Ansichten sind mögliche spätere Oberflächenvarianten. Das einfache Drei-Regler-Konzept und die klare Trennung von SPATIAL LAB (statischer Szenenhall) und LOCATIONS (Bewegung/Entfernung) bleiben erhalten.
