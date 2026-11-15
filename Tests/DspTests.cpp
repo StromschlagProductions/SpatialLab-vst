@@ -41,6 +41,7 @@ int main()
                 for (int i = 0; i < static_cast<int>(rate * 6); ++i)
                 {
                     const auto out = engine.process(i == 0 ? 1.0f : 0.0f, i == 0 ? 1.0f : 0.0f);
+                    if (i == 0) require(out.left == 0 && out.right == 0, "100% wet leaks direct impulse");
                     require(std::isfinite(out.left) && std::isfinite(out.right), "Nonfinite impulse response");
                     require(std::abs(out.left) < 2 && std::abs(out.right) < 2, "Unstable impulse response");
                     const double e = out.left * out.left + out.right * out.right;

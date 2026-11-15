@@ -14,6 +14,11 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install pinned CMake
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check --target .ci-tools cmake==3.31.6
+          "$pwd/.ci-tools/cmake/data/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Configure (JUCE 8.0.6, VS 2022 x64)
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
       - name: Build VST3 and tests
@@ -38,6 +43,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install pinned CMake
+        run: |
+          python3 -m pip install --target .ci-tools cmake==3.31.6
+          echo "$PWD/.ci-tools/cmake/data/bin" >> "$GITHUB_PATH"
       - name: Configure DSP tests with ASan and UBSan
         run: >-
           cmake -S . -B build -DSPATIALLAB_BUILD_PLUGIN=OFF -DCMAKE_BUILD_TYPE=Debug

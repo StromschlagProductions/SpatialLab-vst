@@ -60,6 +60,13 @@ int main()
             require(std::abs(processor.parameters.getRawParameterValue(id)->load()
                 - restored.parameters.getRawParameterValue(id)->load()) < 1e-5f, "Session recall mismatch");
         const auto before = restored.parameters.getRawParameterValue("mix")->load();
+        parameter(processor, "mix", 0.1f);
+        auto future = processor.parameters.copyState();
+        future.setProperty("schemaVersion", 99, nullptr);
+        juce::MemoryBlock futureState;
+        if (auto xml = future.createXml()) juce::AudioProcessor::copyXmlToBinary(*xml, futureState);
+        restored.setStateInformation(futureState.getData(), static_cast<int>(futureState.getSize()));
+        require(restored.parameters.getRawParameterValue("mix")->load() == before, "Unknown state schema changed parameters");
         const char invalid[] = "not a plugin state";
         restored.setStateInformation(invalid, sizeof(invalid));
         require(restored.parameters.getRawParameterValue("mix")->load() == before, "Invalid state changed parameters");
