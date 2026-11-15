@@ -1,0 +1,47 @@
+name: Build and test
+on:
+  push:
+    branches: [main, 'develop/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows-vst3:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Configure (JUCE 8.0.6, VS 2022 x64)
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
+      - name: Build VST3 and tests
+        run: cmake --build build --config Release --parallel 2
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Record toolchain
+        shell: pwsh
+        run: |
+          cmake --version | Out-File build/toolchain.txt
+          Get-Content build/CMakeCache.txt | Select-String 'CMAKE_(CXX_COMPILER|CXX_COMPILER_VERSION|GENERATOR):' | Out-File build/toolchain.txt -Append
+          git rev-parse HEAD | Out-File build/toolchain.txt -Append
+      - name: Upload VST3 bundle and provenance
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: SpatialLab-Windows-x64-${{ github.sha }}
+          path: |
+            build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3
+            build/toolchain.txt
+          if-no-files-found: error
+  dsp-sanitizers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Configure DSP tests with ASan and UBSan
+        run: >-
+          cmake -S . -B build -DSPATIALLAB_BUILD_PLUGIN=OFF -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+      - run: cmake --build build --parallel 2
+      - run: ctest --test-dir build --output-on-failure
