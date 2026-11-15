@@ -1,18 +1,34 @@
 #pragma once
 #include "PluginProcessor.h"
 
-class SpatialLabEditor final : public juce::AudioProcessorEditor, private juce::Timer
+// The supplied raster remains the front panel; controls are aligned to its native coordinates.
+class SpatialLabEditor final : public juce::AudioProcessorEditor, private juce::Timer,
+                               private juce::LookAndFeel_V4
 {
 public:
     explicit SpatialLabEditor(SpatialLabProcessor&);
-    ~SpatialLabEditor() override { stopTimer(); }
+    ~SpatialLabEditor() override;
     void resized() override;
     void paint(juce::Graphics&) override;
 private:
     void timerCallback() override;
+    void selectRoom(int);
+    int selectedRoom() const;
+    void drawRotarySlider(juce::Graphics&, int, int, int, int, float, float, float, juce::Slider&) override;
+    void drawButtonBackground(juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
+    void drawButtonText(juce::Graphics&, juce::TextButton&, bool, bool) override {}
+    void drawCrt(juce::Graphics&);
+    juce::Rectangle<int> panelBounds(float x, float y, float width, float height) const;
     SpatialLabProcessor& processor;
-    juce::ComboBox room;
+    juce::Image panel, logo;
     juce::Slider size, tone;
-    juce::Label roomLabel, sizeLabel, toneLabel;
+    std::array<juce::TextButton, 3> presets;
+    juce::TextButton previous, next, listUp, listDown;
     std::unique_ptr<juce::SliderParameterAttachment> sizeAttachment, toneAttachment;
+    float scale = 1, offsetX = 0, offsetY = 0, signal = 0, activity = 0, phase = 0;
+    unsigned lastBlock = 0;
+    bool ready = false;
+    int displayedRoom = -1;
+    juce::String configuration;
+    juce::TooltipWindow tooltips {this, 650};
 };

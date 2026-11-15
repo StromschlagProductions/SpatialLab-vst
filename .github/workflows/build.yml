@@ -25,6 +25,13 @@ jobs:
         run: cmake --build build --config Release --parallel 2
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
+      - name: Capture real editor and DPI renders
+        shell: pwsh
+        run: |
+          $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=build/gui-preview" -PassThru
+          if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "GUI capture timed out" }
+          if ($preview.ExitCode -ne 0) { throw "GUI capture failed" }
+          if (-not (Test-Path "build/gui-preview/Windows-Editor-Screenshot.png")) { throw "No real screenshot produced" }
       - name: Profile DSP at 44.1 and 48 kHz (informational)
         shell: pwsh
         run: ./build/Release/SpatialLabDspBenchmark.exe | Tee-Object -FilePath build/dsp-benchmark.csv
@@ -42,6 +49,7 @@ jobs:
             build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3
             build/toolchain.txt
             build/dsp-benchmark.csv
+            build/gui-preview/
           if-no-files-found: error
   dsp-sanitizers:
     runs-on: ubuntu-24.04

@@ -19,6 +19,8 @@ if(SPATIALLAB_BUILD_PLUGIN)
         GIT_TAG 51a8a6d7aeae7326956d747737ccf1575e61e209
         GIT_PROGRESS TRUE)
     FetchContent_MakeAvailable(JUCE)
+    juce_add_binary_data(SpatialLabArtwork HEADER_NAME SpatialLabArtwork.h NAMESPACE SpatialLabArtwork
+        SOURCES assets/SpatialLab_Retro_Frontplatte_Referenz.png assets/Stromschlag_Audio_Original_Logo.png)
     juce_add_plugin(SpatialLab
         COMPANY_NAME "Stromschlag Productions"
         BUNDLE_ID "com.stromschlagproductions.spatiallab"
@@ -35,7 +37,7 @@ if(SPATIALLAB_BUILD_PLUGIN)
     target_sources(SpatialLab PRIVATE Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/RoomEngine.h)
     target_compile_options(SpatialLab PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
     target_compile_definitions(SpatialLab PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0)
-    target_link_libraries(SpatialLab PRIVATE juce::juce_audio_processors
+    target_link_libraries(SpatialLab PRIVATE SpatialLabArtwork juce::juce_audio_processors
         PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
     if(BUILD_TESTING)
         juce_add_console_app(SpatialLabProcessorTests PRODUCT_NAME "SpatialLab Processor Tests")
@@ -43,5 +45,13 @@ if(SPATIALLAB_BUILD_PLUGIN)
         target_include_directories(SpatialLabProcessorTests PRIVATE Source)
         target_link_libraries(SpatialLabProcessorTests PRIVATE SpatialLab juce::juce_audio_processors)
         add_test(NAME Processor COMMAND SpatialLabProcessorTests)
+        juce_add_gui_app(SpatialLabGuiPreview PRODUCT_NAME "SpatialLab GUI Preview")
+        target_sources(SpatialLabGuiPreview PRIVATE Tools/GuiPreview.cpp)
+        target_include_directories(SpatialLabGuiPreview PRIVATE Source)
+        target_compile_options(SpatialLabGuiPreview PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
+        target_link_libraries(SpatialLabGuiPreview PRIVATE SpatialLab juce::juce_audio_processors)
+        if(WIN32)
+            target_link_libraries(SpatialLabGuiPreview PRIVATE gdi32 user32)
+        endif()
     endif()
 endif()

@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "RoomEngine.h"
+#include "GuiTelemetry.h"
 
 // Changes to room reset macros immediately without audio-thread host notifications.
 class RoomParameter final : public juce::AudioParameterChoice
@@ -31,7 +32,7 @@ public:
     SpatialLabProcessor();
     ~SpatialLabProcessor() override { stopTimer(); }
     void prepareToPlay(double, int) override;
-    void releaseResources() override {}
+    void releaseResources() override { gui.sampleRate.store(0, std::memory_order_relaxed); }
     void reset() override { engine.reset(); }
     void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     void processBlockBypassed(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
@@ -49,6 +50,7 @@ public:
     void changeProgramName(int, const juce::String&) override {}
     void getStateInformation(juce::MemoryBlock&) override;
     void setStateInformation(const void*, int) override;
+    GuiTelemetry gui;
     juce::RangedAudioParameter* parameter(const juce::String& id) const;
 private:
     void timerCallback() override;

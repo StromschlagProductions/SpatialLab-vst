@@ -44,6 +44,9 @@ void SpatialLabProcessor::prepareToPlay(double rate, int)
 {
     engine.prepare(rate, room->getIndex(), size->get(), tone->get());
     audioRevision = resetRevision.load(std::memory_order_acquire);
+    gui.sampleRate.store(static_cast<float>(rate), std::memory_order_relaxed);
+    gui.inputs.store(getTotalNumInputChannels(), std::memory_order_relaxed);
+    gui.outputs.store(getTotalNumOutputChannels(), std::memory_order_relaxed);
     setLatencySamples(0);
 }
 
@@ -64,6 +67,8 @@ void SpatialLabProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::M
         left[sample] = outputs == 1 ? (value.left + value.right) * 0.5f : value.left;
         if (right != nullptr) right[sample] = value.right;
     }
+    if (gui.observing.load(std::memory_order_relaxed))
+        gui.publish(buffer.getMagnitude(0, buffer.getNumSamples()), inputs, outputs);
 }
 
 void SpatialLabProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
