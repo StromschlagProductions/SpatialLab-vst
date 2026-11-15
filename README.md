@@ -47,3 +47,7 @@ The project's distribution license remains undecided. JUCE is third-party softwa
 ## Retro-Oberfläche (GUI-Branch)
 
 Die Retro-Oberfläche folgt der mitgelieferten Original-Frontplatte; Raumliste und Preset-Pfeile sind zwei Wege für denselben Raumparameter. Größe/Klang lassen sich ziehen und per Doppelklick neutral stellen. Die anderen abgebildeten Tasten/Buchsen sind dekorativ. CRT, Lampen und Röhren reagieren ausschließlich visuell; die Anzeige nennt die tatsächliche Host-Samplerate/Kanalbelegung. Details, Asset-Nachweise und Screenshot-Verfahren: [Retro-GUI](docs/gui/RETRO_GUI.md).
+
+## Episode-Frontplatten
+
+Episode IV (verwittert) ist die Standardansicht, Episode I die fabrikneue Variante. Der metallische Kippschalter unten rechts ersetzt die dortige Preset-Navigation und wechselt nur die Oberfläche. Die Raumauswahl bleibt links oben. Die Skin-Wahl wird separat als GUI-Vorliebe gespeichert; Audioeinstellungen und Automation bleiben unverändert. [Bedienung, Bildnachweise und technische Prüfung](docs/gui/EPISODES.md).

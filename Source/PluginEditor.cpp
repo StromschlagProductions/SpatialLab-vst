@@ -40,6 +40,7 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
         button(presets[static_cast<std::size_t>(i)], names[static_cast<std::size_t>(i)], [this, i] { selectRoom(i); });
     button(episodeSwitch, "Episode", [this] { setEpisodeIV(episodeSwitch.getToggleState()); });
     episodeSwitch.setClickingTogglesState(true);
+    episodeSwitch.setTooltip({});
     setEpisodeIV(guiSettings->getBoolValue("episodeIV", true), false);
     button(listUp, "Raum nach oben", [this] { selectRoom((selectedRoom() + 2) % 3); });
     button(listDown, "Raum nach unten", [this] { selectRoom((selectedRoom() + 1) % 3); });

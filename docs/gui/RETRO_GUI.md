@@ -1,5 +1,7 @@
 # Retro-GUI: Umsetzung und Prüfung
 
+**Historischer Umsetzungsstand:** Die aktuelle Frontplatten-/Schalter-Implementierung ist in [EPISODES.md](EPISODES.md) beschrieben. Die frühere Logo-Retusche und die untere Preset-Navigation werden dort nicht mehr verwendet.
+
 ## Grundlage und Abhängigkeit
 
 Der separate Branch `develop/retro-gui` basiert auf DSP-Commit `4efa6d8bff6185fc76a720c47b69dec163aa9943`. DSP-PR #1 war bei Arbeitsbeginn weiterhin offen/Draft. GUI-PR #2 richtet sich gegen `develop/juce8-room-foundation`, nicht gegen `main`. Vor Merge sind Freigabe und Hör-/DAW-Test erforderlich.
