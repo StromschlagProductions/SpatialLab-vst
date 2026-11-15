@@ -265,8 +265,11 @@ void SpatialLabEditor::drawEpisodeSwitch(juce::Graphics& graphics, juce::Button&
     g.addTransform(juce::AffineTransform::scale(button.getWidth() / 273.0f, button.getHeight() / 67.0f));
     const bool right = button.getToggleState();
     const auto label = juce::Colour(0xff35271e);
-    text(g, "EPISODE I", 0, 19, 91, 29, 17.5f, label, juce::Justification::centred);
-    text(g, "EPISODE IV", 183, 19, 90, 29, 17.5f, label, juce::Justification::centred);
+    g.setColour(label);
+    g.setFont(juce::FontOptions(17.5f, juce::Font::bold));
+    // Fit both complete legends at small host sizes; never clip the final V.
+    g.drawFittedText("EPISODE I", 0, 19, 91, 29, juce::Justification::centred, 1, 0.72f);
+    g.drawFittedText("EPISODE IV", 183, 19, 90, 29, juce::Justification::centred, 1, 0.72f);
     // Recessed socket, cast shadow and concentric machined/chrome surfaces.
     g.setColour(juce::Colours::black.withAlpha(0.32f)); g.fillRoundedRectangle(100, 10, 77, 53, 25);
     g.setGradientFill(juce::ColourGradient(juce::Colour(0xffe3d8c5), 130, 5,
