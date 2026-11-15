@@ -1,6 +1,7 @@
 """Verify visible changes in actual Win32 captures; derive labelled GIFs from those frames."""
 from pathlib import Path
 import json
+import csv
 import sys
 from PIL import Image, ImageChops, ImageStat
 
@@ -25,10 +26,29 @@ for folder in sorted(root.glob('Episode-*/*/*')):
         changes[name] = round(difference,3)
         assert difference >= 3.0, f'{folder}/{name}: insufficient visible screen change ({difference:.2f}/255)'
     # Animated presentation only: the original lossless GDI frames remain alongside it.
+    times = [float(row['seconds_monotonic']) for row in csv.DictReader((folder/'Capture-Times.csv').open())]
+    durations = [max(20,round((b-a)*1000)) for a,b in zip(times,times[1:])] + [333]
     palette = frames[0].quantize(colors=256)
     gif_frames = [frame.quantize(palette=palette) for frame in frames]
     gif_frames[0].save(folder/'Actual-Windows-Sequence.gif',save_all=True,append_images=gif_frames[1:],
-                       duration=333,loop=0,optimize=False,disposal=2)
+                       duration=durations[:len(frames)],loop=0,optimize=False,disposal=2)
+    times = [float(row['seconds_monotonic']) for row in csv.DictReader((folder/'Capture-Times.csv').open())]
+    tube_frames = [Image.open(p).convert('RGB') for p in sorted(folder.glob('Tubes-*.png'))]
+    assert len(tube_frames) == (48 if folder.name == 'Silent' else 16)
+    # Separate evidence for every actual upper-right glass tube over the longer silence recording.
+    if folder.name == 'Silent':
+        for i,x in enumerate((1216,1290,1361,1424)):
+            rect = tuple(round(v*scale) for v in (x-1199,145-116,x+32-1199,210-116))
+            brightness = [sum(ImageStat.Stat(f.crop(rect)).mean)/3 for f in tube_frames]
+            assert max(brightness)-min(brightness) >= 5, f'{folder}/tube-{i}: no visible rise/fall'
+            steps = [b-a for a,b in zip(brightness,brightness[1:])]
+            assert max(steps)>0.25 and min(steps)<-0.25, f'{folder}/tube-{i}: missing rising or falling phase'
+        assert times[-1]-times[0] >= 14, 'Tube evidence must cover several full slow phases'
+    tube_palette = tube_frames[0].quantize(colors=256)
+    tube_gif = [f.quantize(palette=tube_palette) for f in tube_frames]
+    durations = [max(20,round((b-a)*1000)) for a,b in zip(times,times[1:])] + [333]
+    tube_gif[0].save(folder/'Actual-Tube-Detail-Sequence.gif',save_all=True,append_images=tube_gif[1:],
+                     duration=durations,loop=0,optimize=False,disposal=2)
     report.append({'capture':str(folder.relative_to(root)),'max_pair_mean_absolute_change_255':changes})
     print('OK visible screen animation:',folder,changes)
 assert len(report) == 8, 'Expected both skins, both large sizes, silence and audio'

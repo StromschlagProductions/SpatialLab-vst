@@ -1,3 +1,5 @@
+> Historischer Phase-2-Nachweis. Aktuelle Herstelleridentität und GUI: [Phase 2.1](../../phase2.1/PHASE2_1.md). Die Raumakustik bleibt seit Phase 2 unverändert.
+
 # Phase 2: echte Windows-Screenshots
 
 Geprüfter Code: `0482b7e9275c128dc64935ae3196ad9a2bc89f40` im Branch `develop/retro-gui`.

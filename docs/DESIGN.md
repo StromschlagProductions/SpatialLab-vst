@@ -36,7 +36,7 @@ JUCE owns three ranged parameters, rather than an APVTS with obsolete expert par
 
 Binary XML root `SpatialLabState`, `schemaVersion=3`, stores room index and Size/Tone values. Restore room first, then the saved macro offsets so session recall preserves adjustments. Invalid roots, unknown versions, out-of-range and nonfinite macro values are rejected. Schema 1/2 prototype states restore only the selected preset, with neutral macros; obsolete mix/gain/early-late/width/decay/damping settings are discarded. Old expert automation IDs are removed, not reused for new meanings; remove those obsolete DAW lanes. Parameter version hints are 1.
 
-Session state stores controls, not live tails. Plugin manufacturer `StPr`, plugin code `SpLb`, bundle ID `com.stromschlagproductions.spatiallab` remain stable. Do not change room indices or current parameter IDs/ranges after distribution without migration.
+Session state stores controls, not live tails. Phase 2.1 explicitly adopts manufacturer `Strm` (Stromschlag Audio) and bundle ID `com.stromschlagaudio.spatiallab`; plugin code `SpLb` remains stable. The one-time VST3 identity change intentionally does not recall the old test-version identity. See [identity and replacement instructions](phase2.1/PHASE2_1.md). Do not change room indices or current parameter IDs/ranges after distribution without migration.
 
 ## Rates, bypass and limits
 

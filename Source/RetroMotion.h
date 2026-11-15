@@ -30,6 +30,19 @@ inline float light(double seconds, unsigned index, float audio, bool aged = true
         + (noise-0.5f)*0.14f) + std::clamp(audio,0.0f,1.0f)*0.15f - dip;
     return std::clamp(value,0.12f,0.96f);
 }
+// Dedicated thermionic glow: multi-second heat-up/cool-down, independent phase and period.
+inline float tubeGlow(double seconds, unsigned index, bool aged) noexcept
+{
+    constexpr double periods[] {9.7, 12.1, 10.9, 14.3};
+    constexpr double phases[] {0.4, 2.5, 4.4, 1.6};
+    const auto i = index % 4u;
+    const double angle = seconds * 6.283185307179586 / periods[i] + phases[i];
+    const float heat = 0.5f + 0.5f * static_cast<float>(std::sin(angle));
+    const float organic = static_cast<float>(std::sin(seconds * 1.31 + i * 2.7)) * (aged ? 0.025f : 0.01f);
+    const double eventTime = std::fmod(seconds + i * 7.37, 19.1 + i * 1.7);
+    const float flare = aged ? 0.09f * static_cast<float>(std::exp(-std::pow((eventTime-0.4)/0.15,2))) : 0.0f;
+    return std::clamp(0.12f + heat * 0.77f + organic + flare,0.10f,0.96f);
+}
 inline float indicatorGate(double seconds, unsigned index) noexcept
 {
     const float wave = static_cast<float>(std::sin(seconds*(0.59+index*0.041)+index*2.1));

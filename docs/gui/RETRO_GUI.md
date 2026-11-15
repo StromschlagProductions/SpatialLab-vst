@@ -26,7 +26,7 @@ Das 1672×941-Raster bleibt der Hintergrund. Anordnung, Farben, Gebrauchsspuren,
 - Der eingebrannte Text `STEREO · 48 kHz` wird lokal ersetzt. Tatsächliche Kanalbelegung und Samplerate kommen atomar aus dem Prozessor; ohne vorbereitete Audiowiedergabe steht dort `AUDIO BEREITSTELLEN`.
 - BEREIT bedeutet: Audio vorbereitet. AKTIV folgt tatsächlich eingehenden Audioblöcken; SIGNAL zeigt den beobachteten Hallpegel. Röhren dürfen dazu leicht glimmen. Alle übrigen Tasten, Buchsen und Plaketten sind Dekoration ohne Audiofunktion.
 
-Fensterstandard: 1003×565 logische Pixel, festes Seitenverhältnis, skalierbar bis 1672×941. Alle aktiven Flächen folgen derselben Koordinatentransformation. Windows-DPI-Skalierung erfolgt durch JUCE. Die 100/125/150-Prozent-JUCE-Render dienen zusätzlich zur Prüfung der Bild-/Schriftlesbarkeit; sie ersetzen keinen realen DAW-Test auf drei DPI-Einstellungen.
+Seit Phase 2.1: Fensterstandard 1504×846 logische Pixel ohne gespeicherte Größe, Minimum 1003×565, Maximum 1672×941; die letzte Größe wird separat gespeichert. Die Frontplatte wird proportional dargestellt. Alle aktiven Flächen folgen derselben Koordinatentransformation. Windows-DPI-Skalierung erfolgt durch JUCE. Die 100/125/150-Prozent-JUCE-Render dienen zusätzlich zur Prüfung der Bild-/Schriftlesbarkeit; sie ersetzen keinen realen DAW-Test auf drei DPI-Einstellungen.
 
 ## Audio-Unverändertheit und Messwerte
 

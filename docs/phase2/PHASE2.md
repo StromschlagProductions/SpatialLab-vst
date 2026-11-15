@@ -1,3 +1,5 @@
+> Historischer Phase-2-Nachweis. Aktuelle Herstelleridentität und GUI: [Phase 2.1](../phase2.1/PHASE2_1.md). Die Raumakustik bleibt seit Phase 2 unverändert.
+
 # Entwicklungsphase 2 — Stromschlag Audio
 
 ## Hersteller und Kompatibilität

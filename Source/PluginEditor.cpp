@@ -332,18 +332,18 @@ void SpatialLabEditor::drawLighting(juce::Graphics& g)
         juce::Graphics::ScopedSaveState state(g);
         juce::Path glass; glass.addRoundedRectangle(tubeX[i], 133, 32, 80, 13);
         g.reduceClipRegion(glass);
-        const float strength = spatiallab::retro::light(animationSeconds, i, i == 1 ? signal : 0, aged);
+        const float strength = spatiallab::retro::tubeGlow(animationSeconds, i, aged);
         const float spare = i == 2 ? 0.55f : 1.0f;
         // Darken baked-in light as well as add light: a bright raster cannot visibly dim otherwise.
-        g.setColour(juce::Colours::black.withAlpha((1 - strength * spare) * 0.76f)); g.fillPath(glass);
-        g.setGradientFill(juce::ColourGradient(juce::Colour(0xffffa52b).withAlpha(strength * 0.64f * spare),
+        g.setColour(juce::Colours::black.withAlpha((1 - strength * spare) * 0.92f)); g.fillPath(glass);
+        g.setGradientFill(juce::ColourGradient(juce::Colour(0xffff9219).withAlpha(strength * 0.64f * spare),
             tubeX[i] + 16, 195, juce::Colour(0xffc1510b).withAlpha(0.02f), tubeX[i] + 16, 137, false));
         g.fillPath(glass);
         for (float dx : {11.0f, 22.0f})
         {
             g.setColour(juce::Colour(0xffff901f).withAlpha(strength * 0.65f * spare));
             g.drawLine(tubeX[i]+dx,171,tubeX[i]+dx,201,4.5f);
-            g.setColour(juce::Colour(0xffffdf91).withAlpha(strength * 0.95f * spare));
+            g.setColour(juce::Colour(0xffffb444).withAlpha(strength * 0.95f * spare));
             g.drawLine(tubeX[i]+dx,173,tubeX[i]+dx,200,1.25f);
         }
     }

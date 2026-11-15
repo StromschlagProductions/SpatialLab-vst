@@ -118,14 +118,23 @@ private:
             if (GetDIBits(screen, bitmap, 0, static_cast<UINT>(h), pixels.data(), &info, DIB_RGB_COLORS))
             {
                 juce::Image screenshot(juce::Image::RGB, w, h, false);
+                juce::Image::BitmapData destination(screenshot,juce::Image::BitmapData::writeOnly);
                 for (int y = 0; y < h; ++y)
                     for (int x = 0; x < w; ++x)
                     {
                         const auto offset = static_cast<std::size_t>((y * w + x) * 4);
-                        screenshot.setPixelAt(x, y, juce::Colour(pixels[offset + 2], pixels[offset + 1], pixels[offset]));
+                        destination.setPixelColour(x, y, juce::Colour(pixels[offset + 2], pixels[offset + 1], pixels[offset]));
                     }
                 if (captures == 0) writeImage(screenshot, "Windows-Editor-Screenshot.png");
-                if (sequence) writeImage(screenshot, "Frame-" + juce::String(captures).paddedLeft('0',3) + ".png");
+                if (sequence)
+                {
+                    captureTimes += juce::String(captures) + "," + juce::String(juce::Time::getMillisecondCounterHiRes()*0.001,4) + "\n";
+                    if (captures < 16) writeImage(screenshot, "Frame-" + juce::String(captures).paddedLeft('0',3) + ".png");
+                    const float factor = std::min(w/1672.0f,h/941.0f);
+                    const auto tubeBounds = juce::Rectangle<float>((w-1672*factor)*0.5f+1199*factor,
+                        (h-941*factor)*0.5f+116*factor,282*factor,132*factor).toNearestInt();
+                    writeImage(screenshot.getClippedImage(tubeBounds), "Tubes-" + juce::String(captures).paddedLeft('0',3) + ".png");
+                }
             }
             else setApplicationReturnValue(1);
         }
@@ -134,8 +143,13 @@ private:
 #endif
         ++captures;
         capturing = false;
-        if (!sequence || captures >= 16 || getApplicationReturnValue() != 0) { stopTimer(); quit(); }
+        if (!sequence || captures >= (silent ? 48 : 16) || getApplicationReturnValue() != 0)
+        {
+            output.getChildFile("Capture-Times.csv").replaceWithText("frame,seconds_monotonic\n"+captureTimes);
+            stopTimer(); quit();
+        }
     }
+    juce::String captureTimes;
     juce::File output;
     std::unique_ptr<SpatialLabProcessor> processor;
     std::unique_ptr<juce::DocumentWindow> window;
