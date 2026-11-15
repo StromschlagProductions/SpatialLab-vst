@@ -20,16 +20,16 @@ selection[107:169, 210:355] = 255  # Fantasie-Wortmarke
 # Schwarze Druckfarbe und deren Antialiasing; rote Originalmarkierungen ausschließen.
 spread = np.ptp(source, axis=2)
 ink = (source.max(axis=2) < 125) & (spread < 45) & (selection != 0)
-mask = cv2.dilate(ink.astype(np.uint8) * 255, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+mask = cv2.dilate(ink.astype(np.uint8) * 255, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11)))
 blue, green, red = (source[:, :, i].astype(float) for i in range(3))
 red_paint = (red > 1.6 * green) & (red > 1.6 * blue) & (red > 70)
 mask[red_paint] = 0
 # Beide originalen Schrauben samt Rand/Schlagschatten unangetastet lassen.
 for centre in [(140, 101), (147, 180)]:
     cv2.circle(mask, centre, 16, 0, -1)
-# Klassische Telea-Retusche aus dem direkten Nachbar-Metall, kein KI-Modell.
-restored = cv2.inpaint(source, mask, 4.0, cv2.INPAINT_TELEA)
-x, y, w, h = 128, 92, 230, 88
+# Klassische Navier-Stokes-Retusche aus dem direkten Nachbar-Metall, kein KI-Modell.
+restored = cv2.inpaint(source, mask, 5.0, cv2.INPAINT_NS)
+x, y, w, h = 128, 92, 234, 90
 assert not np.any(mask[:y]) and not np.any(mask[y+h:])
 assert not np.any(mask[:, :x]) and not np.any(mask[:, x+w:])
 patch = np.dstack((restored[y:y+h, x:x+w], mask[y:y+h, x:x+w]))

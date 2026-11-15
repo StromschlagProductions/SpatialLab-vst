@@ -21,8 +21,15 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p) : AudioProcessorEdito
                                            SpatialLabArtwork::SpatialLab_Retro_Frontplatte_Referenz_pngSize);
     logo = juce::ImageCache::getFromMemory(SpatialLabArtwork::Stromschlag_Audio_Original_Logo_png,
                                           SpatialLabArtwork::Stromschlag_Audio_Original_Logo_pngSize);
-    logoRestoration = juce::ImageCache::getFromMemory(SpatialLabArtwork::SpatialLab_LogoRegion_Restored_png,
-                                                     SpatialLabArtwork::SpatialLab_LogoRegion_Restored_pngSize);
+    const auto logoRestoration = juce::ImageCache::getFromMemory(SpatialLabArtwork::SpatialLab_LogoRegion_Restored_png,
+                                                                SpatialLabArtwork::SpatialLab_LogoRegion_Restored_pngSize);
+    // Composite at native resolution once. Resampling a sparse alpha repair separately
+    // would introduce light fringes around its mask on a scaled editor.
+    panel = panel.createCopy();
+    {
+        juce::Graphics repair(panel);
+        repair.drawImageAt(logoRestoration, 128, 92);
+    }
     const auto button = [this](juce::TextButton& control, const juce::String& name, std::function<void()> action)
     {
         control.setButtonText(name); control.setName(name); control.setTooltip(name);
@@ -201,9 +208,6 @@ void SpatialLabEditor::paint(juce::Graphics& g)
     g.addTransform(juce::AffineTransform::scale(scale).translated(offsetX, offsetY));
     g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
     g.drawImageAt(panel, 0, 0);
-    // Sparse, non-generative texture repair removes only the baked-in fantasy ink.
-    // Transparent pixels preserve the original metal, wear, screws and markings.
-    g.drawImageAt(logoRestoration, 128, 92);
     // The original PNG's alpha is the exact print mask: no tracing, frame or plaque.
     // Slightly translucent oxblood ink lets the restored metal texture show through.
     g.setColour(juce::Colour(0xff862c22).withAlpha(0.93f));
