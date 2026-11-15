@@ -77,6 +77,7 @@ int main()
                 require(editor->isEpisodeIV(), "Fresh GUI must default to Episode IV");
                 require(editor->getWidth() == 1504 && editor->getHeight() == 846, "Wrong reference aspect/default size");
                 require(!observed.gui.observing.load(), "Invisible editor observes audio");
+                editor->addToDesktop(0);
                 editor->setVisible(true);
                 require(observed.gui.observing.load(), "Shown editor did not resume");
                 editor->setVisible(false);

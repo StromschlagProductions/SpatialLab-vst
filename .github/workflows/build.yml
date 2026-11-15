@@ -64,6 +64,8 @@ jobs:
               if ($LASTEXITCODE -ne 0) { throw "Knob PNG invalid" }
             }
           }
+          python Tools/check_knob_capture.py build/knob-preview
+          if ($LASTEXITCODE -ne 0) { throw "Knob bevel moved" }
       - name: Preserve real GUI diagnostics if capture verification fails
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

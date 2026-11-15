@@ -19,7 +19,7 @@ for folder in sorted(root.glob('Episode-*/*/*')):
     static_regions = {'upper':box(925,180,115,50),'status':box(492,748,210,35),'lower':box(790,731,220,51)}
     for name,rect in static_regions.items():
         reference = frames[0].crop(rect)
-        assert all(ImageChops.difference(reference,f.crop(rect)).getbbox() is None for f in frames[1:]), f'{folder}/{name}: animated fixed lamps' 
+        assert all(ImageChops.difference(reference,f.crop(rect)).getbbox() is None for f in frames[1:]), f'{folder}/{name}: animated fixed lamps'
     changes = {}
     for name,rect in regions.items():
         crops = [frame.crop(rect) for frame in frames]
