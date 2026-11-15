@@ -47,3 +47,7 @@ Lokal starten (Release-Build):
 Ohne `--output` bleibt das Vorschaufenster zur Bedienprüfung geöffnet. Der Prüfhost ist kein neuer Plugin-Modus und wird nicht in das VST3-Bundle installiert.
 
 Offen bleiben die Freigabe der lokalen Logo-/Textabdeckungen, reale Windows-DAW-Tests inklusive 100/125/150 % DPI sowie Hörtests. Eventuelle Einschränkungen des CI-Desktops werden bei der Screenshot-Übergabe benannt; ein Konzeptbild wird nicht als Screenshot ausgegeben.
+
+## Ergebnis der automatisierten und visuellen Prüfung
+
+Code-Stand `49befc5dd97a13dbaf90ee8fbe6ff8552b1d0c61` ist im [CI-Lauf 43727258661](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43727258661) vollständig grün: Windows-VST3, DSP, Prozessor, RetroGUI, PNG-Dateiprüfung und Linux-ASan/UBSan. Die [Prüfbilder mit Herkunft und klarer Unterscheidung zwischen Screenshot und JUCE-Render](screenshots/README.md) sind im Repository abgelegt. Der anschließende Dokumentationscommit ergänzt ausschließlich diese Nachweise; der geprüfte Plugin-Code bleibt identisch.
