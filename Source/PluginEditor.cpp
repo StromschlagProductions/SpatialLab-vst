@@ -1,6 +1,7 @@
 #include "PluginEditor.h"
 #include "SpatialLabArtwork.h"
 #include "GuiPreferences.h"
+#include "RetroMotion.h"
 
 namespace
 {
@@ -125,7 +126,8 @@ void SpatialLabEditor::timerCallback()
     lastBlock = block;
     const float peak = processor.gui.peak.exchange(0, std::memory_order_relaxed);
     signal = std::max(juce::jlimit(0.0f, 1.0f, std::sqrt(peak)), signal * 0.87f);
-    phase += 0.18f;
+    animationSeconds = juce::Time::getMillisecondCounterHiRes() * 0.001 - animationStarted;
+    phase = static_cast<float>(std::fmod(animationSeconds * 5.4, 6.28318530718));
     const float rate = processor.gui.sampleRate.load(std::memory_order_relaxed);
     ready = rate > 0;
     const int inputs = processor.gui.inputs.load(std::memory_order_relaxed);
@@ -145,6 +147,8 @@ void SpatialLabEditor::timerCallback()
         repaint(panelBounds(510, 300, 503, 336));
         repaint(panelBounds(488, 744, 217, 49));
         repaint(panelBounds(1205, 121, 270, 113));
+        repaint(panelBounds(926, 184, 112, 45));
+        repaint(panelBounds(793, 732, 216, 54));
     }
 }
 
@@ -234,20 +238,50 @@ void SpatialLabEditor::paint(juce::Graphics& g)
     g.fillRect(1138, 621, 252, 30);
     text(g, configuration, 1144, 623, 244, 26, 19, juce::Colour(0xff1b1b16));
     drawCrt(g);
-    const auto lamp = [&g](float x, juce::Colour colour, float amount)
+    drawLighting(g);
+}
+
+void SpatialLabEditor::drawLighting(juce::Graphics& g)
+{
+    // Restrict light to the actual lens/glass surfaces. No detached glow circles.
+    const std::array<float, 4> tubeX {1216, 1290, 1361, 1424};
+    for (unsigned i = 0; i < tubeX.size(); ++i)
     {
-        g.setColour(juce::Colour(0xff1b160e)); g.fillEllipse(x - 12, 753, 24, 24);
-        g.setColour(colour.withAlpha(0.12f + amount * 0.25f)); g.fillEllipse(x - 17, 748, 34, 34);
-        g.setColour(colour.withMultipliedBrightness(0.22f + amount * 0.78f)); g.fillEllipse(x - 7, 758, 14, 14);
-        if (amount > 0.1f) { g.setColour(juce::Colours::white.withAlpha(amount * 0.7f)); g.fillEllipse(x - 3, 760, 5, 5); }
-    };
-    lamp(521, juce::Colour(0xff9dff2a), ready ? 1.0f : 0.0f);
-    lamp(605, juce::Colour(0xffff9811), activity);
-    lamp(688, juce::Colour(0xff38bfff), signal);
-    if (signal > 0.02f)
+        juce::Graphics::ScopedSaveState state(g);
+        juce::Path glass; glass.addRoundedRectangle(tubeX[i], 133, 32, 80, 13);
+        g.reduceClipRegion(glass);
+        const float strength = spatiallab::retro::light(animationSeconds,i,signal);
+        const float spare = i == 2 ? 0.25f : 1.0f;
+        g.setColour(juce::Colours::black.withAlpha((0.75f - strength) * 0.19f)); g.fillPath(glass);
+        g.setGradientFill(juce::ColourGradient(juce::Colour(0xffffa52b).withAlpha(strength * 0.16f * spare),
+            tubeX[i] + 16, 194, juce::Colour(0xffc1510b).withAlpha(0.008f), tubeX[i] + 16, 139, false));
+        g.fillPath(glass);
+        g.setColour(juce::Colour(0xffffc064).withAlpha(strength * 0.34f * spare));
+        g.drawLine(tubeX[i] + 11, 173, tubeX[i] + 11, 201, 1.2f);
+        g.drawLine(tubeX[i] + 22, 173, tubeX[i] + 22, 201, 1.2f);
+    }
+    const std::array<juce::Colour,3> colours {juce::Colour(0xffb2ef48),juce::Colour(0xffffba39),juce::Colour(0xff84d6ff)};
+    const std::array<float,3> centres {521,605,688};
+    const std::array<float,3> levels {ready ? 1.0f : 0.0f,activity,signal};
+    for (unsigned i = 0; i < 3; ++i)
     {
-        g.setColour(amber.withAlpha(signal * 0.13f));
-        for (float x : {1232.0f, 1306.0f, 1440.0f}) g.fillEllipse(x - 20, 139, 40, 79);
+        const float rhythm = spatiallab::retro::light(animationSeconds,i + 4,levels[i]);
+        // Only the inner luminous lens: preserve the original bezel, reflections and screws.
+        juce::Graphics::ScopedSaveState state(g);
+        juce::Path lens; lens.addEllipse(centres[i] - 6, 758, 12, 13); g.reduceClipRegion(lens);
+        g.setColour(juce::Colours::black.withAlpha((1 - levels[i]) * 0.72f + (0.75f - rhythm) * 0.12f)); g.fillPath(lens);
+        g.setColour(colours[i].withAlpha(levels[i] * rhythm * 0.15f)); g.fillPath(lens);
+    }
+    const std::array<juce::Rectangle<float>,7> lenses {{
+        {934,190,33,30},{1001,190,31,30},{800,740,25,30},{845,740,23,30},
+        {880,740,23,30},{925,740,23,30},{978,740,23,30}}};
+    for (unsigned i = 0; i < lenses.size(); ++i)
+    {
+        juce::Graphics::ScopedSaveState state(g);
+        juce::Path lens; lens.addRoundedRectangle(lenses[i],3); g.reduceClipRegion(lens);
+        const float rhythm = spatiallab::retro::light(animationSeconds,i + 3,i % 3 == 0 ? signal : 0);
+        g.setColour(juce::Colours::black.withAlpha((0.75f - rhythm) * 0.12f)); g.fillPath(lens);
+        g.setColour(juce::Colour(0xffffdeb0).withAlpha(rhythm * 0.035f)); g.fillPath(lens);
     }
 }
 

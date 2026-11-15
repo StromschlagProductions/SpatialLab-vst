@@ -20,6 +20,7 @@ private:
     void drawButtonBackground(juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
     void drawButtonText(juce::Graphics&, juce::TextButton&, bool, bool) override {}
     void drawCrt(juce::Graphics&);
+    void drawLighting(juce::Graphics&);
     void drawEpisodeSwitch(juce::Graphics&, juce::Button&, bool hover);
     juce::Rectangle<int> panelBounds(float x, float y, float width, float height) const;
     SpatialLabProcessor& processor;
@@ -30,6 +31,7 @@ private:
     juce::TextButton episodeSwitch, listUp, listDown;
     std::unique_ptr<juce::SliderParameterAttachment> sizeAttachment, toneAttachment;
     float scale = 1, offsetX = 0, offsetY = 0, signal = 0, activity = 0, phase = 0;
+    double animationStarted = juce::Time::getMillisecondCounterHiRes() * 0.001, animationSeconds = 0;
     unsigned lastBlock = 0;
     bool ready = false;
     int displayedRoom = -1;
