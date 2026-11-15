@@ -42,6 +42,18 @@ jobs:
           cmake --version | Out-File build/toolchain.txt
           Get-Content build/CMakeCache.txt | Select-String 'CMAKE_(CXX_COMPILER|CXX_COMPILER_VERSION|GENERATOR):' | Out-File build/toolchain.txt -Append
           git rev-parse HEAD | Out-File build/toolchain.txt -Append
+      - name: Installations-ZIP mit genau einem VST3-Ordner packen
+        shell: pwsh
+        run: |
+          $bundle = "build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3"
+          if (-not (Test-Path $bundle)) { throw "SpatialLab.vst3 fehlt" }
+          Compress-Archive -Path $bundle -DestinationPath "SpatialLab-VST3-Windows.zip" -Force
+      - name: Sauberes Windows-VST3-Installationspaket hochladen
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: SpatialLab-VST3-Windows-Installieren
+          path: SpatialLab-VST3-Windows.zip
+          if-no-files-found: error
       - name: Upload VST3 bundle and provenance
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
