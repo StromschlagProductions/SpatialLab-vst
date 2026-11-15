@@ -13,7 +13,7 @@ The complete standalone DSP suite runs at both primary rates, checking:
 - Rapid macro automation and repeated room selection stay bounded and perform zero measured ordinary heap allocations.
 - Repeated unchanged targets at different block boundaries produce identical sample smoothing.
 
-The JUCE processor suite checks exactly three exposed parameters; all supported mono/stereo bus layouts and rejected unsupported layouts; wet routing against the independent engine; callback sizes 0/1/7/64/511/2048; both primary rates and all rooms; send-bypass silence; immediate neutral macro reset on a host-thread room change with no open editor; unchanged-room writes preserving automation; session recall of adjusted macros; schema-1/2 migration to neutral presets; invalid/future state rejection; and editor creation/layout.
+The JUCE processor suite checks exactly three exposed parameters; all supported mono/stereo bus layouts and rejected unsupported layouts; wet routing against the independent engine; callback sizes 0/1/7/64/511/2048; both primary rates and all rooms; send-bypass silence; immediate neutral macro reset on a host-thread room change with no open editor; unchanged-room writes preserving automation; A→B→A between callbacks clearing the old tail; session recall of adjusted macros; schema-1/2 migration to neutral presets; invalid/future state rejection; and editor creation/layout.
 
 96/192 kHz get short finite-output/delay smoke tests, not full tuning or CPU coverage. No oversampling is used.
 

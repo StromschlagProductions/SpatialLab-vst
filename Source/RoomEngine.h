@@ -150,14 +150,14 @@ public:
         activeRoom = room; lastSize = sizeValue; decayMultiplier = decay;
         size.reset(rate, sizeValue);
     }
-    void set(int room, float sizeValue, float tone) noexcept
+    void set(int room, float sizeValue, float tone, bool forceReset = false) noexcept
     {
         if (sizeValue != lastSize)
         {
             decayMultiplier = std::exp2(2.0f * (sizeValue - 0.5f));
             lastSize = sizeValue;
         }
-        const bool changed = room != activeRoom;
+        const bool changed = forceReset || room != activeRoom;
         if (changed)
         {
             activeRoom = room;

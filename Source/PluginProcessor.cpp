@@ -43,13 +43,16 @@ bool SpatialLabProcessor::isBusesLayoutSupported(const BusesLayout& layout) cons
 void SpatialLabProcessor::prepareToPlay(double rate, int)
 {
     engine.prepare(rate, room->getIndex(), size->get(), tone->get());
+    audioRevision = resetRevision.load(std::memory_order_acquire);
     setLatencySamples(0);
 }
 
 void SpatialLabProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
-    engine.set(room->getIndex(), size->get(), tone->get());
+    const auto revision = resetRevision.load(std::memory_order_acquire);
+    engine.set(room->getIndex(), size->get(), tone->get(), revision != audioRevision);
+    audioRevision = revision;
     const int inputs = getTotalNumInputChannels(), outputs = getTotalNumOutputChannels();
     auto* left = buffer.getWritePointer(0);
     auto* right = outputs == 2 ? buffer.getWritePointer(1) : nullptr;
@@ -100,6 +103,7 @@ void SpatialLabProcessor::setStateInformation(const void* data, int length)
     room->setValueNotifyingHost(room->convertTo0to1(static_cast<float>(roomIndex)));
     size->setValueNotifyingHost(static_cast<float>(sizeValue));
     tone->setValueNotifyingHost(static_cast<float>(toneValue));
+    resetRevision.fetch_add(1, std::memory_order_release);
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new SpatialLabProcessor(); }

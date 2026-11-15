@@ -54,7 +54,7 @@ private:
     void timerCallback() override;
     spatiallab::Engine engine;
     std::atomic<unsigned> resetRevision {0};
-    unsigned notifiedRevision = 0;
+    unsigned notifiedRevision = 0, audioRevision = 0;
     juce::AudioParameterFloat *size = nullptr, *tone = nullptr;
     RoomParameter* room = nullptr;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpatialLabProcessor)

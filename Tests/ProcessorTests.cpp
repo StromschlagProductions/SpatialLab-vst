@@ -18,7 +18,7 @@ static void restoreXml(SpatialLabProcessor& p, const juce::XmlElement& xml)
 int main()
 {
     // Timers/editor and deferred host notifications use the JUCE message thread.
-    juce::ScopedJuceInitialiser_GUI juce;
+    juce::ScopedJuceInitialiser_GUI initialiseJuce;
     try
     {
         SpatialLabProcessor processor;
@@ -88,6 +88,16 @@ int main()
             require(processor.parameter("size")->getValue() == 0.5f && processor.parameter("tone")->getValue() == 0.5f,
                 "Host room change did not reset macros");
         }
+        // A→B→A between callbacks is still a new preset selection: no old tail may survive.
+        processor.prepareToPlay(48000, 64);
+        juce::AudioBuffer<float> excite(2, 4096); excite.clear();
+        excite.setSample(0, 0, 1); excite.setSample(1, 0, 1);
+        juce::MidiBuffer midi;
+        processor.processBlock(excite, midi);
+        require(excite.getMagnitude(0, 4096) > 0, "Preset test did not excite a tail");
+        parameter(processor, "room", 1); parameter(processor, "room", 0);
+        excite.clear(); processor.processBlock(excite, midi);
+        require(excite.getMagnitude(0, 4096) == 0, "Round-trip preset selection revived an old tail");
         parameter(processor, "size", 0.73f); parameter(processor, "tone", 0.27f);
         parameter(processor, "room", 0); // Repeated same preset is not a preset change.
         require(processor.parameter("size")->getValue() == 0.73f, "Unchanged room reset automation");
