@@ -20,7 +20,8 @@ if(SPATIALLAB_BUILD_PLUGIN)
         GIT_PROGRESS TRUE)
     FetchContent_MakeAvailable(JUCE)
     juce_add_binary_data(SpatialLabArtwork HEADER_NAME SpatialLabArtwork.h NAMESPACE SpatialLabArtwork
-        SOURCES assets/SpatialLab_Retro_Frontplatte_Referenz.png assets/Stromschlag_Audio_Original_Logo.png)
+        SOURCES assets/SpatialLab_Retro_Frontplatte_Referenz.png assets/Stromschlag_Audio_Original_Logo.png
+                assets/SpatialLab_LogoRegion_Restored.png)
     juce_add_plugin(SpatialLab
         COMPANY_NAME "Stromschlag Productions"
         BUNDLE_ID "com.stromschlagproductions.spatiallab"

@@ -21,6 +21,8 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p) : AudioProcessorEdito
                                            SpatialLabArtwork::SpatialLab_Retro_Frontplatte_Referenz_pngSize);
     logo = juce::ImageCache::getFromMemory(SpatialLabArtwork::Stromschlag_Audio_Original_Logo_png,
                                           SpatialLabArtwork::Stromschlag_Audio_Original_Logo_pngSize);
+    logoRestoration = juce::ImageCache::getFromMemory(SpatialLabArtwork::SpatialLab_LogoRegion_Restored_png,
+                                                     SpatialLabArtwork::SpatialLab_LogoRegion_Restored_pngSize);
     const auto button = [this](juce::TextButton& control, const juce::String& name, std::function<void()> action)
     {
         control.setButtonText(name); control.setName(name); control.setTooltip(name);
@@ -199,14 +201,13 @@ void SpatialLabEditor::paint(juce::Graphics& g)
     g.addTransform(juce::AffineTransform::scale(scale).translated(offsetX, offsetY));
     g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
     g.drawImageAt(panel, 0, 0);
-    // The reference's invented wordmark is completely covered by a local metal badge.
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xffe2c5a5), 136, 93,
-                                         juce::Colour(0xffbda083), 350, 190, false));
-    g.fillRoundedRectangle(131, 92, 223, 100, 5);
-    g.setColour(juce::Colour(0xff715641)); g.drawRoundedRectangle(131, 92, 223, 100, 5, 1);
-    // Preserve the original corner screw that overlaps the replacement-badge area.
-    g.drawImage(panel, 129, 91, 24, 24, 129, 91, 24, 24);
-    g.drawImageWithin(logo, 194, 95, 96, 94, juce::RectanglePlacement::centred);
+    // Sparse, non-generative texture repair removes only the baked-in fantasy ink.
+    // Transparent pixels preserve the original metal, wear, screws and markings.
+    g.drawImageAt(logoRestoration, 128, 92);
+    // The original PNG's alpha is the exact print mask: no tracing, frame or plaque.
+    // Slightly translucent oxblood ink lets the restored metal texture show through.
+    g.setColour(juce::Colour(0xff862c22).withAlpha(0.93f));
+    g.drawImageWithin(logo, 194, 95, 96, 94, juce::RectanglePlacement::centred, true);
     const int room = selectedRoom();
     g.setGradientFill(juce::ColourGradient(juce::Colour(0xff261706), 145, 290, dark, 375, 446, false));
     g.fillRoundedRectangle(145, 290, 233, 155, 3);

@@ -20,7 +20,7 @@ private:
     void drawCrt(juce::Graphics&);
     juce::Rectangle<int> panelBounds(float x, float y, float width, float height) const;
     SpatialLabProcessor& processor;
-    juce::Image panel, logo;
+    juce::Image panel, logo, logoRestoration;
     juce::Slider size, tone;
     std::array<juce::TextButton, 3> presets;
     juce::TextButton previous, next, listUp, listDown;
