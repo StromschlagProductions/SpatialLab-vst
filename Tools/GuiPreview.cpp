@@ -6,6 +6,13 @@
  #include <windows.h>
 #endif
 
+class PreviewWindow final : public juce::DocumentWindow
+{
+public:
+    PreviewWindow() : DocumentWindow("SPATIAL LAB – Retro GUI", juce::Colours::black, closeButton) {}
+    void closeButtonPressed() override { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
+};
+
 // Opens the actual production editor. Synthetic audio exists only in this preview host.
 class Preview final : public juce::JUCEApplication, private juce::Timer
 {
@@ -19,7 +26,7 @@ public:
             if (token.startsWith("--output=")) output = juce::File::getCurrentWorkingDirectory().getChildFile(token.fromFirstOccurrenceOf("=", false, false).unquoted());
         processor = std::make_unique<SpatialLabProcessor>();
         processor->prepareToPlay(48000, 1600);
-        window = std::make_unique<juce::DocumentWindow>("SPATIAL LAB – Retro GUI", juce::Colours::black, juce::DocumentWindow::closeButton);
+        window = std::make_unique<PreviewWindow>();
         window->setUsingNativeTitleBar(true);
         window->setContentOwned(processor->createEditor(), true);
         window->setTopLeftPosition(0, 0);

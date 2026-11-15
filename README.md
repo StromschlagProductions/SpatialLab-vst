@@ -43,3 +43,7 @@ Living Room starts with a short, dark tail (nominal low-frequency RT60 0.48 s), 
 Custom Light/Dark/Retro skins, additional interiors and authored outdoor presets are deferred. Outdoor rooms will use the same three-control concept. Appearance must never change audio behavior.
 
 The project's distribution license remains undecided. JUCE is third-party software with its own AGPLv3/commercial licensing requirements; review the JUCE license and bundled VST3 SDK notices before distributing any binary. No third-party DSP code, impulse responses or artwork have been copied into the engine.
+
+## Retro-Oberfläche (GUI-Branch)
+
+Die Retro-Oberfläche folgt der mitgelieferten Original-Frontplatte; Raumliste und Preset-Pfeile sind zwei Wege für denselben Raumparameter. Größe/Klang lassen sich ziehen und per Doppelklick neutral stellen. Die anderen abgebildeten Tasten/Buchsen sind dekorativ. CRT, Lampen und Röhren reagieren ausschließlich visuell; die Anzeige nennt die tatsächliche Host-Samplerate/Kanalbelegung. Details, Asset-Nachweise und Screenshot-Verfahren: [Retro-GUI](docs/gui/RETRO_GUI.md).

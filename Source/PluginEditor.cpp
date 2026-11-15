@@ -170,50 +170,13 @@ void SpatialLabEditor::drawCrt(juce::Graphics& g)
 {
     juce::Path clip; clip.addRoundedRectangle(514, 306, 491, 324, 48);
     g.saveState(); g.reduceClipRegion(clip);
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff201306), 752, 460, dark, 510, 310, true));
-    g.fillAll();
-    const auto line = [&g](float x1, float y1, float x2, float y2, float strength = 0.5f)
-    { g.setColour(amber.withAlpha(strength)); g.drawLine(x1, y1, x2, y2, 1.25f); };
-    // Fixed room perspective. Macro size/tone are controls, not camera motion.
-    for (int i = 0; i <= 8; ++i)
-    {
-        const float x = 558.0f + i * 48.0f;
-        line(x, 502, 681 + (x - 558) * 0.39f, 455, 0.35f);
-        line(x, 343, 681 + (x - 558) * 0.39f, 383, 0.27f);
-    }
-    for (float y : {466.0f, 481.0f, 502.0f}) line(558, y, 947, y, 0.38f);
-    for (float y : {350.0f, 365.0f, 383.0f}) line(558, y, 947, y, 0.24f);
-    line(558, 343, 947, 343, 0.7f); line(558, 343, 558, 502, 0.65f);
-    line(947, 343, 947, 502, 0.65f); line(558, 502, 947, 502, 0.7f);
-    line(681, 383, 833, 383); line(681, 383, 681, 455); line(833, 383, 833, 455);
-    line(681, 455, 833, 455); line(558, 343, 681, 383); line(947, 343, 833, 383);
+    // Keep the accepted wireframe/furniture pixels exactly as supplied. Only the old
+    // baked-in trace is replaced; this is a stylised display, not a physical room model.
+    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff170e04), 755, 515, dark, 755, 622, false));
+    g.fillRect(545, 514, 435, 108);
     const int room = selectedRoom();
-    g.setColour(amber.withAlpha(0.9f));
-    if (room == 0)
-    {
-        g.drawRoundedRectangle(714, 429, 89, 29, 4, 2);
-        g.drawRoundedRectangle(703, 440, 112, 28, 4, 2);
-        line(758, 430, 758, 454, 0.8f); line(711, 468, 711, 474); line(806, 468, 806, 474);
-        line(905, 408, 905, 481, 0.9f); line(890, 427, 920, 427, 0.9f);
-        line(890, 427, 898, 407, 0.9f); line(898, 407, 914, 407, 0.9f); line(914, 407, 920, 427, 0.9f);
-    }
-    else if (room == 1)
-    {
-        g.drawRect(697.0f, 424.0f, 129.0f, 39.0f, 1.5f);
-        line(697, 438, 826, 438, 0.9f);
-        for (float x : {729.0f, 761.0f, 793.0f}) line(x, 438, x, 462, 0.8f);
-        g.drawEllipse(706, 425, 23, 9, 1.5f); line(718, 425, 718, 413); line(718, 413, 727, 413);
-        g.drawRect(840.0f, 397.0f, 37.0f, 69.0f, 1.5f); line(840, 422, 877, 422);
-    }
-    else
-    {
-        g.drawRoundedRectangle(702, 443, 112, 25, 9, 2);
-        line(709, 468, 709, 475); line(807, 468, 807, 475);
-        line(711, 443, 711, 430); line(711, 430, 722, 430);
-        g.drawEllipse(842, 429, 38, 12, 1.5f); line(861, 441, 861, 469);
-        g.drawRoundedRectangle(842, 395, 38, 28, 3, 1.5f);
-    }
-    text(g, names[static_cast<std::size_t>(room)].toUpperCase(), 585, 314, 337, 24, 18, amber, juce::Justification::centred);
+    g.setColour(dark.withAlpha(0.86f)); g.fillRoundedRectangle(641, 313, 234, 25, 3);
+    text(g, names[static_cast<std::size_t>(room)].toUpperCase(), 647, 313, 222, 25, 17, amber, juce::Justification::centred);
     // A deliberately stylised signal trace, driven only by the observed wet level.
     juce::Path trace; trace.startNewSubPath(554, 574);
     for (int x = 554; x <= 967; x += 3)
