@@ -30,13 +30,14 @@ int main()
             std::array<double, 3> energies {};
             for (int room = 0; room < 3; ++room)
             {
-                engine.prepare(rate, room, 0.5f, 1, 0.5f, 1, 1);
+                engine.prepare(rate, room, 0.5f, 0.5f);
                 double early = 0, tail = 0, stereoDifference = 0;
                 for (int i = 0; i < static_cast<int>(rate * 6); ++i)
                 {
-                    const auto out = engine.process(i == 0 ? 1.0f : 0.0f, i == 0 ? 1.0f : 0.0f);
-                    if (i == 0) require(out.left == 0 && out.right == 0, "100% wet leaks direct impulse");
-                    require(std::isfinite(out.left) && std::isfinite(out.right), "Nonfinite impulse response");
+                    const float input = i == 0 ? 1.0f : 0.0f;
+                    const auto out = engine.process(input, input);
+                    if (i == 0) require(out.left == 0 && out.right == 0, "Direct impulse leaked");
+                    require(std::isfinite(out.left) && std::isfinite(out.right), "Nonfinite room response");
                     require(std::abs(out.left) < 2 && std::abs(out.right) < 2, "Unstable impulse response");
                     const double e = out.left * out.left + out.right * out.right;
                     if (i < rate) early += e;
@@ -46,97 +47,107 @@ int main()
                 require(early > 0.01 && tail < early * 1e-5, "Missing or nondecaying room tail");
                 require(stereoDifference > 0.01, "Mono input has no stereo room image");
                 energies[static_cast<std::size_t>(room)] = early;
+                // At neutral macros the preset retains both its early and late components.
+                spatiallab::Room preset;
+                preset.prepare(rate, spatiallab::rooms[static_cast<std::size_t>(room)], 1, 0.5f);
+                engine.prepare(rate, room, 0.5f, 0.5f);
+                double earlyField = 0, lateField = 0;
+                for (int i = 0; i < static_cast<int>(rate * 0.2); ++i)
+                {
+                    const float x = i == 0 ? 1.0f : 0;
+                    const auto fields = preset.process(x, 0);
+                    const auto wet = engine.process(x, 0);
+                    require(std::abs(wet.left - fields.early.left - fields.late.left) < 1e-6f
+                         && std::abs(wet.right - fields.early.right - fields.late.right) < 1e-6f,
+                         "Neutral macro changed the preset voicing");
+                    earlyField += fields.early.left * fields.early.left;
+                    lateField += fields.late.left * fields.late.left;
+                }
+                require(earlyField > 0.01 && lateField > 0.01, "Preset lost internal early/late field");
+                // Size must extend late energy; brighter tone must increase normalized HF.
+                spatiallab::Engine small, bright, dark;
+                small.prepare(rate, room, 0, 1);
+                bright.prepare(rate, room, 1, 1);
+                dark.prepare(rate, room, 1, 0);
+                double smallEnergy = 0, brightEnergy = 0, darkEnergy = 0, brightHigh = 0, darkHigh = 0;
+                float previousBright = 0, previousDark = 0;
+                for (int i = 0; i < static_cast<int>(rate); ++i)
+                {
+                    const float input = i == 0 ? 1.0f : 0;
+                    const auto a = small.process(input, input), b = bright.process(input, input), c = dark.process(input, input);
+                    if (i > rate * 0.3)
+                    {
+                        smallEnergy += a.left * a.left;
+                        brightEnergy += b.left * b.left; darkEnergy += c.left * c.left;
+                        brightHigh += (b.left - previousBright) * (b.left - previousBright);
+                        darkHigh += (c.left - previousDark) * (c.left - previousDark);
+                    }
+                    previousBright = b.left; previousDark = c.left;
+                }
+                require(smallEnergy > 0 && darkEnergy > 0 && brightEnergy > smallEnergy * 4, "Size does not extend tail");
+                require(darkHigh / darkEnergy < 0.5 * brightHigh / brightEnergy, "Tone does not change spectral decay");
             }
             require(std::abs(energies[0] - energies[2]) > 0.001, "Rooms sound identical");
-            engine.prepare(rate, 2, 0.5f, 2, 0, 0, 1);
-            for (int i = 0; i < 10000; ++i)
-            {
-                const auto out = engine.process(i == 0 ? 1.0f : 0, 0);
-                require(out.left == out.right, "Width zero is not mono compatible");
-            }
             engine.reset();
             for (int i = 0; i < 10000; ++i)
             {
-                auto out = engine.process(0, 0);
+                const auto out = engine.process(0, 0);
                 require(out.left == 0 && out.right == 0, "Reset left a tail");
             }
-            engine.prepare(rate, 0, 0.5f, 1, 0.5f, 1, 1);
+            engine.prepare(rate, 2, 0.5f, 0.5f);
+            for (int i = 0; i < 10000; ++i) engine.process(i == 0 ? 1.0f : 0, 0);
+            for (int room : {0, 2})
+            {
+                engine.set(room, 0.5f, 0.5f);
+                for (int i = 0; i < 10000; ++i)
+                {
+                    const auto out = engine.process(0, 0);
+                    require(out.left == 0 && out.right == 0, "Preset switch blended or revived an old tail");
+                }
+            }
+            engine.prepare(rate, 0, 0.5f, 0.5f);
             watch = true;
             bool finite = true;
             for (int block = 0; block < 1000; ++block)
             {
-                engine.set(block % 3, (block % 2) ? 1.0f : 0.0f, (block % 2) ? 2.0f : 0.5f,
-                    (block % 2) ? 0.0f : 1.0f, 1, 1.995262f);
+                engine.set((block / 17) % 3, static_cast<float>(block % 2), static_cast<float>((block / 2) % 2));
                 for (int i = 0; i < 127; ++i)
                 {
                     const float input = std::sin(static_cast<float>(block * 127 + i) * 0.071f) * 0.5f;
-                    auto out = engine.process(input, -input);
+                    const auto out = engine.process(input, -input);
                     finite = finite && std::isfinite(out.left) && std::isfinite(out.right)
                         && std::abs(out.left) < 10 && std::abs(out.right) < 10;
                 }
             }
             watch = false;
-            require(finite, "Automation stress was unstable");
-            require(allocations == 0, "Audio processing allocated heap memory");
-            // Every balance setting stays wet; early-only ends after the last reflection,
-            // late-only cannot precede the shortest FDN delay. Midpoint preserves both fields.
-            for (int room = 0; room < 3; ++room)
+            require(finite, "Macro automation was unstable");
+            require(allocations == 0, "DSP processing or preset selection allocated");
+            // Refreshing unchanged targets must not restart sample smoothing.
+            spatiallab::Engine a, b;
+            a.prepare(rate, 0, 0.5f, 0.5f); b.prepare(rate, 0, 0.5f, 0.5f);
+            a.set(0, 1, 0);
+            for (int i = 0; i < 20000; ++i)
             {
-                spatiallab::Engine earlyOnly, lateOnly, combined;
-                earlyOnly.prepare(rate, room, 0, 1, 0.5f, 1, 1);
-                lateOnly.prepare(rate, room, 1, 1, 0.5f, 1, 1);
-                combined.prepare(rate, room, 0.5f, 1, 0.5f, 1, 1);
-                double earlyEnergy = 0, lateEnergy = 0;
-                for (int i = 0; i < static_cast<int>(rate * 0.3); ++i)
-                {
-                    const float input = i == 0 ? 1.0f : 0;
-                    const auto e = earlyOnly.process(input, 0), l = lateOnly.process(input, 0);
-                    const auto c = combined.process(input, 0);
-                    if (i < rate * 0.001)
-                        require(e.left == 0 && e.right == 0 && l.left == 0 && l.right == 0,
-                            "Balance endpoint leaked direct signal");
-                    if (i > rate * 0.05) require(e.left == 0 && e.right == 0, "Early-only contains late tail");
-                    if (i < rate * 0.015) require(l.left == 0 && l.right == 0, "Late-only contains early reflections");
-                    require(std::abs(c.left - 0.5f * (e.left + l.left)) < 1e-6f
-                         && std::abs(c.right - 0.5f * (e.right + l.right)) < 1e-6f, "Balance midpoint changed room voicing");
-                    earlyEnergy += e.left * e.left + e.right * e.right;
-                    lateEnergy += l.left * l.left + l.right * l.right;
-                }
-                require(earlyEnergy > 0.01 && lateEnergy > 0.01, "Balance endpoint is silent");
+                if (i % 7 == 0) b.set(0, 1, 0);
+                const auto x = a.process(i == 0 ? 1.0f : 0, 0), y = b.process(i == 0 ? 1.0f : 0, 0);
+                require(x.left == y.left && x.right == y.right, "Block size changed smoothing");
             }
-            std::cout << "PASS " << rate << " Hz: wet-only, early/late, rooms, decay, reset, automation, allocations\n";
+            std::cout << "PASS " << rate << " Hz: wet-only, preset voicing, size/tone, hard preset reset, allocation/automation, blocks\n";
         }
-        // Repeated block-boundary target refresh must not restart ramps.
-        for (double rate : {44100.0, 48000.0})
-        {
-        spatiallab::Engine a, b;
-        a.prepare(rate, 0, 0, 1, 0.5f, 1, 1);
-        b.prepare(rate, 0, 0, 1, 0.5f, 1, 1);
-        a.set(2, 1, 2, 0, 0.3f, 0.5f);
-        for (int i = 0; i < 20000; ++i)
-        {
-            if (i % 7 == 0) b.set(2, 1, 2, 0, 0.3f, 0.5f);
-            const auto x = a.process(i == 0 ? 1.0f : 0, 0);
-            const auto y = b.process(i == 0 ? 1.0f : 0, 0);
-            require(x.left == y.left && x.right == y.right, "Block size changes smoothing");
-        }
-        }
-        // Higher rates receive a short correctness smoke test, not full tuning/CPU coverage.
         for (double rate : {96000.0, 192000.0})
         {
-            spatiallab::Engine e;
-            e.prepare(rate, 2, 0.5f, 2, 0, 1, 1);
+            spatiallab::Engine e; e.prepare(rate, 2, 1, 1);
             double energy = 0;
             for (int i = 0; i < static_cast<int>(rate * 0.1); ++i)
             {
                 const auto y = e.process(i == 0 ? 1.0f : 0, 0);
                 require(std::isfinite(y.left) && std::isfinite(y.right), "High-rate smoke nonfinite");
-                if (i == 0) require(y.left == 0 && y.right == 0, "High-rate dry leak");
+                if (i == 0) require(y.left == 0 && y.right == 0, "High-rate direct leak");
                 energy += y.left * y.left + y.right * y.right;
             }
             require(energy > 0.01, "High-rate smoke silence");
         }
-        std::cout << "PASS high-rate smoke and primary-rate block partition invariance\n";
+        std::cout << "PASS high-rate smoke\n";
     }
     catch (const std::exception& e) { watch = false; std::cerr << e.what() << '\n'; return 1; }
 }

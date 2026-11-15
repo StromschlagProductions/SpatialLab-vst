@@ -31,13 +31,15 @@ ctest --test-dir build-dsp --output-on-failure
 
 ## Operation
 
-The first UI uses JUCE's generic parameter editor. Use SpatialLab on an auxiliary/send return; the DAW supplies the direct signal separately. There is **no Dry/Wet parameter or internal direct path**. Select a room, then adjust Early / Late Balance (0 = early only, 0.5 = original early + late voicing, 1 = late only), Decay multiplier (0.5–2), Damping (0–1), Stereo width (0–1) and Wet Output Level (-24 to +6 dB). Early/Late endpoints use twice the midpoint component gain; the balance is linear, not loudness normalized. Increasing damping reduces high-frequency decay. Width zero folds the wet field to mono. Wet Output Level controls only reflections/reverb. No limiter or automatic gain normalization is applied: leave headroom.
+The editor exposes exactly **Raum**, **Größe** (smaller → neutral → larger) and **Klang** (darker → neutral → brighter). Select a preset and set its send level in the DAW. Changing presets resets both macros to their neutral midpoint, including through host automation. Double-click either macro to reset it manually. No other audio controls or hidden expert automation parameters are present.
 
-When the host invokes the plugin's bypass callback, the send output is muted while the engine continues processing. Hosts that bypass by routing around the plugin control their own signal path; mute the return in such hosts to avoid doubling the direct signal. Schema-1 prototype sessions migrate their wet controls; the obsolete Dry/Wet value is discarded and Early/Late resets to the neutral midpoint.
+The output is always **100% wet**; there is no direct path, output gain or loudness knob. Early reflections, tail, diffusion, delays, damping and stereo voicing are authored internally by the preset. Size changes decay and internal early/late voicing, while Tone changes spectral damping. Room selection replaces the room and clears the previous tail; there are no room blends, distance or movement simulations. Locations handles scene transitions separately.
+
+When the host invokes the plugin bypass callback, the send is muted while processing continues. Hosts that route around the plugin control their own external path; mute the return in those hosts. Schema-1/2 prototype sessions restore the selected room with neutral macros; obsolete extra controls are discarded.
 Living Room starts with a short, dark tail (nominal low-frequency RT60 0.48 s), Kitchen is brighter (0.85 s), Bathroom has a longer reflective tail (1.35 s). These are designed room impressions, not measured acoustic models. The reported host tail is conservatively 6 s; latency is zero. Read [DSP and parameter design](docs/DESIGN.md) before extending the engine or changing parameter IDs.
 
 ## Roadmap and licensing
 
-Custom Light/Dark/Retro skins, additional interiors and a separate outdoor reflection engine are deferred. Appearance must never change audio behavior.
+Custom Light/Dark/Retro skins, additional interiors and authored outdoor presets are deferred. Outdoor rooms will use the same three-control concept. Appearance must never change audio behavior.
 
 The project's distribution license remains undecided. JUCE is third-party software with its own AGPLv3/commercial licensing requirements; review the JUCE license and bundled VST3 SDK notices before distributing any binary. No third-party DSP code, impulse responses or artwork have been copied into the engine.

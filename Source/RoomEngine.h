@@ -40,7 +40,7 @@ inline constexpr std::array<RoomSpec, 3> rooms {{
 class Room
 {
 public:
-    void prepare(double rate, const RoomSpec& spec, float decay, float damping)
+    void prepare(double rate, const RoomSpec& spec, float decay, float tone)
     {
         sampleRate = rate;
         for (std::size_t i = 0; i < lines.size(); ++i)
@@ -57,22 +57,24 @@ public:
             tapsL[i] = static_cast<std::size_t>(std::round(rate * spec.earlyMs[i] * 0.001));
             tapsR[i] = static_cast<std::size_t>(std::round(rate * (spec.earlyMs[i] * 1.071f + 0.37f) * 0.001));
         }
-        pole.reset(rate, coefficient(spec.cutoff * (1.4f - damping)));
-        lastDecay = decay; lastDamping = damping;
+        pole.reset(rate, coefficient(spec.cutoff * (std::exp2(2.0f * (tone - 0.5f)))));
+        lastDecay = decay; lastTone = tone;
         filtered.fill(0.0f); earlyPos = 0;
     }
-    void set(float decay, float damping, const RoomSpec& spec) noexcept
+    void set(float decay, float tone, const RoomSpec& spec, bool immediate = false) noexcept
     {
-        if (decay != lastDecay)
+        if (immediate || decay != lastDecay)
         {
             for (std::size_t i = 0; i < feedback.size(); ++i)
-                feedback[i].set(gain(spec.rt60 * decay, delaySeconds[i]));
+                if (immediate) feedback[i].reset(sampleRate, gain(spec.rt60 * decay, delaySeconds[i]));
+                else feedback[i].set(gain(spec.rt60 * decay, delaySeconds[i]));
             lastDecay = decay;
         }
-        if (damping != lastDamping)
+        if (immediate || tone != lastTone)
         {
-            pole.set(coefficient(spec.cutoff * (1.4f - damping)));
-            lastDamping = damping;
+            const float value = coefficient(spec.cutoff * std::exp2(2.0f * (tone - 0.5f)));
+            if (immediate) pole.reset(sampleRate, value); else pole.set(value);
+            lastTone = tone;
         }
     }
     void reset() noexcept
@@ -124,7 +126,7 @@ private:
     float coefficient(float hz) const noexcept
     { return std::exp(-6.28318530718f * std::min(hz, static_cast<float>(sampleRate * 0.45)) / static_cast<float>(sampleRate)); }
     double sampleRate = 48000;
-    float lastDecay = 1, lastDamping = 0.5f;
+    float lastDecay = 1, lastTone = 0.5f;
     std::array<std::vector<float>, 8> lines;
     std::vector<float> earlyL, earlyR;
     std::array<std::size_t, 8> positions {};
@@ -138,49 +140,50 @@ private:
 class Engine
 {
 public:
-    void prepare(double rate, int room, float balanceValue, float decay, float damping, float widthValue, float gainValue)
+    void prepare(double rate, int room, float sizeValue, float tone)
     {
+        sampleRate = rate;
+        const float decay = std::exp2(2.0f * (sizeValue - 0.5f));
+        // Preallocate all presets so selecting a room can never allocate on the audio thread.
         for (std::size_t i = 0; i < reverbs.size(); ++i)
-        {
-            reverbs[i].prepare(rate, rooms[i], decay, damping);
-            weights[i].reset(rate, static_cast<int>(i) == room ? 1.0f : 0.0f);
-        }
-        balance.reset(rate, balanceValue); width.reset(rate, widthValue); output.reset(rate, gainValue);
-        set(room, balanceValue, decay, damping, widthValue, gainValue);
+            reverbs[i].prepare(rate, rooms[i], decay, tone);
+        activeRoom = room; lastSize = sizeValue; decayMultiplier = decay;
+        size.reset(rate, sizeValue);
     }
-    void set(int room, float balanceValue, float decay, float damping, float widthValue, float gainValue) noexcept
+    void set(int room, float sizeValue, float tone) noexcept
     {
-        for (std::size_t i = 0; i < reverbs.size(); ++i)
+        if (sizeValue != lastSize)
         {
-            reverbs[i].set(decay, damping, rooms[i]);
-            weights[i].set(static_cast<int>(i) == room ? 1.0f : 0.0f);
+            decayMultiplier = std::exp2(2.0f * (sizeValue - 0.5f));
+            lastSize = sizeValue;
         }
-        balance.set(balanceValue); width.set(widthValue); output.set(gainValue);
+        const bool changed = room != activeRoom;
+        if (changed)
+        {
+            activeRoom = room;
+            reverbs[static_cast<std::size_t>(room)].reset();
+            size.reset(sampleRate, sizeValue);
+        }
+        reverbs[static_cast<std::size_t>(room)].set(decayMultiplier, tone,
+            rooms[static_cast<std::size_t>(room)], changed);
+        size.set(sizeValue);
     }
     void reset() noexcept { for (auto& room : reverbs) room.reset(); }
     Stereo process(float left, float right) noexcept
     {
-        Stereo early, late;
-        // All rooms run continuously: changing rooms never clears or allocates delay memory.
-        for (std::size_t i = 0; i < reverbs.size(); ++i)
-        {
-            const auto value = reverbs[i].process(left, right);
-            const float w = weights[i].next();
-            early.left += value.early.left * w; early.right += value.early.right * w;
-            late.left += value.late.left * w; late.right += value.late.right * w;
-        }
-        // Midpoint preserves the original early + late voicing; endpoints isolate either field.
-        const float b = balance.next();
-        const Stereo wet {2.0f * ((1.0f - b) * early.left + b * late.left),
-                          2.0f * ((1.0f - b) * early.right + b * late.right)};
-        const float mid = (wet.left + wet.right) * 0.5f;
-        const float side = (wet.left - wet.right) * 0.5f * width.next();
-        const float g = output.next();
-        return {g * (mid + side), g * (mid - side)};
+        const auto value = reverbs[static_cast<std::size_t>(activeRoom)].process(left, right);
+        const float s = size.next();
+        // A size impression from decay and preset-internal early/late voicing, with no
+        // variable-delay motion, distance model, cross-room blend or user gain controls.
+        const float earlyGain = 1.2f - 0.4f * s, lateGain = 0.65f + 0.7f * s;
+        return {earlyGain * value.early.left + lateGain * value.late.left,
+                earlyGain * value.early.right + lateGain * value.late.right};
     }
 private:
     std::array<Room, 3> reverbs;
-    std::array<Ramp, 3> weights;
-    Ramp balance, width, output;
+    Ramp size;
+    double sampleRate = 48000;
+    float lastSize = 0.5f, decayMultiplier = 1;
+    int activeRoom = 0;
 };
 }

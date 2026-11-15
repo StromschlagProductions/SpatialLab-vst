@@ -1,41 +1,47 @@
-# DSP and host contract
+# DSP and host contract — static send effect
 
-## Signal path
+## Exactly three controls
 
-The plugin is exclusively a send effect. No direct signal is mixed into the output at any parameter setting. Mono input is duplicated before room processing. Mono output averages the internal stereo wet result; stereo-to-mono and surround bus configurations are deliberately rejected. Stereo input channels excite the room independently.
+SPATIAL LAB is a static, preset-driven room reverb. Select a room, set the DAW send level, and use Size/Tone only when an adjustment is needed. The editor and host parameter list contain exactly these controls:
 
-`Room` returns separate early and late stereo fields. `Engine` crossfades rooms, then applies Early/Late Balance: `wet = 2 * ((1 - balance) * early + balance * late)`. At 0.5 the original `early + late` voicing is preserved; 0 isolates early reflections, 1 isolates the late field. The factors of two at endpoints are deliberate, not an equal-power or loudness-normalized blend. Balance is smoothed; changing it never clears the late tail, which continues evolving even when inaudible. Width operates on the combined wet field, followed by Wet Output Level.
-Each room has six signed early taps, different left/right arrival times and a late eight-line feedback delay network. Delay times are fixed for each room and scaled to the current sample rate during prepare. A Householder matrix scatters delayed signals; its orthogonality preserves energy before per-line attenuation. Feedback is `10^(-3 * delaySeconds / RT60)`, with a one-pole low-pass in every line. Maximum requested nominal RT60 is 2.7 s, and all feedback gains remain below unity. Damping makes high-frequency decay shorter than the nominal low-frequency RT60. The design is static and deterministic; no modulation, oversampling or measured impulse response is used.
-
-Three rooms run continuously and their wet outputs crossfade over 50 ms. This keeps new room tails available without clearing buffers, reallocating, or changing delay lengths. It also costs three room engines at all times. Early/Late balance, width, wet output gain, damping pole and feedback gains have 50 ms sample ramps. Wet output gain is smoothed in the linear domain. Parameters are read once per host callback; this initial implementation is block-accurate automation followed by per-sample smoothing, not sample-offset VST3 automation.
-
-## Real-time ownership
-
-All vectors allocate in `prepareToPlay`, which is the only place that sets sample-rate-dependent buffer sizes. `processBlock` reads cached lock-free atomic parameters and updates bounded ramps and preallocated delay buffers. No state trees, XML, filesystem, locks, logging or heap allocation occur in that path. Unchanged decay/damping values reuse their existing coefficients; exponentials are calculated only when those parameters change. Circular-buffer indices use conditional wraps instead of runtime integer division. Processing iterates the actual host buffer size and needs no scratch allocation even when a callback exceeds the advertised block size. JUCE disables denormals during processing. Reset clears delay memory without resizing it and must run under the host's normal processing lifecycle synchronization.
-
-State serialization uses APVTS outside the audio callback. The root is `SpatialLabState`, with `schemaVersion=2`. Schema 1 is migrated: retain room/decay/damping/width/output, remove `mix`, and add `earlyLate=0.5`. Unknown versions and invalid binary/XML are ignored. Session recall stores controls, not the current tail. It does not implement live tail transfer, programs or factory-preset files. The Room parameter selects a DSP profile; it does not overwrite the other automated controls.
-
-## Stable automation ABI
-
-All current IDs have JUCE parameter version hint 1. The send-only revision intentionally removes the unreleased prototype `mix` ID and introduces `earlyLate` with a different ID, avoiding reinterpretation of old automation as early/late balance. Schema migration handles saved control state, not old `mix` automation lanes; those lanes must be removed in the DAW. The existing `output` ID/range is retained and its label now explicitly says Wet Output Level. Do not otherwise rename IDs, reorder choices, change ranges or change normalization without a migration plan.
-
-| ID | Host name | Range / choices | Default |
+| ID | UI name | Range | Default |
 | --- | --- | --- | --- |
-| `room` | Room | Living Room, Kitchen, Bathroom (indices 0–2) | Living Room |
-| `earlyLate` | Early / Late Balance | 0–1 (0 early, 1 late) | 0.5 |
-| `decay` | Decay multiplier | 0.5–2 | 1 |
-| `damping` | Damping | 0–1 | 0.5 |
-| `width` | Stereo width | 0–1 | 1 |
-| `output` | Wet Output Level (dB) | -24–6 | 0 |
+| `room` | Raum | Living Room, Kitchen, Bathroom (indices 0–2) | Living Room |
+| `size` | Größe | 0 smaller, 0.5 neutral, 1 larger | 0.5 |
+| `tone` | Klang | 0 darker, 0.5 neutral, 1 brighter | 0.5 |
 
-Plugin manufacturer code `StPr`, plugin code `SpLb`, bundle ID `com.stromschlagproductions.spatiallab`. These determine host identity and must remain stable after distribution.
+Changing the room resets Size and Tone to 0.5, through both the editor and host automation, even with the editor closed. Writing the same room again is not a change and does not erase macro automation. Macro automation after a room event takes effect in host delivery order. Parameters are read once per callback, with 50 ms sample ramps for macro-driven coefficients and voicing; this is block-accurate, not sample-offset VST3 automation. There is no cross-room transition engine, distance model, movement simulation or oversampling. Outdoor presets are a future extension; the first milestone contains the three named indoor rooms.
 
-## Rate and CPU priorities
+Early reflections, late reverb, pre-delay/delay times, diffusion, spectral damping, stereo image and level calibration are internal preset design values, never individual controls. No Dry/Wet, Output Gain, Early/Late, Decay, Damping, Width or hidden automatable expert parameters are exposed. The output is always 100% wet. Direct signal and send level belong to the DAW. The editor shows a neutral midpoint and supports double-click reset for Size/Tone.
 
-48 kHz (audio drama) and 44.1 kHz (music) receive the complete DSP/processor regression suite and mono/stereo CPU benchmarks with steady controls and automation at 64-frame boundaries. All delay times use the actual sample rate; no resampling or oversampling is present. Higher rates (96/192 kHz) receive short finite-output/delay smoke tests only. They must not drive default tuning, UI choices or optimizations at the expense of the primary rates.
+## Signal path and preset voicing
 
-The plugin's bypass callback advances the engine and clears the output. This intentionally mutes the send rather than returning dry audio. A DAW may implement bypass outside the plugin; that routing is beyond the callback's control.
+Mono input is duplicated before room processing. Mono output averages the internal stereo wet result. Stereo input channels excite the room independently. Supported layouts are mono → mono, mono → stereo and stereo → stereo; surround and stereo → mono are rejected.
 
-## Known limits
+Each preset has six signed early taps with distinct left/right arrivals and an eight-line damped feedback delay network. A Householder matrix scatters delayed signals before per-line attenuation `10^(-3 * delaySeconds / RT60)`. Delay times are fixed per preset and scaled to the actual sample rate during prepare. A one-pole low-pass per line models frequency-dependent decay; all loop gains remain below unity.
 
-Static delays can produce coloration on sustained tones; listening and spectral evaluation remain necessary before a release. No low-cut, source placement, pre-delay control, modulation or limiter is present. A nominal RT60 is an attenuation target, not a measured room specification. A conservative six-second host tail is not a hard truncation: internal feedback continues as long as the host processes. Factory skins and production artwork are intentionally outside this first audio milestone.
+Size maps to nominal RT60 multiplier `2^(2*(size-0.5))` (0.5–2). It also changes the internal early/late voicing: early gain `1.2-0.4*size`, late gain `0.65+0.7*size`. Both are unity at neutral. This conveys a smaller/larger room impression without moving delay taps or adding a physical size/distance model. Tone maps preset damping cutoff to `presetCutoff * 2^(2*(tone-0.5))`, clamped below Nyquist. At neutral the preset's authored cutoff is used. The larger and brighter extremes are regression-tested for longer late energy and greater normalized high-frequency energy at both primary rates. These checks do not replace listening.
+
+Only the selected room processes audio. All preset delay memories are allocated in advance. Selecting another room clears its previous tail, snaps to its current macro settings and starts that preset afresh; no old room tail is blended or revived. This intentional hard preset selection can interrupt sound if switched during playback. It is not designed for automated scene transitions; Locations handles those tasks.
+
+## Real-time and parameter ownership
+
+Vectors allocate only in prepare. Processing and room selection use preallocated buffers, bounded loops, lock-free atomic controls and coefficient ramps. No XML, filesystem, logging, locks, host notification, allocation or OS message posting occurs inside the room-reset callback or DSP path. Unchanged macro values reuse coefficients; ring-buffer wraps use conditional indexing rather than runtime division. Preset selection clears a bounded buffer, so its callback cost is higher than a steady block; CPU benchmarks report that separately.
+
+JUCE owns three ranged parameters, rather than an APVTS with obsolete expert parameters. A choice-parameter callback resets the two macro atomics immediately when a different room is written. It increments a lock-free revision. A message-thread timer reports the **current** macro values to host listeners later; it never writes queued reset values over newer automation. The custom editor polls actual values as well as using JUCE slider attachments for host gestures. No editor or message dispatch is required for the DSP reset itself.
+
+`processBlock` follows the actual host buffer size, including zero and oversized callbacks. JUCE disables denormals during processing. Reset clears memory without resizing. State operations and editor/timer work belong outside the audio callback. The usual host lifecycle must synchronize prepare/reset/state restore with processing.
+
+## State and automation migration
+
+Binary XML root `SpatialLabState`, `schemaVersion=3`, stores room index and Size/Tone values. Restore room first, then the saved macro offsets so session recall preserves adjustments. Invalid roots, unknown versions, out-of-range and nonfinite macro values are rejected. Schema 1/2 prototype states restore only the selected preset, with neutral macros; obsolete mix/gain/early-late/width/decay/damping settings are discarded. Old expert automation IDs are removed, not reused for new meanings; remove those obsolete DAW lanes. Parameter version hints are 1.
+
+Session state stores controls, not live tails. Plugin manufacturer `StPr`, plugin code `SpLb`, bundle ID `com.stromschlagproductions.spatiallab` remain stable. Do not change room indices or current parameter IDs/ranges after distribution without migration.
+
+## Rates, bypass and limits
+
+48 kHz audio drama and 44.1 kHz music receive full regression and CPU coverage. Higher rates (96/192 kHz) get short correctness smoke tests only. No resampling/oversampling is required by this linear design.
+
+The plugin bypass callback advances the engine and mutes the send. A DAW may implement bypass by routing around the plugin; such external routing is outside the callback's control. Mute the return in that case.
+
+The static delays can color sustained tones. Presets are designed acoustic impressions, not measured rooms; listening, host validation and CPU deadline profiling remain required before release. No limiter, physical scene model, measured IR, custom skins or outdoor presets are included in this milestone. The reported host tail is conservatively 6 seconds, not a hard internal truncation; latency is zero.

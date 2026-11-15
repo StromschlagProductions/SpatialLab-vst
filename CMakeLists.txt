@@ -32,7 +32,8 @@ if(SPATIALLAB_BUILD_PLUGIN)
         NEEDS_MIDI_OUTPUT FALSE
         IS_MIDI_EFFECT FALSE
         COPY_PLUGIN_AFTER_BUILD FALSE)
-    target_sources(SpatialLab PRIVATE Source/PluginProcessor.cpp Source/PluginProcessor.h Source/RoomEngine.h)
+    target_sources(SpatialLab PRIVATE Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/RoomEngine.h)
+    target_compile_options(SpatialLab PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
     target_compile_definitions(SpatialLab PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0)
     target_link_libraries(SpatialLab PRIVATE juce::juce_audio_processors
         PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)

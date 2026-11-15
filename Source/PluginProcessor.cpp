@@ -1,32 +1,36 @@
 #include "PluginProcessor.h"
-
-juce::AudioProcessorValueTreeState::ParameterLayout SpatialLabProcessor::makeParameters()
-{
-    juce::AudioProcessorValueTreeState::ParameterLayout layout;
-    layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"room", 1}, "Room",
-        juce::StringArray{"Living Room", "Kitchen", "Bathroom"}, 0));
-    const auto add = [&layout](const char* id, const char* name, float lo, float hi, float initial)
-    {
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{id, 1}, name,
-            juce::NormalisableRange<float>{lo, hi}, initial));
-    };
-    add("earlyLate", "Early / Late Balance", 0.0f, 1.0f, 0.5f);
-    add("decay", "Decay multiplier", 0.5f, 2.0f, 1.0f);
-    add("damping", "Damping", 0.0f, 1.0f, 0.5f);
-    add("width", "Stereo width", 0.0f, 1.0f, 1.0f);
-    add("output", "Wet Output Level (dB)", -24.0f, 6.0f, 0.0f);
-    return layout;
-}
+#include "PluginEditor.h"
 
 SpatialLabProcessor::SpatialLabProcessor()
     : AudioProcessor(BusesProperties().withInput("Input", juce::AudioChannelSet::stereo(), true)
-                                     .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
-      parameters(*this, nullptr, "SpatialLabState", makeParameters()),
-      room(parameters.getRawParameterValue("room")), earlyLate(parameters.getRawParameterValue("earlyLate")),
-      decay(parameters.getRawParameterValue("decay")), damping(parameters.getRawParameterValue("damping")),
-      width(parameters.getRawParameterValue("width")), output(parameters.getRawParameterValue("output"))
+                                     .withOutput("Output", juce::AudioChannelSet::stereo(), true))
 {
-    static_assert(std::atomic<float>::is_always_lock_free, "Audio parameters require lock-free floats");
+    static_assert(std::atomic<float>::is_always_lock_free && std::atomic<unsigned>::is_always_lock_free
+                  && std::atomic<int>::is_always_lock_free, "Audio controls require lock-free atomics");
+    size = new juce::AudioParameterFloat(juce::ParameterID{"size", 1}, juce::String::fromUTF8("Größe"), 0.0f, 1.0f, 0.5f);
+    tone = new juce::AudioParameterFloat(juce::ParameterID{"tone", 1}, "Klang", 0.0f, 1.0f, 0.5f);
+    room = new RoomParameter(*size, *tone, resetRevision);
+    addParameter(room); addParameter(size); addParameter(tone);
+    // Polling avoids AsyncUpdater/OS-message calls from an automated room change.
+    startTimerHz(30);
+}
+
+juce::RangedAudioParameter* SpatialLabProcessor::parameter(const juce::String& id) const
+{
+    if (id == "room") return room;
+    if (id == "size") return size;
+    if (id == "tone") return tone;
+    return nullptr;
+}
+
+void SpatialLabProcessor::timerCallback()
+{
+    const auto revision = resetRevision.load(std::memory_order_acquire);
+    if (revision == notifiedRevision) return;
+    notifiedRevision = revision;
+    // Report current values, not a queued neutral value that could overwrite later automation.
+    size->sendValueChangedMessageToListeners(size->getValue());
+    tone->sendValueChangedMessageToListeners(tone->getValue());
 }
 
 bool SpatialLabProcessor::isBusesLayoutSupported(const BusesLayout& layout) const
@@ -38,16 +42,14 @@ bool SpatialLabProcessor::isBusesLayoutSupported(const BusesLayout& layout) cons
 
 void SpatialLabProcessor::prepareToPlay(double rate, int)
 {
-    engine.prepare(rate, juce::roundToInt(room->load()), earlyLate->load(), decay->load(), damping->load(),
-        width->load(), juce::Decibels::decibelsToGain(output->load()));
+    engine.prepare(rate, room->getIndex(), size->get(), tone->get());
     setLatencySamples(0);
 }
 
 void SpatialLabProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
-    engine.set(juce::roundToInt(room->load()), earlyLate->load(), decay->load(), damping->load(), width->load(),
-        juce::Decibels::decibelsToGain(output->load()));
+    engine.set(room->getIndex(), size->get(), tone->get());
     const int inputs = getTotalNumInputChannels(), outputs = getTotalNumOutputChannels();
     auto* left = buffer.getWritePointer(0);
     auto* right = outputs == 2 ? buffer.getWritePointer(1) : nullptr;
@@ -63,43 +65,41 @@ void SpatialLabProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::M
 
 void SpatialLabProcessor::processBlockBypassed(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi)
 {
-    // A send must never add another direct signal when the host invokes plugin bypass.
     processBlock(buffer, midi);
     buffer.clear();
 }
 
-juce::AudioProcessorEditor* SpatialLabProcessor::createEditor()
-{
-    return new juce::GenericAudioProcessorEditor(*this);
-}
+juce::AudioProcessorEditor* SpatialLabProcessor::createEditor() { return new SpatialLabEditor(*this); }
 
 void SpatialLabProcessor::getStateInformation(juce::MemoryBlock& destination)
 {
-    auto state = parameters.copyState();
-    state.setProperty("schemaVersion", 2, nullptr);
-    if (auto xml = state.createXml()) copyXmlToBinary(*xml, destination);
+    juce::XmlElement state("SpatialLabState");
+    state.setAttribute("schemaVersion", 3);
+    state.setAttribute("room", room->getIndex());
+    state.setAttribute("size", static_cast<double>(size->get()));
+    state.setAttribute("tone", static_cast<double>(tone->get()));
+    copyXmlToBinary(state, destination);
 }
 
-void SpatialLabProcessor::setStateInformation(const void* data, int size)
+void SpatialLabProcessor::setStateInformation(const void* data, int length)
 {
-    auto xml = getXmlFromBinary(data, size);
-    if (xml == nullptr || !xml->hasTagName(parameters.state.getType())) return;
+    auto xml = getXmlFromBinary(data, length);
+    if (xml == nullptr || !xml->hasTagName("SpatialLabState")) return;
     const int version = xml->getIntAttribute("schemaVersion");
-    if (version != 1 && version != 2) return;
-    auto state = juce::ValueTree::fromXml(*xml);
-    if (version == 1)
-    {
-        // Preserve existing wet controls, discard the obsolete insert mix value.
-        for (int i = state.getNumChildren(); --i >= 0;)
-            if (state.getChild(i).getProperty("id").toString() == "mix")
-                state.removeChild(i, nullptr);
-        juce::ValueTree balanceState("PARAM");
-        balanceState.setProperty("id", "earlyLate", nullptr);
-        balanceState.setProperty("value", 0.5f, nullptr);
-        state.appendChild(balanceState, nullptr);
-        state.setProperty("schemaVersion", 2, nullptr);
-    }
-    parameters.replaceState(state);
+    if (version < 1 || version > 3) return;
+    int roomIndex = xml->getIntAttribute("room", 0);
+    if (version < 3)
+        for (auto* child : xml->getChildIterator())
+            if (child->getStringAttribute("id") == "room")
+                roomIndex = child->getIntAttribute("value", 0);
+    const double sizeValue = version == 3 ? xml->getDoubleAttribute("size", 0.5) : 0.5;
+    const double toneValue = version == 3 ? xml->getDoubleAttribute("tone", 0.5) : 0.5;
+    if (roomIndex < 0 || roomIndex >= 3 || !std::isfinite(sizeValue) || !std::isfinite(toneValue)
+        || sizeValue < 0 || sizeValue > 1 || toneValue < 0 || toneValue > 1) return;
+    // Restore room first (which resets macros), then the saved session offsets.
+    room->setValueNotifyingHost(room->convertTo0to1(static_cast<float>(roomIndex)));
+    size->setValueNotifyingHost(static_cast<float>(sizeValue));
+    tone->setValueNotifyingHost(static_cast<float>(toneValue));
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new SpatialLabProcessor(); }
