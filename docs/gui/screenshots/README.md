@@ -1,3 +1,9 @@
+# Aktueller Stand: Entwicklungsphase 2
+
+[Sechs aktuelle echte Windows-Screenshots mit drei Raumzeichnungen, Build und Installationspaket](../../phase2/screenshots/README.md). Die folgenden Nachweise sind historische Stände vor Phase 2.
+
+---
+
 # Aktuelle Episode-Frontplatten: echte Windows-Screenshots
 
 Code-Stand: `df416f805644b7b8ae1dac337f411872104da6aa`.

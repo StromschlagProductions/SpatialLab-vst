@@ -27,3 +27,7 @@ Lokale Release- und ASan/UBSan-DSP-/Abklingtests konzentrieren sich auf 44,1/48 
 Windows-CI erstellt sechs echte native Bildschirmaufnahmen (beide Episoden × alle drei Räume) sowie gesondert benannte JUCE-Komponenten-Render bei 100/125/150 %. Nur der Vorschauhost erzeugt synthetische Anregung. Die zusätzlichen Render sind keine DAW-Bildschirmfotos verschiedener Windows-DPI-Einstellungen. `--room=0/1/2` steuert ausschließlich den Prüfhost.
 
 Das Installations-ZIP enthält weiterhin nur den vollständigen Wurzelordner `SpatialLab.vst3`. Der Build-Nachweis, die Bilder, gemessene Hersteller-/CID-Metadaten und offline erzeugte A/B-Impulsantworten werden im Actions-Artefakt bereitgestellt. Kein Merge nach main und kein endgültiges Release. Endgültige klangliche Freigabe erfolgt nach dem erneuten Sprachhörtest des Auftraggebers, nicht anhand der numerischen Tests allein.
+
+## Abgeschlossener Build-Nachweis
+
+Code `0482b7e9275c128dc64935ae3196ad9a2bc89f40`: [Windows-VST3 und Linux-Sanitizer erfolgreich](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43749906538). Windows: DSP, RetroMotion, RoomVoicing, Processor und RetroGUI bestanden. Tatsächliche Hersteller-Metadaten und unveränderte CIDs wurden aus dem erzeugten Modul geprüft. [Sechs echte Screenshots, Installationspaket und A/B-Daten](screenshots/README.md) sind dokumentiert; das heruntergeladene vollständige VST3-ZIP besteht die CRC-/Strukturprüfung. Der spätere Dokumentationscommit verändert den geprüften Code nicht.

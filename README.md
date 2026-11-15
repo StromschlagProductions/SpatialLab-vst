@@ -36,7 +36,7 @@ The editor exposes exactly **Raum**, **Größe** (smaller → neutral → larger
 The output is always **100% wet**; there is no direct path, output gain or loudness knob. Early reflections, tail, diffusion, delays, damping and stereo voicing are authored internally by the preset. Size changes decay and internal early/late voicing, while Tone changes spectral damping. Room selection replaces the room and clears the previous tail; there are no room blends, distance or movement simulations. Locations handles scene transitions separately.
 
 When the host invokes the plugin bypass callback, the send is muted while processing continues. Hosts that route around the plugin control their own external path; mute the return in those hosts. Schema-1/2 prototype sessions restore the selected room with neutral macros; obsolete extra controls are discarded.
-Living Room starts with a short, dark tail (nominal low-frequency RT60 0.48 s), Kitchen is brighter (0.85 s), Bathroom has a longer reflective tail (1.35 s). These are designed room impressions, not measured acoustic models. The reported host tail is conservatively 6 s; latency is zero. Read [DSP and parameter design](docs/DESIGN.md) before extending the engine or changing parameter IDs.
+Die Phase-2-Abstimmung schlägt kompakte Sprachräume vor: Wohnzimmer mit kräftigerer früher Raumantwort (nominale tieffrequente RT60 0,40 s), eine kurze, hellere Küche (0,32 s) und ein kleines gekacheltes Bad (0,38 s). Dies sind entworfene Raumeindrücke, keine gemessenen Akustikmodelle; die endgültige Beurteilung erfolgt im Sprachhörtest. The reported host tail is conservatively 6 s; latency is zero. Read [DSP and parameter design](docs/DESIGN.md) before extending the engine or changing parameter IDs.
 
 ## Roadmap and licensing
 
