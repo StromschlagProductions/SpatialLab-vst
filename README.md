@@ -8,11 +8,13 @@ SPATIAL LAB ist ein bewusst einfach gehaltener Raumhall für Hörspielproduktion
 
 ## ⬇ SPATIAL LAB herunterladen
 
-**[WINDOWS-VST3 ALS ZIP HERUNTERLADEN – HIER KLICKEN]**(https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43738814214/artifacts/14171876875)**
+**[WINDOWS-VST3-INSTALLATIONSPAKET HERUNTERLADEN – HIER KLICKEN](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43738814214/artifacts/14171876875)**
 
-**Das ZIP entpacken und den kompletten Ordner `SpatialLab.vst3` nach `C:\\Program Files\\Common Files\\VST3\\` kopieren.** Der Link führt zum ZIP-Artefakt des erfolgreichen Windows-Builds vom 15. November 2026. Gegebenenfalls ist eine Anmeldung bei GitHub nötig. **Der Testdownload ist zeitlich befristet** und enthält neben `SpatialLab.vst3` auch Prüfdateien und GUI-Vorschaubilder.
+Der Windows-Build vom 15. November 2026 wurde erfolgreich abgeschlossen. Der Download ist ein GitHub-Actions-Artefakt namens `SpatialLab-VST3-Windows-Installieren`. **Nach dem ersten Entpacken liegt darin `SpatialLab-VST3-Windows.zip`.** Dieses zweite ZIP entpacken und den enthaltenen kompletten Ordner `SpatialLab.vst3` nach `C:\\Program Files\\Common Files\\VST3\\` kopieren. Keine Einzeldateien aus dem Plugin-Ordner herauslösen.
 
-**⬇ [Spätere freigegebene Versionen (GitHub Releases)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)** – hier gibt es **noch keine** freigegebene Version. Nach Einführung eines Release-Verfahrens soll dies der dauerhafte Download-Einstieg sein, wie bei RADIOPHONE und LOCATIONS.
+GitHub-Anmeldung erforderlich (privates Repository); der Testdownload ist zeitlich befristet. Dies ist eine **Testversion vor dem Einbau der beiden neuen Episode-Frontplatten**, kein fertiges Release.
+
+**[Spätere freigegebene Versionen (GitHub Releases)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)** – noch nicht verfügbar. Ein dauerhafter Release-Download wie bei RADIOPHONE und LOCATIONS muss noch eingerichtet werden.
 
 ## Warum es dieses Plugin gibt
 
