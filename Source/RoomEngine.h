@@ -30,11 +30,20 @@ struct RoomSpec
     float rt60, cutoff;
     std::array<float, 8> delaysMs;
     std::array<float, 6> earlyMs;
+    float earlyLevel = 1, lateLevel = 1, earlyCrossfeed = 0.2f, diffusionAngle = 0;
+    std::array<float, 6> reflectionGains {0.30f, -0.23f, 0.19f, 0.15f, -0.12f, 0.09f};
 };
+// Phase 2 proposal: compact residential speech rooms, neutral Size/Tone = 0.5.
 inline constexpr std::array<RoomSpec, 3> rooms {{
-    { 0.48f, 3600.0f, {29.7f, 37.1f, 41.9f, 47.3f, 53.1f, 59.3f, 67.7f, 73.9f}, {4.1f, 7.3f, 11.9f, 17.3f, 23.1f, 31.7f} },
-    { 0.85f, 6200.0f, {23.9f, 31.1f, 37.9f, 43.7f, 51.1f, 57.7f, 61.3f, 71.9f}, {2.7f, 5.3f, 8.9f, 13.7f, 19.3f, 27.1f} },
-    { 1.35f, 9000.0f, {19.3f, 23.7f, 31.7f, 37.1f, 43.9f, 49.9f, 59.3f, 67.1f}, {1.9f, 3.7f, 6.1f, 9.7f, 15.1f, 21.1f} }
+    {0.40f, 3400.0f, {23.3f, 29.9f, 34.7f, 39.1f, 43.7f, 48.7f, 53.3f, 59.9f},
+     {5.3f, 9.1f, 14.7f, 20.9f, 28.3f, 36.7f}, 1.30f, 1.15f, 0.30f, 0.48f,
+     {0.30f, -0.25f, 0.22f, 0.18f, -0.14f, 0.10f}},
+    {0.32f, 5200.0f, {13.7f, 17.9f, 21.1f, 25.3f, 29.9f, 33.7f, 37.1f, 41.9f},
+     {2.3f, 4.7f, 7.1f, 10.9f, 14.3f, 19.1f}, 1.08f, 0.95f, 0.22f, 0.62f,
+     {0.32f, -0.24f, 0.21f, -0.16f, 0.12f, 0.09f}},
+    {0.38f, 7600.0f, {9.7f, 12.1f, 14.9f, 17.3f, 20.9f, 23.9f, 27.7f, 31.1f},
+     {1.4f, 2.9f, 4.3f, 6.7f, 9.1f, 13.1f}, 1.12f, 0.95f, 0.14f, 0.28f,
+     {0.34f, -0.27f, 0.23f, -0.18f, 0.14f, -0.10f}}
 }};
 
 class Room
@@ -43,6 +52,9 @@ public:
     void prepare(double rate, const RoomSpec& spec, float decay, float tone)
     {
         sampleRate = rate;
+        earlyScale = spec.earlyLevel; lateScale = spec.lateLevel; crossfeed = spec.earlyCrossfeed;
+        reflectionGains = spec.reflectionGains;
+        scatterCos = std::cos(spec.diffusionAngle); scatterSin = std::sin(spec.diffusionAngle);
         for (std::size_t i = 0; i < lines.size(); ++i)
         {
             lines[i].assign(static_cast<std::size_t>(std::max(1.0, std::round(rate * spec.delaysMs[i] * 0.001))), 0.0f);
@@ -88,13 +100,13 @@ public:
     {
         earlyL[earlyPos] = left; earlyR[earlyPos] = right;
         Stereo early;
-        constexpr std::array<float, 6> tapGain {0.30f, -0.23f, 0.19f, 0.15f, -0.12f, 0.09f};
+        const auto& tapGain = reflectionGains;
         for (std::size_t i = 0; i < tapGain.size(); ++i)
         {
             const auto l = earlyPos >= tapsL[i] ? earlyPos - tapsL[i] : earlyPos + earlyL.size() - tapsL[i];
             const auto r = earlyPos >= tapsR[i] ? earlyPos - tapsR[i] : earlyPos + earlyR.size() - tapsR[i];
-            early.left += tapGain[i] * (0.8f * earlyL[l] + 0.2f * earlyR[l]);
-            early.right += tapGain[i] * (0.8f * earlyR[r] + 0.2f * earlyL[r]);
+            early.left += tapGain[i] * ((1.0f - crossfeed) * earlyL[l] + crossfeed * earlyR[l]);
+            early.right += tapGain[i] * ((1.0f - crossfeed) * earlyR[r] + crossfeed * earlyL[r]);
         }
         if (++earlyPos == earlyL.size()) earlyPos = 0;
         std::array<float, 8> y {};
@@ -109,22 +121,34 @@ public:
         // Orthogonal Householder scattering; loop gains < 1 guarantee passive decay.
         constexpr std::array<float, 8> injectionL {1, 1, -1, -1, 1, -1, 1, -1};
         constexpr std::array<float, 8> injectionR {1, -1, 1, -1, -1, 1, 1, -1};
+        // Pair rotations followed by Householder scattering remain orthogonal:
+        // room-specific diffusion changes density without injecting loop energy.
+        std::array<float, 8> scattered {};
+        for (std::size_t i = 0; i < 8; i += 2)
+        {
+            const float a = filtered[i] - 0.25f * sum, b = filtered[i + 1] - 0.25f * sum;
+            scattered[i] = scatterCos * a + scatterSin * b;
+            scattered[i + 1] = -scatterSin * a + scatterCos * b;
+        }
         Stereo late;
         for (std::size_t i = 0; i < lines.size(); ++i)
         {
             lines[i][positions[i]] = 0.20f * (injectionL[i] * left + injectionR[i] * right)
-                + feedback[i].next() * (filtered[i] - 0.25f * sum);
+                + feedback[i].next() * scattered[i];
             if (++positions[i] == lines[i].size()) positions[i] = 0;
             // Different readout vectors avoid a direct comb-like stereo image.
             late.left += y[i] * injectionR[i] * 0.25f;
             late.right += y[i] * injectionL[(i + 3) % 8] * 0.25f;
         }
-        return {early, late};
+        return {{early.left * earlyScale, early.right * earlyScale},
+                {late.left * lateScale, late.right * lateScale}};
     }
 private:
     static float gain(float rt60, float delay) noexcept { return std::pow(10.0f, -3.0f * delay / rt60); }
     float coefficient(float hz) const noexcept
     { return std::exp(-6.28318530718f * std::min(hz, static_cast<float>(sampleRate * 0.45)) / static_cast<float>(sampleRate)); }
+    float earlyScale = 1, lateScale = 1, crossfeed = 0.2f, scatterCos = 1, scatterSin = 0;
+    std::array<float, 6> reflectionGains {};
     double sampleRate = 48000;
     float lastDecay = 1, lastTone = 0.5f;
     std::array<std::vector<float>, 8> lines;
