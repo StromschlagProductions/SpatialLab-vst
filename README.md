@@ -6,9 +6,11 @@ SPATIAL LAB ist ein bewusst einfach gehaltener Raumhall für Hörspielproduktion
 
 > **Entwicklungsstand:** Noch keine veröffentlichte, hörgetestete Version. Die derzeitige Fassung ist ein Prototyp mit drei Räumen. Bitte nicht als fertige Produktionsfreigabe verstehen.
 
-**⬇ [Aktuellen Windows-VST3-Testbuild herunterladen (GitHub Actions)](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43727258661/artifacts/14167326568)**
+## ⬇ SPATIAL LAB herunterladen
 
-Der Link führt zum ZIP-Artefakt des erfolgreichen Windows-Builds vom 15. November 2026. Gegebenenfalls ist eine Anmeldung bei GitHub nötig. **Der Testdownload ist zeitlich befristet** und enthält neben `SpatialLab.vst3` auch Prüfdateien und GUI-Vorschaubilder.
+**[WINDOWS-VST3 ALS ZIP HERUNTERLADEN – HIER KLICKEN]**(https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43733243192/artifacts/14169382572)**
+
+**Das ZIP entpacken und den kompletten Ordner `SpatialLab.vst3` nach `C:\\Program Files\\Common Files\\VST3\\` kopieren.** Der Link führt zum ZIP-Artefakt des erfolgreichen Windows-Builds vom 15. November 2026. Gegebenenfalls ist eine Anmeldung bei GitHub nötig. **Der Testdownload ist zeitlich befristet** und enthält neben `SpatialLab.vst3` auch Prüfdateien und GUI-Vorschaubilder.
 
 **⬇ [Spätere freigegebene Versionen (GitHub Releases)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)** – hier gibt es **noch keine** freigegebene Version. Nach Einführung eines Release-Verfahrens soll dies der dauerhafte Download-Einstieg sein, wie bei RADIOPHONE und LOCATIONS.
 
@@ -22,7 +24,7 @@ SPATIAL LAB gestaltet den **festen Hall des Szenenraums**. Für bewegte Figuren,
 
 Die Retro-Oberfläche orientiert sich an einer verwitterten Science-Fiction-Gerätefront mit Röhren, Kontrollleuchten und bernsteinfarbenem Bildschirm. Nur Raumauswahl, Größe und Klang steuern den Hall. Die übrigen Geräte-Elemente sind Dekoration oder Statusanzeigen.
 
-**[Echte Windows-GUI-Vorschau und weitere Renderings ansehen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43727258661)** – im Build-Artefakt liegen `Windows-Editor-Screenshot.png` sowie Renderings bei 100, 125 und 150 %. Ein dauerhaft eingebettetes Vorschaubild ergänzen wir, sobald die Logo-Korrektur freigegeben und ein Screenshot ins Repository übernommen ist.
+**[Echte Windows-GUI-Vorschau und weitere Renderings ansehen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43733243192)** – im Build-Artefakt liegen `Windows-Editor-Screenshot.png` sowie Renderings bei 100, 125 und 150 %. Ein dauerhaft eingebettetes Vorschaubild ergänzen wir, sobald die Logo-Korrektur freigegeben und ein Screenshot ins Repository übernommen ist.
 
 ## Räume und Regler
 
