@@ -20,7 +20,7 @@ Das 1672×941-Raster bleibt der Hintergrund. Anordnung, Farben, Gebrauchsspuren,
 - Raumliste links und Preset-Pfeile unten rechts: eine gemeinsame vorhandene `room`-Quelle. Beide Wege rufen dieselbe Auswahlmethode auf; Makro-Reset und Session-Recall bleiben Aufgaben des unveränderten Parametercodes.
 - Größe/Klang: zwei JUCE-Slider mit Host-Attachments, Mausziehen, Tastaturfokus und Doppelklick auf neutral. Hover/Fokus wird bernsteinfarben umrandet. Keine neuen Audio- oder Skin-Regler.
 - CRT: das originale Drahtgitter und die Möbel bleiben erhalten. Die eingebrannte Signalspur wird lokal abgedeckt und durch eine signalabhängige Spur ersetzt; der aktuelle Raumname wird eingeblendet. Die Raumzeichnung ist eine stilisierte Anzeige, keine je Preset physikalisch unterschiedliche Simulation.
-- Die abweichende Logozeichnung wird auf einer lokalen Metallplakette vollständig abgedeckt. Darauf erscheint ausschließlich die unveränderte Original-PNG proportional skaliert. Wegen des quadratischen Originals weicht diese begrenzte Plakette vom breiten Konzept-Wordmark ab; der Rest der Frontplatte bleibt erhalten.
+- Die eingebrannte Fantasie-Logozeichnung wird lokal durch rekonstruierte Metalltextur ersetzt, ohne Plakette, Rahmen oder rechteckige Deckfläche. Die unveränderte Alphaform der Original-PNG wird direkt als dunkelroter Siebdruck gerendert (Grundfarbe `#862c22`, 93 % Farbdeckung). Transparenz und proportionale Skalierung bleiben erhalten; die leicht durchscheinende Druckfarbe lässt die Metalloberfläche mitwirken.
 - Der eingebrannte Text `STEREO · 48 kHz` wird lokal ersetzt. Tatsächliche Kanalbelegung und Samplerate kommen atomar aus dem Prozessor; ohne vorbereitete Audiowiedergabe steht dort `AUDIO BEREITSTELLEN`.
 - BEREIT bedeutet: Audio vorbereitet. AKTIV folgt tatsächlich eingehenden Audioblöcken; SIGNAL zeigt den beobachteten Hallpegel. Röhren dürfen dazu leicht glimmen. Alle übrigen Tasten, Buchsen und Plaketten sind Dekoration ohne Audiofunktion.
 
@@ -46,8 +46,14 @@ Lokal starten (Release-Build):
 
 Ohne `--output` bleibt das Vorschaufenster zur Bedienprüfung geöffnet. Der Prüfhost ist kein neuer Plugin-Modus und wird nicht in das VST3-Bundle installiert.
 
-Offen bleiben die Freigabe der lokalen Logo-/Textabdeckungen, reale Windows-DAW-Tests inklusive 100/125/150 % DPI sowie Hörtests. Eventuelle Einschränkungen des CI-Desktops werden bei der Screenshot-Übergabe benannt; ein Konzeptbild wird nicht als Screenshot ausgegeben.
+Offen bleiben die Freigabe der Logo-Integration und lokalen Textabdeckungen, reale Windows-DAW-Tests inklusive 100/125/150 % DPI sowie Hörtests. Eventuelle Einschränkungen des CI-Desktops werden bei der Screenshot-Übergabe benannt; ein Konzeptbild wird nicht als Screenshot ausgegeben.
 
 ## Ergebnis der automatisierten und visuellen Prüfung
 
-Code-Stand `49befc5dd97a13dbaf90ee8fbe6ff8552b1d0c61` ist im [CI-Lauf 43727258661](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43727258661) vollständig grün: Windows-VST3, DSP, Prozessor, RetroGUI, PNG-Dateiprüfung und Linux-ASan/UBSan. Die [Prüfbilder mit Herkunft und klarer Unterscheidung zwischen Screenshot und JUCE-Render](screenshots/README.md) sind im Repository abgelegt. Der anschließende Dokumentationscommit ergänzt ausschließlich diese Nachweise; der geprüfte Plugin-Code bleibt identisch.
+Code-Stand `6d490fc6019ba3352ba761ab02b247cde2d5f456` ist im [CI-Lauf 43733243192](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43733243192) vollständig grün: Windows-VST3, DSP, Prozessor, RetroGUI, PNG-Dateiprüfung und Linux-ASan/UBSan. Die [Prüfbilder mit Herkunft und klarer Unterscheidung zwischen Screenshot und JUCE-Render](screenshots/README.md) sind im Repository abgelegt. Der anschließende Dokumentationscommit ergänzt ausschließlich diese Nachweise; der geprüfte Plugin-Code bleibt identisch.
+
+## Korrektur: Logo direkt als Siebdruck
+
+Ausschließlich der Logo-Bereich wurde gegenüber `32f4d8a` geändert. Die zusätzliche Plakette einschließlich Farbverlauf/Rahmen entfällt vollständig. `SpatialLab_LogoRegion_Restored.png` ist eine transparente, dünn besetzte Retuscheebene: Nur die alten Druckstellen sind deckend, keine geometrische Rechteckfläche. Eine klassische Navier-Stokes-Retusche rekonstruiert diese Stellen aus der benachbarten cremefarbenen Metalltextur. Schrauben, rote Markierungen und unveränderte Bildteile bleiben ausgespart. Kein KI-Modell und keine Logo-Nachzeichnung.
+
+Die Retusche ist mit `Tools/restore_logo_region.py` reproduzierbar; nur dieses Asset-Werkzeug benötigt OpenCV 4.11.0.86 und NumPy 2.2.6. Im Plugin sind die fertigen PNG-Pixel eingebettet, keine OpenCV-Abhängigkeit und keine Laufzeit-Retusche. Die transparente Retusche wird beim Editor-Öffnen einmal in Originalauflösung mit einer Kopie des Hintergrunds verbunden; erst das zusammenhängende Bild wird skaliert. Dadurch entstehen keine hellen Interpolationssäume um die Retuschmaske. Beide Original-PNGs behalten die oben dokumentierten Prüfsummen. Der Audiocode, Messwertpfad, sämtliche Parameter und die übrige GUI sind gegenüber `32f4d8a` unverändert.
