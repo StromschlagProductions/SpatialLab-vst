@@ -23,10 +23,12 @@ public:
     {
         bool episodeIV = true;
         int roomIndex = 0;
+        float knob = 0.5f;
         int width = 1504, height = 846;
         const auto tokens = juce::StringArray::fromTokens(args, true);
         for (const auto& token : tokens)
         {
+            if (token.startsWith("--knob=")) knob = token.fromFirstOccurrenceOf("=",false,false).getFloatValue();
             if (token == "--silent") silent = true;
             if (token == "--sequence") sequence = true;
             if (token.startsWith("--size="))
@@ -41,6 +43,8 @@ public:
         processor = std::make_unique<SpatialLabProcessor>();
         auto* room = processor->parameter("room");
         room->setValueNotifyingHost(room->convertTo0to1(static_cast<float>(roomIndex)));
+        processor->parameter("size")->setValueNotifyingHost(knob);
+        processor->parameter("tone")->setValueNotifyingHost(knob);
         processor->prepareToPlay(48000, 1600);
 #if JUCE_WINDOWS
         // CI's desktop must contain the entire visible editor; never capture clipped/off-screen pixels.

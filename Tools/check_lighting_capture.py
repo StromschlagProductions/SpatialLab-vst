@@ -16,7 +16,10 @@ for folder in sorted(root.glob('Episode-*/*/*')):
     def box(x,y,w,h):
         return tuple(round(v) for v in (ox+x*scale,oy+y*scale,ox+(x+w)*scale,oy+(y+h)*scale))
     regions = {f'tube-{i}':box(x-20,142,40,72) for i,x in enumerate((1235,1307,1376,1441))}
-    regions.update({'power-lens':box(934,190,33,30),'aux-amber':box(845,740,23,30),'aux-blue':box(925,740,23,30)})
+    static_regions = {'upper':box(925,180,115,50),'status':box(492,748,210,35),'lower':box(790,731,220,51)}
+    for name,rect in static_regions.items():
+        reference = frames[0].crop(rect)
+        assert all(ImageChops.difference(reference,f.crop(rect)).getbbox() is None for f in frames[1:]), f'{folder}/{name}: animated fixed lamps' 
     changes = {}
     for name,rect in regions.items():
         crops = [frame.crop(rect) for frame in frames]

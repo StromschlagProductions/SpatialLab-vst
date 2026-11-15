@@ -51,6 +51,19 @@ jobs:
           python -m pip install --disable-pip-version-check Pillow==11.3.0
           python Tools/check_lighting_capture.py build/gui-preview
           if ($LASTEXITCODE -ne 0) { throw "Visible animation verification failed" }
+      - name: Capture both knobs at multiple positions in both skins
+        shell: pwsh
+        run: |
+          foreach ($episode in @("I", "IV")) {
+            foreach ($knob in @("0", "0.25", "0.5", "0.75", "1")) {
+              $folder = "build/knob-preview/Episode-$episode/$knob"
+              $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode", "--size=1672x941", "--knob=$knob", "--silent" -PassThru
+              if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "Knob capture timeout" }
+              if ($preview.ExitCode -ne 0) { throw "Knob capture failed" }
+              python Tools/validate_gui_capture.py $folder 1672x941
+              if ($LASTEXITCODE -ne 0) { throw "Knob PNG invalid" }
+            }
+          }
       - name: Preserve real GUI diagnostics if capture verification fails
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -63,6 +76,9 @@ jobs:
         run: |
           ./build/Release/SpatialLabRoomComparison.exe build/room-comparison | Tee-Object -FilePath build/room-comparison.csv
           if ($LASTEXITCODE -ne 0) { throw "Room comparison failed" }
+      - name: Diagnose bass and neutral early/late transfer
+        shell: pwsh
+        run: ./build/Release/SpatialLabRoomDiagnostics.exe | Out-File build/room-diagnostics.csv -Encoding utf8
       - name: Profile DSP at 44.1 and 48 kHz (informational)
         shell: pwsh
         run: ./build/Release/SpatialLabDspBenchmark.exe | Tee-Object -FilePath build/dsp-benchmark.csv
@@ -93,8 +109,10 @@ jobs:
             build/toolchain.txt
             build/dsp-benchmark.csv
             build/gui-preview/
+            build/knob-preview/
             build/room-comparison/
             build/room-comparison.csv
+            build/room-diagnostics.csv
           if-no-files-found: error
   dsp-sanitizers:
     runs-on: ubuntu-24.04

@@ -63,7 +63,8 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     setSize(validSize ? savedWidth : 1504, validSize ? savedHeight : 846);
     processor.gui.peak.store(0, std::memory_order_relaxed);
     processor.gui.observing.store(true, std::memory_order_relaxed);
-    timerCallback(); startTimerHz(30);
+    timerCallback();
+    visibilityChanged();
 }
 
 SpatialLabEditor::~SpatialLabEditor()
@@ -124,13 +125,34 @@ void SpatialLabEditor::resized()
     listDown.setBounds(panelBounds(383, 396, 34, 49));
 }
 
+void SpatialLabEditor::visibilityChanged()
+{
+    if (isShowing())
+    {
+        processor.gui.observing.store(true, std::memory_order_relaxed);
+        timerCallback(); startTimerHz(30);
+    }
+    else
+    {
+        stopTimer();
+        processor.gui.observing.store(false, std::memory_order_relaxed);
+    }
+}
+void SpatialLabEditor::parentHierarchyChanged() { visibilityChanged(); }
+
 void SpatialLabEditor::timerCallback()
 {
+    // A host can hide an ancestor without hiding this component itself.
+    // Only a cheap visibility probe remains in that case; no animation, telemetry or repaint.
+    if (!isShowing())
+    {
+        processor.gui.observing.store(false, std::memory_order_relaxed);
+        startTimer(250); return;
+    }
+    processor.gui.observing.store(true, std::memory_order_relaxed);
+    if (getTimerInterval() != 33) startTimerHz(30);
     size.setValue(processor.parameter("size")->getValue(), juce::dontSendNotification);
     tone.setValue(processor.parameter("tone")->getValue(), juce::dontSendNotification);
-    const auto block = processor.gui.blocks.load(std::memory_order_relaxed);
-    activity = block != lastBlock ? 1.0f : activity * 0.9f;
-    lastBlock = block;
     const float peak = processor.gui.peak.exchange(0, std::memory_order_relaxed);
     signal = std::max(juce::jlimit(0.0f, 1.0f, std::sqrt(peak)), signal * 0.87f);
     animationSeconds = juce::Time::getMillisecondCounterHiRes() * 0.001 - animationStarted;
@@ -152,10 +174,7 @@ void SpatialLabEditor::timerCallback()
     else
     {
         repaint(panelBounds(510, 300, 503, 336));
-        repaint(panelBounds(488, 744, 217, 49));
         repaint(panelBounds(1205, 121, 270, 113));
-        repaint(panelBounds(926, 184, 112, 45));
-        repaint(panelBounds(793, 732, 216, 54));
     }
 }
 
@@ -179,7 +198,10 @@ void SpatialLabEditor::drawRotarySlider(juce::Graphics& g, int x, int y, int w, 
                                               static_cast<float>(w), static_cast<float>(h));
     const float diameter = std::min(bounds.getWidth(), bounds.getHeight());
     const auto centre = bounds.getCentre();
-    juce::Path mask; mask.addEllipse(centre.x - diameter * 0.5f, centre.y - diameter * 0.5f, diameter, diameter);
+    // The outer bevel carries reflections of the stationary scale: keep that material fixed.
+    // Rotate only the inset brushed face and its original pointer, from the matching skin.
+    const float face = diameter * 0.80f;
+    juce::Path mask; mask.addEllipse(centre.x - face * 0.5f, centre.y - face * 0.5f, face, face);
     g.saveState(); g.reduceClipRegion(mask);
     // Rotate the supplied knob pixels (including its original pointer), not a second drawn knob.
     g.addTransform(juce::AffineTransform::rotation((position - 0.5f) * juce::MathConstants<float>::pi * 1.5f, centre.x, centre.y));
@@ -357,38 +379,6 @@ void SpatialLabEditor::drawLighting(juce::Graphics& g)
             g.setColour(juce::Colour(0xffffb444).withAlpha(strength * 0.95f * spare));
             g.drawLine(centre+dx,173,centre+dx,200,1.25f);
         }
-    }
-    const std::array<juce::Colour,3> lensColours {juce::Colour(0xffb2ef48),juce::Colour(0xffffba39),juce::Colour(0xff84d6ff)};
-    const std::array<float,3> centres {521,605,688};
-    // Activity is based on measured wet level, not simply on the host calling processBlock.
-    const std::array<float,3> levels {ready ? 1.0f : 0.0f, std::sqrt(signal), signal};
-    for (unsigned i = 0; i < 3; ++i)
-    {
-        const float rhythm = spatiallab::retro::light(animationSeconds,i + 4,levels[i],aged);
-        juce::Graphics::ScopedSaveState state(g);
-        juce::Path lens; lens.addEllipse(centres[i] - 6,758,12,13); g.reduceClipRegion(lens);
-        const float level = levels[i] * rhythm;
-        g.setColour(juce::Colours::black.withAlpha(0.92f * (1-level))); g.fillPath(lens);
-        g.setGradientFill(juce::ColourGradient(lensColours[i].brighter(0.5f).withAlpha(level * 0.85f),
-            centres[i]-1,762,lensColours[i].withAlpha(level * 0.18f),centres[i]+6,769,true));
-        g.fillPath(lens);
-    }
-    const std::array<juce::Rectangle<float>,7> lenses {{{934,190,33,30},{1001,190,31,30},
-        {800,740,25,30},{845,740,23,30},{880,740,23,30},{925,740,23,30},{978,740,23,30}}};
-    const std::array<juce::Colour,7> lensTints {juce::Colour(0xff8ddfff),juce::Colour(0xffff5732),
-        juce::Colour(0xffffecd1),juce::Colour(0xffffc42b),juce::Colour(0xffffa21d),
-        juce::Colour(0xff78b4df),juce::Colour(0xffff4926)};
-    for (unsigned i = 0; i < lenses.size(); ++i)
-    {
-        juce::Graphics::ScopedSaveState state(g);
-        juce::Path lens; lens.addRoundedRectangle(lenses[i],3); g.reduceClipRegion(lens);
-        float rhythm = spatiallab::retro::light(animationSeconds,i+9,i % 3 == 0 ? signal : 0,aged);
-        if (i == 1 || i == 5) rhythm *= spatiallab::retro::indicatorGate(animationSeconds,i);
-        g.setColour(juce::Colours::black.withAlpha((1-rhythm)*0.85f)); g.fillPath(lens);
-        const auto centre = lenses[i].getCentre();
-        g.setGradientFill(juce::ColourGradient(lensTints[i].withAlpha(rhythm*0.72f),centre.x,centre.y,
-            lensTints[i].withAlpha(0.02f),centre.x,lenses[i].getBottom(),true));
-        g.fillPath(lens);
     }
 }
 

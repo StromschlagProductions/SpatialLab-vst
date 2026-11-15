@@ -2,6 +2,7 @@
 #include "GuiPreferences.h"
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
 
 namespace
 {
@@ -29,6 +30,16 @@ int main()
             spatiallab::gui::migrateEpisode(migrated, oldFile.getFile());
             require(migrated.getBoolValue("episodeIV", false), "Migration overwrote current preference");
             require(original == oldFile.getFile().loadFileAsString(), "Migration changed legacy file");
+        }
+        {
+            std::vector<std::unique_ptr<SpatialLabProcessor>> processors;
+            for (int i=0;i<32;++i) { auto p=std::make_unique<SpatialLabProcessor>(); p->prepareToPlay(48000,128); processors.push_back(std::move(p)); }
+            juce::AudioBuffer<float> audio(2,128); juce::MidiBuffer midi;
+            const auto start=std::chrono::steady_clock::now();
+            for (int block=0;block<375;++block) for (auto& p:processors)
+            { audio.clear(); audio.setSample(0,0,0.1f); p->processBlock(audio,midi); }
+            for (const auto& p:processors) require(!p->gui.observing.load() && p->gui.blocks.load()==0,"Closed instances still publish GUI telemetry");
+            std::cout << "32 closed instances / 1s audio each: " << std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count() << " CPU-wall seconds; GUI telemetry zero\n";
         }
         for (double rate : {44100.0, 48000.0})
         {
@@ -65,6 +76,11 @@ int main()
                 auto editor = std::make_unique<SpatialLabEditor>(observed, preferences.getFile());
                 require(editor->isEpisodeIV(), "Fresh GUI must default to Episode IV");
                 require(editor->getWidth() == 1504 && editor->getHeight() == 846, "Wrong reference aspect/default size");
+                require(!observed.gui.observing.load(), "Invisible editor observes audio");
+                editor->setVisible(true);
+                require(observed.gui.observing.load(), "Shown editor did not resume");
+                editor->setVisible(false);
+                require(!observed.gui.observing.load(), "Hidden editor did not pause");
                 int knobs = 0;
                 for (auto* child : editor->getChildren()) if (dynamic_cast<juce::Slider*>(child)) ++knobs;
                 require(knobs == 2 && observed.getParameters().size() == 3, "Extra audio control");
