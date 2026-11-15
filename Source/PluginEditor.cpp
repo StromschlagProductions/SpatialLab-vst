@@ -335,7 +335,7 @@ void SpatialLabEditor::drawLighting(juce::Graphics& g)
         g.drawLine(tubeX[i] + 11, 173, tubeX[i] + 11, 201, 1.2f);
         g.drawLine(tubeX[i] + 22, 173, tubeX[i] + 22, 201, 1.2f);
     }
-    const std::array<juce::Colour,3> colours {juce::Colour(0xffb2ef48),juce::Colour(0xffffba39),juce::Colour(0xff84d6ff)};
+    const std::array<juce::Colour,3> lensColours {juce::Colour(0xffb2ef48),juce::Colour(0xffffba39),juce::Colour(0xff84d6ff)};
     const std::array<float,3> centres {521,605,688};
     const std::array<float,3> levels {ready ? 1.0f : 0.0f,activity,signal};
     for (unsigned i = 0; i < 3; ++i)
@@ -345,7 +345,7 @@ void SpatialLabEditor::drawLighting(juce::Graphics& g)
         juce::Graphics::ScopedSaveState state(g);
         juce::Path lens; lens.addEllipse(centres[i] - 6, 758, 12, 13); g.reduceClipRegion(lens);
         g.setColour(juce::Colours::black.withAlpha((1 - levels[i]) * 0.72f + (0.75f - rhythm) * 0.12f)); g.fillPath(lens);
-        g.setColour(colours[i].withAlpha(levels[i] * rhythm * 0.15f)); g.fillPath(lens);
+        g.setColour(lensColours[i].withAlpha(levels[i] * rhythm * 0.15f)); g.fillPath(lens);
     }
     const std::array<juce::Rectangle<float>,7> lenses {{
         {934,190,33,30},{1001,190,31,30},{800,740,25,30},{845,740,23,30},
