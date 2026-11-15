@@ -6,7 +6,9 @@ class SpatialLabEditor final : public juce::AudioProcessorEditor, private juce::
                                private juce::LookAndFeel_V4
 {
 public:
-    explicit SpatialLabEditor(SpatialLabProcessor&);
+    explicit SpatialLabEditor(SpatialLabProcessor&, const juce::File& guiSettingsFile = {});
+    void setEpisodeIV(bool selected, bool persist = true);
+    bool isEpisodeIV() const noexcept { return episodeSwitch.getToggleState(); }
     ~SpatialLabEditor() override;
     void resized() override;
     void paint(juce::Graphics&) override;
@@ -18,12 +20,14 @@ private:
     void drawButtonBackground(juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
     void drawButtonText(juce::Graphics&, juce::TextButton&, bool, bool) override {}
     void drawCrt(juce::Graphics&);
+    void drawEpisodeSwitch(juce::Graphics&, juce::Button&, bool hover);
     juce::Rectangle<int> panelBounds(float x, float y, float width, float height) const;
     SpatialLabProcessor& processor;
-    juce::Image panel, logo;
+    juce::Image panel, episodeI, episodeIV;
+    std::unique_ptr<juce::PropertiesFile> guiSettings;
     juce::Slider size, tone;
     std::array<juce::TextButton, 3> presets;
-    juce::TextButton previous, next, listUp, listDown;
+    juce::TextButton episodeSwitch, listUp, listDown;
     std::unique_ptr<juce::SliderParameterAttachment> sizeAttachment, toneAttachment;
     float scale = 1, offsetX = 0, offsetY = 0, signal = 0, activity = 0, phase = 0;
     unsigned lastBlock = 0;

@@ -1,4 +1,4 @@
-#include "PluginProcessor.h"
+#include "PluginEditor.h"
 #if JUCE_WINDOWS
  #ifndef NOMINMAX
   #define NOMINMAX
@@ -21,14 +21,21 @@ public:
     const juce::String getApplicationVersion() override { return "0.1.0"; }
     void initialise(const juce::String& args) override
     {
+        bool episodeIV = true;
         const auto tokens = juce::StringArray::fromTokens(args, true);
         for (const auto& token : tokens)
+        {
+            if (token == "--episode=I") episodeIV = false;
             if (token.startsWith("--output=")) output = juce::File::getCurrentWorkingDirectory().getChildFile(token.fromFirstOccurrenceOf("=", false, false).unquoted());
+        }
         processor = std::make_unique<SpatialLabProcessor>();
         processor->prepareToPlay(48000, 1600);
         window = std::make_unique<PreviewWindow>();
         window->setUsingNativeTitleBar(true);
-        window->setContentOwned(processor->createEditor(), true);
+        auto* editor = output == juce::File() ? new SpatialLabEditor(*processor)
+            : new SpatialLabEditor(*processor, output.getChildFile("preview.gui.settings"));
+        if (output != juce::File()) editor->setEpisodeIV(episodeIV, false);
+        window->setContentOwned(editor, true);
         window->setTopLeftPosition(0, 0);
         window->setVisible(true);
         startTimerHz(30);
