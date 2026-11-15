@@ -28,3 +28,7 @@ Windows-CI öffnet den echten Produktionseditor getrennt für beide Frontplatten
 ```
 
 Die Screenshots sind Bildschirmaufnahmen des laufenden JUCE-Editors im Prüfhost, keine Konzeptbilder und keine Aufnahmen aus einer DAW. Reale DAW-/DPI-Abnahme bleibt separat erforderlich. Das vorhandene Installations-ZIP `SpatialLab-VST3-Windows.zip` enthält den vollständigen Ordner `SpatialLab.vst3`. Es wird als Actions-Artefakt bereitgestellt, nicht als endgültiges Release veröffentlicht. Kein Merge nach main ohne Zustimmung.
+
+## Ergebnis
+
+Code `df416f805644b7b8ae1dac337f411872104da6aa` ist im [CI-Lauf 43745098224](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43745098224) vollständig grün: unveränderte Originalgrafiken, Windows-VST3, DSP-/Prozessor-/GUI-Tests, beide echten Bildschirmaufnahmen, PNG-Dateiprüfung und Linux-Sanitizer. Die [aktuellen Screenshots und Paketnachweise](screenshots/README.md) sind abgelegt. Beide Schalterstellungen und die vollständigen Beschriftungen wurden visuell kontrolliert; Nieten und Umrandung bleiben sichtbar. Der nachfolgende Nachweiscommit ändert nur Dokumentation/Bilder, keinen Plugin-Code.
