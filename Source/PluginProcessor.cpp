@@ -7,8 +7,8 @@ SpatialLabProcessor::SpatialLabProcessor()
 {
     static_assert(std::atomic<float>::is_always_lock_free && std::atomic<unsigned>::is_always_lock_free
                   && std::atomic<int>::is_always_lock_free, "Audio controls require lock-free atomics");
-    size = new juce::AudioParameterFloat(juce::ParameterID{"size", 1}, juce::String::fromUTF8("Größe"), 0.0f, 1.0f, 0.5f);
-    tone = new juce::AudioParameterFloat(juce::ParameterID{"tone", 1}, "Klang", 0.0f, 1.0f, 0.5f);
+    size = new juce::AudioParameterFloat(juce::ParameterID{"size", 1}, juce::String::fromUTF8("Größe"), juce::NormalisableRange<float>{0.0f, 1.0f}, 0.5f);
+    tone = new juce::AudioParameterFloat(juce::ParameterID{"tone", 1}, "Klang", juce::NormalisableRange<float>{0.0f, 1.0f}, 0.5f);
     room = new RoomParameter(*size, *tone, resetRevision);
     addParameter(room); addParameter(size); addParameter(tone);
     // Polling avoids AsyncUpdater/OS-message calls from an automated room change.

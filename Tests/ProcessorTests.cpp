@@ -98,9 +98,11 @@ int main()
         parameter(processor, "room", 1); parameter(processor, "room", 0);
         excite.clear(); processor.processBlock(excite, midi);
         require(excite.getMagnitude(0, 4096) == 0, "Round-trip preset selection revived an old tail");
-        parameter(processor, "size", 0.73f); parameter(processor, "tone", 0.27f);
+        parameter(processor, "size", 0.73123f); parameter(processor, "tone", 0.27319f);
+        require(processor.parameter("size")->getValue() == 0.73123f
+             && processor.parameter("tone")->getValue() == 0.27319f, "Macro automation was quantized");
         parameter(processor, "room", 0); // Repeated same preset is not a preset change.
-        require(processor.parameter("size")->getValue() == 0.73f, "Unchanged room reset automation");
+        require(processor.parameter("size")->getValue() == 0.73123f, "Unchanged room reset automation");
         juce::MemoryBlock state;
         processor.getStateInformation(state);
         SpatialLabProcessor restored;
