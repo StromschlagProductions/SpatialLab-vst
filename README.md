@@ -51,3 +51,7 @@ Die Retro-Oberfläche folgt der mitgelieferten Original-Frontplatte; Raumliste u
 ## Episode-Frontplatten
 
 Episode IV (verwittert) ist die Standardansicht, Episode I die fabrikneue Variante. Der metallische Kippschalter unten rechts ersetzt die dortige Preset-Navigation und wechselt nur die Oberfläche. Die Raumauswahl bleibt links oben. Die Skin-Wahl wird separat als GUI-Vorliebe gespeichert; Audioeinstellungen und Automation bleiben unverändert. [Bedienung, Bildnachweise und technische Prüfung](docs/gui/EPISODES.md).
+
+## Entwicklungsphase 2
+
+Hersteller: **Stromschlag Audio**. Plugin-Identität/Audio-State bleiben kompatibel; die alte Episode-Vorliebe wird bei Bedarf migriert. Die drei Raumabstimmungen sind als kompaktere Sprachräume neu vorgeschlagen. Eigenständige bernsteinfarbene CRT-Ansichten folgen der Raumwahl, dezente Röhren-/Linsenanimationen bleiben vom DSP getrennt. [Details und Prüfverfahren](docs/phase2/PHASE2.md) · [Akustik und A/B-Messwerte](docs/phase2/AKUSTIK.md). Die endgültige Klangabstimmung erfordert einen erneuten Hörtest.

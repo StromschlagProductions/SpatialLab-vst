@@ -22,13 +22,17 @@ public:
     void initialise(const juce::String& args) override
     {
         bool episodeIV = true;
+        int roomIndex = 0;
         const auto tokens = juce::StringArray::fromTokens(args, true);
         for (const auto& token : tokens)
         {
             if (token == "--episode=I") episodeIV = false;
+            if (token.startsWith("--room=")) roomIndex = juce::jlimit(0,2,token.fromFirstOccurrenceOf("=",false,false).getIntValue());
             if (token.startsWith("--output=")) output = juce::File::getCurrentWorkingDirectory().getChildFile(token.fromFirstOccurrenceOf("=", false, false).unquoted());
         }
         processor = std::make_unique<SpatialLabProcessor>();
+        auto* room = processor->parameter("room");
+        room->setValueNotifyingHost(room->convertTo0to1(static_cast<float>(roomIndex)));
         processor->prepareToPlay(48000, 1600);
         window = std::make_unique<PreviewWindow>();
         window->setUsingNativeTitleBar(true);

@@ -25,20 +25,29 @@ jobs:
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
       - name: Build VST3 and tests
         run: cmake --build build --config Release --parallel 2
+      - name: Hersteller und Plugin-Identität am gebauten Modul verifizieren
+        run: python Tools/check_vst3_manufacturer.py build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3/Contents/Resources/moduleinfo.json
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
       - name: Capture real editor and DPI renders
         shell: pwsh
         run: |
           foreach ($episode in @("I", "IV")) {
-            $folder = "build/gui-preview/Episode-$episode"
-            $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode" -PassThru
-            if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "GUI capture timed out" }
-            if ($preview.ExitCode -ne 0) { throw "GUI capture failed" }
-            if (-not (Test-Path "$folder/Windows-Editor-Screenshot.png")) { throw "No real screenshot produced" }
-            python Tools/validate_gui_capture.py $folder
-            if ($LASTEXITCODE -ne 0) { throw "PNG validation failed" }
+            foreach ($room in @(0, 1, 2)) {
+              $folder = "build/gui-preview/Episode-$episode/Room-$room"
+              $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode", "--room=$room" -PassThru
+              if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "GUI capture timed out" }
+              if ($preview.ExitCode -ne 0) { throw "GUI capture failed" }
+              if (-not (Test-Path "$folder/Windows-Editor-Screenshot.png")) { throw "No real screenshot produced" }
+              python Tools/validate_gui_capture.py $folder
+              if ($LASTEXITCODE -ne 0) { throw "PNG validation failed" }
+            }
           }
+      - name: Alte und neue Raum-Impulsantworten bei beiden Zielraten vergleichen
+        shell: pwsh
+        run: |
+          ./build/Release/SpatialLabRoomComparison.exe build/room-comparison | Tee-Object -FilePath build/room-comparison.csv
+          if ($LASTEXITCODE -ne 0) { throw "Room comparison failed" }
       - name: Profile DSP at 44.1 and 48 kHz (informational)
         shell: pwsh
         run: ./build/Release/SpatialLabDspBenchmark.exe | Tee-Object -FilePath build/dsp-benchmark.csv
@@ -69,6 +78,8 @@ jobs:
             build/toolchain.txt
             build/dsp-benchmark.csv
             build/gui-preview/
+            build/room-comparison/
+            build/room-comparison.csv
           if-no-files-found: error
   dsp-sanitizers:
     runs-on: ubuntu-24.04
