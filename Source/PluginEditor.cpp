@@ -197,16 +197,17 @@ void SpatialLabEditor::drawRotarySlider(juce::Graphics& g, int x, int y, int w, 
     const auto bounds = juce::Rectangle<float>(static_cast<float>(x), static_cast<float>(y),
                                               static_cast<float>(w), static_cast<float>(h));
     const float diameter = std::min(bounds.getWidth(), bounds.getHeight());
-    const auto centre = bounds.getCentre();
+    const auto imageCentre = bounds.getCentre();
+    const auto centre = imageCentre.translated(diameter / 228.0f, &control == &size ? diameter * 11.0f / 228.0f : 0.0f);
     // The outer bevel carries reflections of the stationary scale: keep that material fixed.
     // Rotate only the inset brushed face and its original pointer, from the matching skin.
-    const float face = diameter * 0.80f;
+    const float face = diameter * 0.69f;
     juce::Path mask; mask.addEllipse(centre.x - face * 0.5f, centre.y - face * 0.5f, face, face);
     g.saveState(); g.reduceClipRegion(mask);
     // Rotate the supplied knob pixels (including its original pointer), not a second drawn knob.
     g.addTransform(juce::AffineTransform::rotation((position - 0.5f) * juce::MathConstants<float>::pi * 1.5f, centre.x, centre.y));
     g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
-    g.drawImage(panel, static_cast<int>(centre.x - diameter * 0.5f), static_cast<int>(centre.y - diameter * 0.5f),
+    g.drawImage(panel, static_cast<int>(imageCentre.x - diameter * 0.5f), static_cast<int>(imageCentre.y - diameter * 0.5f),
                 static_cast<int>(diameter), static_cast<int>(diameter), 402, &control == &size ? 1048 : 1434, 228, 228);
     g.restoreState();
     if (control.isMouseOverOrDragging() || control.hasKeyboardFocus(true))
