@@ -40,7 +40,7 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p) : AudioProcessorEdito
         control.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
         control.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
         control.setDoubleClickReturnValue(true, 0.5);
-        control.setRotaryParameters(-juce::MathConstants<float>::pi * 0.75f, juce::MathConstants<float>::pi * 0.75f, true);
+        control.setRotaryParameters(juce::MathConstants<float>::pi * 1.25f, juce::MathConstants<float>::pi * 2.75f, true);
         control.setLookAndFeel(this); control.setWantsKeyboardFocus(true);
         addAndMakeVisible(control);
     };
@@ -204,6 +204,8 @@ void SpatialLabEditor::paint(juce::Graphics& g)
                                          juce::Colour(0xffbda083), 350, 190, false));
     g.fillRoundedRectangle(131, 92, 223, 100, 5);
     g.setColour(juce::Colour(0xff715641)); g.drawRoundedRectangle(131, 92, 223, 100, 5, 1);
+    // Preserve the original corner screw that overlaps the replacement-badge area.
+    g.drawImage(panel, 129, 91, 24, 24, 129, 91, 24, 24);
     g.drawImageWithin(logo, 194, 95, 96, 94, juce::RectanglePlacement::centred);
     const int room = selectedRoom();
     g.setGradientFill(juce::ColourGradient(juce::Colour(0xff261706), 145, 290, dark, 375, 446, false));

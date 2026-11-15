@@ -9,7 +9,7 @@
 class PreviewWindow final : public juce::DocumentWindow
 {
 public:
-    PreviewWindow() : DocumentWindow("SPATIAL LAB – Retro GUI", juce::Colours::black, closeButton) {}
+    PreviewWindow() : DocumentWindow(juce::String::fromUTF8("SPATIAL LAB – Retro GUI"), juce::Colours::black, closeButton) {}
     void closeButtonPressed() override { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
 };
 
@@ -44,10 +44,13 @@ private:
         if (!image.isValid()) { setApplicationReturnValue(1); return; }
         juce::File file = output.getChildFile(name);
         juce::FileOutputStream stream(file);
-        if (!stream.openedOk() || !juce::PNGImageFormat().writeImageToStream(image, stream)) setApplicationReturnValue(1);
+        if (!stream.openedOk()) { setApplicationReturnValue(1); return; }
+        stream.setPosition(0); stream.truncate();
+        if (!juce::PNGImageFormat().writeImageToStream(image, stream)) setApplicationReturnValue(1);
     }
     void timerCallback() override
     {
+        if (capturing) return;
         juce::AudioBuffer<float> buffer(2, 1600);
         for (int i = 0; i < buffer.getNumSamples(); ++i)
         {
@@ -56,6 +59,7 @@ private:
         }
         juce::MidiBuffer midi; processor->processBlock(buffer, midi);
         if (output == juce::File() || ++frames < 24) return;
+        capturing = true; stopTimer();
         output.createDirectory();
         auto* editor = window->getContentComponent();
         for (float factor : {1.0f, 1.25f, 1.5f})
@@ -97,5 +101,6 @@ private:
     std::unique_ptr<SpatialLabProcessor> processor;
     std::unique_ptr<juce::DocumentWindow> window;
     int frames = 0, samples = 0;
+    bool capturing = false;
 };
 START_JUCE_APPLICATION(Preview)

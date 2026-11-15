@@ -32,6 +32,7 @@ jobs:
           if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "GUI capture timed out" }
           if ($preview.ExitCode -ne 0) { throw "GUI capture failed" }
           if (-not (Test-Path "build/gui-preview/Windows-Editor-Screenshot.png")) { throw "No real screenshot produced" }
+          python Tools/validate_gui_capture.py build/gui-preview
       - name: Profile DSP at 44.1 and 48 kHz (informational)
         shell: pwsh
         run: ./build/Release/SpatialLabDspBenchmark.exe | Tee-Object -FilePath build/dsp-benchmark.csv
