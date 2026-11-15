@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "SpatialLabArtwork.h"
+#include "GuiPreferences.h"
 
 namespace
 {
@@ -21,15 +22,7 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
                                               SpatialLabArtwork::SpatialLab_Episode_I_pngSize);
     episodeIV = juce::ImageCache::getFromMemory(SpatialLabArtwork::SpatialLab_Episode_IV_png,
                                                SpatialLabArtwork::SpatialLab_Episode_IV_pngSize);
-    juce::PropertiesFile::Options options;
-    options.applicationName = "SpatialLab";
-    options.filenameSuffix = ".gui.settings";
-    options.folderName = "Stromschlag Productions";
-    options.osxLibrarySubFolder = "Application Support";
-    options.millisecondsBeforeSaving = 0;
-    guiSettings = settingsFile == juce::File()
-        ? std::make_unique<juce::PropertiesFile>(options)
-        : std::make_unique<juce::PropertiesFile>(settingsFile, options);
+    guiSettings = spatiallab::gui::openPreferences(settingsFile);
     const auto button = [this](juce::TextButton& control, const juce::String& name, std::function<void()> action)
     {
         control.setButtonText(name); control.setName(name); control.setTooltip(name);

@@ -1,6 +1,6 @@
 # SpatialLab
 
-**Spatial Environments for Audio Drama** · Stromschlag Productions
+**Spatial Environments for Audio Drama** · Stromschlag Audio
 
 An initial Windows x64 VST3 **send-only** room effect built with C++17, JUCE **8.0.6** and CMake. Living Room, Kitchen and Bathroom combine distinct early reflections with a damped eight-line feedback delay network. The output is always **100% wet**. Supports mono → mono, mono → stereo and stereo → stereo, host automation and session recall. Development prioritizes **48 kHz for audio drama** and **44.1 kHz for music**. Higher rates have basic correctness coverage but are not tuning or CPU targets. No oversampling is used.
 

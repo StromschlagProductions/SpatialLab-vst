@@ -22,7 +22,7 @@ if(SPATIALLAB_BUILD_PLUGIN)
     juce_add_binary_data(SpatialLabArtwork HEADER_NAME SpatialLabArtwork.h NAMESPACE SpatialLabArtwork
         SOURCES assets/SpatialLab_Episode_I.png assets/SpatialLab_Episode_IV.png)
     juce_add_plugin(SpatialLab
-        COMPANY_NAME "Stromschlag Productions"
+        COMPANY_NAME "Stromschlag Audio"
         BUNDLE_ID "com.stromschlagproductions.spatiallab"
         PLUGIN_MANUFACTURER_CODE StPr
         PLUGIN_CODE SpLb

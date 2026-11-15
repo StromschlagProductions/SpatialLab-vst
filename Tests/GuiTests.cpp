@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include "GuiPreferences.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -16,6 +17,19 @@ int main()
     juce::ScopedJuceInitialiser_GUI initialise;
     try
     {
+        {
+            juce::TemporaryFile oldFile(".gui.settings"), newFile(".gui.settings");
+            juce::PropertiesFile legacy(oldFile.getFile(), spatiallab::gui::preferenceOptions());
+            legacy.setValue("episodeIV", false); legacy.saveIfNeeded();
+            const auto original = oldFile.getFile().loadFileAsString();
+            juce::PropertiesFile migrated(newFile.getFile(), spatiallab::gui::preferenceOptions());
+            spatiallab::gui::migrateEpisode(migrated, oldFile.getFile());
+            require(migrated.containsKey("episodeIV") && !migrated.getBoolValue("episodeIV", true), "Legacy skin lost");
+            migrated.setValue("episodeIV", true);
+            spatiallab::gui::migrateEpisode(migrated, oldFile.getFile());
+            require(migrated.getBoolValue("episodeIV", false), "Migration overwrote current preference");
+            require(original == oldFile.getFile().loadFileAsString(), "Migration changed legacy file");
+        }
         for (double rate : {44100.0, 48000.0})
         {
             SpatialLabProcessor reference, observed;

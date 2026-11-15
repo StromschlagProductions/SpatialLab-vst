@@ -12,7 +12,7 @@ CRT, Signalspur, Lampen und Röhrenglimmen bleiben aktiv. Die dynamische Betrieb
 
 ## Rein kosmetische Speicherung
 
-Die Auswahl ist **kein Audioparameter** und verändert weder Raum/Größe/Klang noch Automation oder Session-Recall. Audio-Engine, Prozessor und Audio-Serialisierung sind gegenüber dem Startstand dieses Auftrags unverändert. Die Auswahl wird als separate, benutzerbezogene JUCE-PropertiesFile mit der Anwendung `SpatialLab`, Ordner `Stromschlag Productions`, Suffix `.gui.settings` und Schlüssel `episodeIV` gespeichert. Beim nächsten Editor-Öffnen wird diese GUI-Vorliebe wiederhergestellt. Bestehende geöffnete Instanzen bleiben unabhängig bedienbar. Die Schreib-/Lesezugriffe erfolgen ausschließlich im GUI-Thread.
+Die Auswahl ist **kein Audioparameter** und verändert weder Raum/Größe/Klang noch Automation oder Session-Recall. Audio-Engine, Prozessor und Audio-Serialisierung sind gegenüber dem Startstand dieses Auftrags unverändert. Die Auswahl wird als separate, benutzerbezogene JUCE-PropertiesFile mit der Anwendung `SpatialLab`, Ordner `Stromschlag Audio` (eine alte Episode-Einstellung aus `Stromschlag Productions` wird einmalig übernommen, sofern im neuen Pfad noch kein Wert vorliegt), Suffix `.gui.settings` und Schlüssel `episodeIV` gespeichert. Beim nächsten Editor-Öffnen wird diese GUI-Vorliebe wiederhergestellt. Bestehende geöffnete Instanzen bleiben unabhängig bedienbar. Die Schreib-/Lesezugriffe erfolgen ausschließlich im GUI-Thread.
 
 Die Standardansicht IV gilt bei fehlender Einstellung; eine bewusst gespeicherte I-Auswahl bleibt erhalten. Auf einem anderen Computer ohne Einstellungsdatei startet IV. Die Audio-Session enthält keine Skin-Daten und bleibt bytegleich.
 
