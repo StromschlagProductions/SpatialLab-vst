@@ -1,3 +1,9 @@
+# Aktueller Stand: Phase 2.1
+
+[Vier große echte Windows-Screenshots, individuelle Röhrenglut bei Stille/Audio, Build und Installationspaket](../../phase2.1/PRUEFBILDER.md). Die folgenden Bilder dokumentieren frühere Stände.
+
+---
+
 # Aktueller Stand: Entwicklungsphase 2
 
 [Sechs aktuelle echte Windows-Screenshots mit drei Raumzeichnungen, Build und Installationspaket](../../phase2/screenshots/README.md). Die folgenden Nachweise sind historische Stände vor Phase 2.

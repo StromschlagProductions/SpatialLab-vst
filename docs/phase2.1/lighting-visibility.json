@@ -1,0 +1,190 @@
+[
+  {
+    "capture": "Episode-I\\1504x846\\Audio",
+    "max_pair_mean_absolute_change_255": {
+      "tube-0": 82.194,
+      "tube-1": 82.103,
+      "tube-2": 45.881,
+      "tube-3": 85.38,
+      "power-lens": 60.831,
+      "aux-amber": 38.596,
+      "aux-blue": 89.345
+    },
+    "silent_glass_brightness": {}
+  },
+  {
+    "capture": "Episode-I\\1504x846\\Silent",
+    "max_pair_mean_absolute_change_255": {
+      "tube-0": 82.469,
+      "tube-1": 81.77,
+      "tube-2": 44.926,
+      "tube-3": 85.92,
+      "power-lens": 59.914,
+      "aux-amber": 36.988,
+      "aux-blue": 86.932
+    },
+    "silent_glass_brightness": {
+      "0": {
+        "minimum_rgb_mean": 23.726,
+        "maximum_rgb_mean": 105.812,
+        "rest_peak_ratio": 0.224
+      },
+      "1": {
+        "minimum_rgb_mean": 23.805,
+        "maximum_rgb_mean": 107.321,
+        "rest_peak_ratio": 0.222
+      },
+      "2": {
+        "minimum_rgb_mean": 12.011,
+        "maximum_rgb_mean": 60.669,
+        "rest_peak_ratio": 0.198
+      },
+      "3": {
+        "minimum_rgb_mean": 22.053,
+        "maximum_rgb_mean": 108.583,
+        "rest_peak_ratio": 0.203
+      }
+    }
+  },
+  {
+    "capture": "Episode-I\\1672x941\\Audio",
+    "max_pair_mean_absolute_change_255": {
+      "tube-0": 82.346,
+      "tube-1": 83.939,
+      "tube-2": 46.426,
+      "tube-3": 85.384,
+      "power-lens": 63.186,
+      "aux-amber": 37.757,
+      "aux-blue": 91.932
+    },
+    "silent_glass_brightness": {}
+  },
+  {
+    "capture": "Episode-I\\1672x941\\Silent",
+    "max_pair_mean_absolute_change_255": {
+      "tube-0": 81.983,
+      "tube-1": 83.191,
+      "tube-2": 46.522,
+      "tube-3": 85.384,
+      "power-lens": 64.674,
+      "aux-amber": 39.86,
+      "aux-blue": 91.932
+    },
+    "silent_glass_brightness": {
+      "0": {
+        "minimum_rgb_mean": 23.455,
+        "maximum_rgb_mean": 106.27,
+        "rest_peak_ratio": 0.221
+      },
+      "1": {
+        "minimum_rgb_mean": 23.238,
+        "maximum_rgb_mean": 108.64,
+        "rest_peak_ratio": 0.214
+      },
+      "2": {
+        "minimum_rgb_mean": 11.208,
+        "maximum_rgb_mean": 60.487,
+        "rest_peak_ratio": 0.185
+      },
+      "3": {
+        "minimum_rgb_mean": 22.142,
+        "maximum_rgb_mean": 108.883,
+        "rest_peak_ratio": 0.203
+      }
+    }
+  },
+  {
+    "capture": "Episode-IV\\1504x846\\Audio",
+    "max_pair_mean_absolute_change_255": {
+      "tube-0": 77.163,
+      "tube-1": 74.626,
+      "tube-2": 42.137,
+      "tube-3": 84.585,
+      "power-lens": 83.446,
+      "aux-amber": 51.414,
+      "aux-blue": 92.45
+    },
+    "silent_glass_brightness": {}
+  },
+  {
+    "capture": "Episode-IV\\1504x846\\Silent",
+    "max_pair_mean_absolute_change_255": {
+      "tube-0": 76.864,
+      "tube-1": 74.64,
+      "tube-2": 42.266,
+      "tube-3": 85.383,
+      "power-lens": 69.163,
+      "aux-amber": 54.22,
+      "aux-blue": 92.275
+    },
+    "silent_glass_brightness": {
+      "0": {
+        "minimum_rgb_mean": 24.133,
+        "maximum_rgb_mean": 100.953,
+        "rest_peak_ratio": 0.239
+      },
+      "1": {
+        "minimum_rgb_mean": 20.036,
+        "maximum_rgb_mean": 101.122,
+        "rest_peak_ratio": 0.198
+      },
+      "2": {
+        "minimum_rgb_mean": 11.534,
+        "maximum_rgb_mean": 56.21,
+        "rest_peak_ratio": 0.205
+      },
+      "3": {
+        "minimum_rgb_mean": 18.746,
+        "maximum_rgb_mean": 104.539,
+        "rest_peak_ratio": 0.179
+      }
+    }
+  },
+  {
+    "capture": "Episode-IV\\1672x941\\Audio",
+    "max_pair_mean_absolute_change_255": {
+      "tube-0": 78.043,
+      "tube-1": 80.453,
+      "tube-2": 42.056,
+      "tube-3": 84.998,
+      "power-lens": 89.817,
+      "aux-amber": 60.537,
+      "aux-blue": 94.798
+    },
+    "silent_glass_brightness": {}
+  },
+  {
+    "capture": "Episode-IV\\1672x941\\Silent",
+    "max_pair_mean_absolute_change_255": {
+      "tube-0": 78.043,
+      "tube-1": 80.453,
+      "tube-2": 42.034,
+      "tube-3": 84.87,
+      "power-lens": 89.541,
+      "aux-amber": 61.712,
+      "aux-blue": 95.052
+    },
+    "silent_glass_brightness": {
+      "0": {
+        "minimum_rgb_mean": 22.573,
+        "maximum_rgb_mean": 101.337,
+        "rest_peak_ratio": 0.223
+      },
+      "1": {
+        "minimum_rgb_mean": 19.824,
+        "maximum_rgb_mean": 103.24,
+        "rest_peak_ratio": 0.192
+      },
+      "2": {
+        "minimum_rgb_mean": 9.515,
+        "maximum_rgb_mean": 56.263,
+        "rest_peak_ratio": 0.169
+      },
+      "3": {
+        "minimum_rgb_mean": 18.887,
+        "maximum_rgb_mean": 104.477,
+        "rest_peak_ratio": 0.181
+      }
+    }
+  }
+]

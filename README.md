@@ -36,7 +36,7 @@ The editor exposes exactly **Raum**, **Größe** (smaller → neutral → larger
 The output is always **100% wet**; there is no direct path, output gain or loudness knob. Early reflections, tail, diffusion, delays, damping and stereo voicing are authored internally by the preset. Size changes decay and internal early/late voicing, while Tone changes spectral damping. Room selection replaces the room and clears the previous tail; there are no room blends, distance or movement simulations. Locations handles scene transitions separately.
 
 When the host invokes the plugin bypass callback, the send is muted while processing continues. Hosts that route around the plugin control their own external path; mute the return in those hosts. Schema-1/2 prototype sessions restore the selected room with neutral macros; obsolete extra controls are discarded.
-Die Phase-2-Abstimmung schlägt kompakte Sprachräume vor: Wohnzimmer mit kräftigerer früher Raumantwort (nominale tieffrequente RT60 0,40 s), eine kurze, hellere Küche (0,32 s) und ein kleines gekacheltes Bad (0,38 s). Dies sind entworfene Raumeindrücke, keine gemessenen Akustikmodelle; die endgültige Beurteilung erfolgt im Sprachhörtest. The reported host tail is conservatively 6 s; latency is zero. Read [DSP and parameter design](docs/DESIGN.md) before extending the engine or changing parameter IDs.
+Die vom Auftraggeber nach dem Sprachhörtest freigegebene Phase-2-Abstimmung bildet kompakte Sprachräume ab: Wohnzimmer mit kräftigerer früher Raumantwort (nominale tieffrequente RT60 0,40 s), eine kurze, hellere Küche (0,32 s) und ein kleines gekacheltes Bad (0,38 s). Dies sind entworfene Raumeindrücke, keine gemessenen Akustikmodelle. Phase 2.1 lässt diese Akustik unverändert. The reported host tail is conservatively 6 s; latency is zero. Read [DSP and parameter design](docs/DESIGN.md) before extending the engine or changing parameter IDs.
 
 ## Roadmap and licensing
 
@@ -59,3 +59,5 @@ Hersteller: **Stromschlag Audio**. Plugin-Identität/Audio-State bleiben kompati
 ## Phase 2.1
 
 Aktuelle Herstelleridentität: **Stromschlag Audio**, `Strm` / `SpLb`, Bundle-ID `com.stromschlagaudio.spatiallab`. Neue Standardgröße 1504×846 mit separater Größenwiederherstellung, sichtbarere Lichtanimationen und verwitterte Episode-IV-Schalterfassung. Die freigegebene Phase-2-Akustik bleibt unverändert. [Änderungen, Identitätswechsel und Windows-Installation](docs/phase2.1/PHASE2_1.md).
+
+[Phase 2.1: echte große Windows-Screenshots, Röhrenanimationen bei Stille/Audio und erfolgreiches Installationspaket](docs/phase2.1/PRUEFBILDER.md).
