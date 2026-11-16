@@ -82,6 +82,7 @@ int main()
                 require(observed.gui.observing.load(), "Shown editor did not resume");
                 editor->setVisible(false);
                 require(!observed.gui.observing.load(), "Hidden editor did not pause");
+                editor->removeFromDesktop();
                 int knobs = 0;
                 for (auto* child : editor->getChildren()) if (dynamic_cast<juce::Slider*>(child)) ++knobs;
                 require(knobs == 2 && observed.getParameters().size() == 3, "Extra audio control");
