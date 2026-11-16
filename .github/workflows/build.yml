@@ -40,7 +40,7 @@ jobs:
       - name: Render comparisons through the actual built VST3
         shell: pwsh
         run: |
-          & "./build/SpatialLabListeningRender_artefacts/Release/SpatialLab Listening Render.exe" build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3 build/listening-source/speech-source.wav build/listening-demo/audio | Tee-Object -FilePath build/render-metrics.csv
+          & "./build/SpatialLabListeningRender_artefacts/Release/SpatialLabListeningRender.exe" build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3 build/listening-source/speech-source.wav build/listening-demo/audio | Tee-Object -FilePath build/render-metrics.csv
           if ($LASTEXITCODE -ne 0) { throw "Actual VST3 rendering failed" }
       - name: Capture real large editors and silent/audio animation sequences
         shell: pwsh
@@ -83,6 +83,17 @@ jobs:
         with:
           name: SpatialLab-GUI-Capture-Diagnostics
           path: build/gui-preview/
+          if-no-files-found: ignore
+      - name: Preserve actual renderer and bundle for failure diagnosis
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: SpatialLab-Render-Diagnostics
+          path: |
+            build/SpatialLabListeningRender_artefacts/Release/
+            build/SpatialLab_artefacts/Release/VST3/
+            build/listening-source/
+            build/render-metrics.csv
           if-no-files-found: ignore
       - name: Alte und neue Raum-Impulsantworten bei beiden Zielraten vergleichen
         shell: pwsh
