@@ -1,9 +1,10 @@
 #pragma once
 #include "PluginProcessor.h"
+#include "PresetBrowser.h"
 
 // The supplied raster remains the front panel; controls are aligned to its native coordinates.
 class SpatialLabEditor final : public juce::AudioProcessorEditor, private juce::Timer,
-                               private juce::LookAndFeel_V4
+                               private juce::LookAndFeel_V4, private juce::AudioProcessorParameter::Listener
 {
 public:
     explicit SpatialLabEditor(SpatialLabProcessor&, const juce::File& guiSettingsFile = {});
@@ -16,12 +17,15 @@ public:
     void paint(juce::Graphics&) override;
 private:
     void timerCallback() override;
+    void parameterValueChanged(int, float) override { roomNotification.store(true, std::memory_order_release); }
+    void parameterGestureChanged(int, bool) override {}
     void selectRoom(int);
     int selectedRoom() const;
     void drawRotarySlider(juce::Graphics&, int, int, int, int, float, float, float, juce::Slider&) override;
     void drawButtonBackground(juce::Graphics&, juce::Button&, const juce::Colour&, bool, bool) override;
     void drawButtonText(juce::Graphics&, juce::TextButton&, bool, bool) override {}
     void drawCrt(juce::Graphics&);
+    void drawSmallRoom(juce::Graphics&);
     void drawRoomGeometry(juce::Graphics&, int room);
     void drawExtendedRoom(juce::Graphics&,int);
     void drawLighting(juce::Graphics&);
@@ -32,7 +36,8 @@ private:
     std::array<std::array<juce::Image,2>,2> emberMasks;
     std::unique_ptr<juce::PropertiesFile> guiSettings;
     juce::Slider size, tone;
-    std::array<juce::TextButton, 3> presets;
+    PresetBrowser browser;
+    std::atomic<bool> roomNotification {true};
     juce::TextButton episodeSwitch, listUp, listDown;
     std::unique_ptr<juce::SliderParameterAttachment> sizeAttachment, toneAttachment;
     float scale = 1, offsetX = 0, offsetY = 0, signal = 0, phase = 0;

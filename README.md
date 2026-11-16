@@ -91,3 +91,7 @@ Statische Original-Leuchtfelder, korrigierte Reglerflächen und pausierende unsi
 ## Phase 3A
 
 19 Umgebungen: die bisherigen drei Räume plus sechs Innenräume, vier Fahrzeugkabinen, Kapelle/Kathedrale/Höhle und drei eigenständig abgestimmte Sci-Fi-Cockpits. Gruppierte Auswahl im bestehenden Display, eigene bernsteinfarbene CRT-Szenen, unveränderte Originalfrontplatten und weiterhin genau drei Audioparameter. [Preset-Liste, DSP-/Migrationsprüfung, Messwerte und Windows-Downloads](docs/phase3a/PHASE3A.md). Alte diskrete Raum-Automationspunkte bleiben erhalten; die Einschränkung interpolierter Zwischenwerte ist dort ausdrücklich dokumentiert. Phase 3B ist nur vorbereitet, keine Outdoor-Presets oder neue Browser-Demo.
+
+## Phase 3A.1
+
+Großes CRT als scrollbarer Preset-Browser mit aufklappbaren Kategorien und Direktwahl; die vorhandenen Raumzeichnungen samt Wellenform stehen verkleinert links. Alle 19 Raumzuordnungen, DSP, Automation und Originalfrontplatten bleiben unverändert. [Bedienung, Grenzen und Windows-Testbuild](docs/phase3a1/PHASE3A_1.md).

@@ -12,6 +12,30 @@ void set(SpatialLabProcessor& p, const char* id, float value)
     auto* parameter = p.parameter(id);
     parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
+juce::MouseEvent eventAt(juce::Component& component, juce::Point<float> point, bool pressed = false)
+{
+    const auto now = juce::Time::getCurrentTime();
+    return {juce::Desktop::getInstance().getMainMouseSource(),point,
+        juce::ModifierKeys(pressed ? juce::ModifierKeys::leftButtonModifier : 0),
+        0,0,0,0,0,&component,&component,now,point,now,1,false};
+}
+void click(PresetBrowser& browser, juce::Rectangle<float> row)
+{
+    require(!row.isEmpty(),"Missing browser row");
+    const auto event = eventAt(browser,row.getCentre(),true);
+    browser.mouseDown(event); browser.mouseUp(event);
+}
+void wheel(PresetBrowser& browser, float delta)
+{
+    juce::MouseWheelDetails details; details.deltaY = delta;
+    browser.mouseWheelMove(eventAt(browser,browser.getLocalBounds().toFloat().getCentre()),details);
+}
+void requireVisible(PresetBrowser& browser, int room)
+{
+    const auto row = browser.roomBounds(room);
+    require(!row.isEmpty() && row.getY() >= -.01f && row.getBottom() <= browser.getHeight()+.01f,
+            "Active preset not completely visible");
+}
 }
 int main()
 {
@@ -118,16 +142,79 @@ int main()
                          && control.getY() >= oy + 744 * scale && control.getBottom() <= oy + 815 * scale,
                             "Switch escapes clear metal surface/rivets");
                 }
-                for (const auto& name : {juce::String::fromUTF8("Küche"), juce::String("Raum nach oben")})
+                auto* browser = dynamic_cast<PresetBrowser*>(editor->findChildWithID("browser"));
+                // Find by component type/name, without adding plugin parameters or test-only controls.
+                if (browser == nullptr) for (auto* child : editor->getChildren())
+                    if (auto* candidate = dynamic_cast<PresetBrowser*>(child)) browser = candidate;
+                require(browser != nullptr,"Central preset browser missing");
+                editor->setSize(1504,846); editor->addToDesktop(0); editor->setVisible(true);
+                editor->visibilityChanged();
+                for (auto dimensions : {std::pair<int,int>{1003,565},{1504,846},{1672,941}})
                 {
-                    set(observed, "size", 0.9f); set(observed, "tone", 0.1f);
-                    bool found = false;
-                    for (auto* child : editor->getChildren())
-                        if (auto* button = dynamic_cast<juce::TextButton*>(child); button != nullptr && button->getName() == name)
-                        { button->onClick(); found = true; }
-                    require(found && observed.parameter("size")->getValue() == 0.5f && observed.parameter("tone")->getValue() == 0.5f,
-                            "Preset path not synchronized with existing room reset");
+                    editor->setSize(dimensions.first,dimensions.second);
+                    const float scale = dimensions.first/1672.0f;
+                    require(std::abs(browser->getX()-542*scale)<2 && std::abs(browser->getY()-322*scale)<2,
+                            "Browser escaped the central CRT");
+                    for(int room=0;room<19;++room)
+                    {
+                        browser->revealRoom(room);
+                        set(observed,"size",.9f); set(observed,"tone",.1f);
+                        // Start the first loop from a different room, too.
+                        if(browser->getSelectedRoom()==room) { set(observed,"room",float((room+1)%19)); editor->visibilityChanged(); browser->revealRoom(room); }
+                        click(*browser,browser->roomBounds(room));
+                        require(browser->getSelectedRoom()==room &&
+                            juce::roundToInt(observed.parameter("room")->convertFrom0to1(observed.parameter("room")->getValue()))==room,
+                            "Browser selected the wrong semantic room");
+                        require(observed.parameter("size")->getValue()==.5f && observed.parameter("tone")->getValue()==.5f,
+                            "Direct selection lost the existing neutral macro reset");
+                        requireVisible(*browser,room);
+                    }
                 }
+                const float retained = browser->getScrollOffset();
+                click(*browser,browser->roomBounds(17));
+                require(browser->getScrollOffset()==retained,"Nearby choice jumped to list start");
+                set(observed,"size",.7f); set(observed,"tone",.3f);
+                observed.getStateInformation(before);
+                click(*browser,browser->roomBounds(17));
+                observed.getStateInformation(after); require(before==after,"Repeated active-row click changed audio state");
+                wheel(*browser,.1f);
+                const float manual = browser->getScrollOffset(); editor->visibilityChanged();
+                require(browser->getScrollOffset()==manual,"Unchanged room undid manual scrolling");
+                observed.getStateInformation(after); require(before==after,"Browser wheel changed audio state");
+                wheel(*browser,1000); require(browser->getScrollOffset()==0,"Scroll upper clamp failed");
+                wheel(*browser,-1000); const float maximum = browser->getScrollOffset();
+                require(maximum>0,"Wheel did not reach the remaining categories");
+                wheel(*browser,1000);
+                browser->mouseDown(eventAt(*browser,{float(browser->getWidth()-3),float(browser->getHeight()/2)},true));
+                browser->mouseDrag(eventAt(*browser,{float(browser->getWidth()-3),float(browser->getHeight())},true));
+                browser->mouseUp(eventAt(*browser,{float(browser->getWidth()-3),float(browser->getHeight())}));
+                require(browser->getScrollOffset()>0 && browser->getScrollOffset()<=maximum,"Scrollbar drag out of range");
+                wheel(*browser,1000);
+                click(*browser,browser->categoryBounds(0));
+                require(!browser->isExpanded(0) && browser->roomBounds(0).isEmpty(),"Category did not collapse");
+                click(*browser,browser->categoryBounds(3));
+                require(!browser->isExpanded(3),"Sci-Fi did not collapse");
+                observed.getStateInformation(after); require(before==after,"Category click changed audio state");
+                set(observed,"room",16); editor->visibilityChanged();
+                require(browser->isExpanded(3) && browser->getSelectedRoom()==16,"Host automation did not reveal its category");
+                requireVisible(*browser,16);
+                observed.getStateInformation(before);
+                click(*browser,browser->categoryBounds(3));
+                observed.setStateInformation(before.getData(),static_cast<int>(before.getSize())); editor->visibilityChanged();
+                require(browser->isExpanded(3),"Same-room session recall did not reopen category");
+                requireVisible(*browser,16);
+                // Scrolling over the browser reaches only the browser; knob wheels still work.
+                auto point=browser->localPointToGlobal(browser->getLocalBounds().getCentre());
+                require(editor->getComponentAt(editor->getLocalPoint(nullptr,point))==browser,"Browser hit target overlaps a knob");
+                for(auto* child : editor->getChildren()) if(auto* slider=dynamic_cast<juce::Slider*>(child))
+                {
+                    const double previous=slider->getValue(); juce::MouseWheelDetails details; details.deltaY=.2f;
+                    slider->mouseWheelMove(eventAt(*slider,slider->getLocalBounds().toFloat().getCentre()),details);
+                    require(slider->getValue()!=previous,"Knob wheel stopped working");
+                }
+                for(auto* child:editor->getChildren()) if(auto* button=dynamic_cast<juce::TextButton*>(child))
+                    if(button->getName()=="Raum nach oben") { button->onClick(); require(browser->getSelectedRoom()==15,"Alternative arrows lost room mapping"); }
+                editor->setVisible(false); editor->removeFromDesktop();
                 editor->setSize(1003,565);
                 for (bool skin : {false,true})
                 {
@@ -139,7 +226,7 @@ int main()
                         const auto image = editor->createComponentSnapshot(editor->getLocalBounds());
                         auto hash = std::uint64_t{1469598103934665603ull};
                         // Furniture region only: exclude the changing room-name heading.
-                        for (int y = 238; y < 315; y += 2) for (int x = 337; x < 574; x += 2)
+                        for (int y = 194; y < 251; ++y) for (int x = 92; x < 223; ++x)
                         { hash ^= image.getPixelAt(x,y).getARGB(); hash *= 1099511628211ull; }
                         fingerprints[static_cast<std::size_t>(roomIndex)] = hash;
                     }
@@ -168,7 +255,7 @@ int main()
             require(observed.gui.blocks.load() == blocks, "Telemetry still updated with closed editor");
             observed.releaseResources(); require(observed.gui.sampleRate.load() == 0, "Stale ready status");
         }
-        std::cout << "PASS retro controls, shared preset paths, unchanged state/audio, lock-free telemetry lifecycle, Episode I/IV switch/bounds/audio/persistence\n";
+        std::cout << "PASS central browser direct choice, category/wheel/host/recall/scale, small 19-room drawings, unchanged audio/lifecycle/skins\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

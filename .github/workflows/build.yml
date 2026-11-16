@@ -23,6 +23,7 @@ jobs:
         run: |
           python Tools/check_episode_artwork.py
           python Tools/check_protected_audio.py
+          python Tools/check_phase3a1_scope.py
       - name: Configure (JUCE 8.0.6, VS 2022 x64)
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
       - name: Build VST3 and tests
@@ -75,7 +76,7 @@ jobs:
       - name: Upload all 38 native GUI screenshots
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: SpatialLab-Phase3A-Screenshots
+          name: SpatialLab-Phase3A1-Screenshots
           path: build/environment-screens/**/Windows-Editor-Screenshot.png
           if-no-files-found: error
       - name: Upload reproducible impulse responses and voicing data

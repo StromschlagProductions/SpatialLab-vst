@@ -48,8 +48,9 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
         control.setLookAndFeel(this); control.onClick = std::move(action);
         addAndMakeVisible(control);
     };
-    for (int i = 0; i < 3; ++i)
-        button(presets[static_cast<std::size_t>(i)], names[static_cast<std::size_t>(i)], [this, i] { const int n=spatiallab::pageStart(selectedRoom())+i;if(n<spatiallab::categoryEnd(selectedRoom()))selectRoom(n); });
+    browser.onRoomSelected = [this](int room) { selectRoom(room); };
+    addAndMakeVisible(browser);
+    processor.parameter("room")->addListener(this);
     button(episodeSwitch, "Episode", [this] { setEpisodeIV(episodeSwitch.getToggleState()); });
     episodeSwitch.setClickingTogglesState(true);
     episodeSwitch.setTooltip({});
@@ -79,6 +80,7 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     const bool validSize = savedWidth >= 1003 && savedWidth <= 1672 && savedHeight >= 565 && savedHeight <= 941
         && std::abs(savedWidth / static_cast<double>(savedHeight) - panelWidth / panelHeight) < 0.004;
     setSize(validSize ? savedWidth : 1504, validSize ? savedHeight : 846);
+    browser.syncSelection(selectedRoom());
     processor.gui.peak.store(0, std::memory_order_relaxed);
     processor.gui.observing.store(true, std::memory_order_relaxed);
     timerCallback();
@@ -92,7 +94,7 @@ SpatialLabEditor::~SpatialLabEditor()
     guiSettings->setValue("windowHeight", getHeight());
     guiSettings->saveIfNeeded();
     processor.gui.observing.store(false, std::memory_order_relaxed);
-    for (auto& button : presets) button.setLookAndFeel(nullptr);
+    processor.parameter("room")->removeListener(this);
     for (auto* button : {&episodeSwitch, &listUp, &listDown}) button->setLookAndFeel(nullptr);
     size.setLookAndFeel(nullptr); tone.setLookAndFeel(nullptr);
 }
@@ -121,6 +123,7 @@ void SpatialLabEditor::selectRoom(int index)
     parameter->beginChangeGesture();
     parameter->setValueNotifyingHost(parameter->convertTo0to1(static_cast<float>(index)));
     parameter->endChangeGesture();
+    browser.syncSelection(index);
     timerCallback();
 }
 
@@ -134,8 +137,7 @@ void SpatialLabEditor::resized()
     scale = std::min(getWidth() / panelWidth, getHeight() / panelHeight);
     offsetX = (getWidth() - panelWidth * scale) * 0.5f;
     offsetY = (getHeight() - panelHeight * scale) * 0.5f;
-    for (int i = 0; i < 3; ++i)
-        presets[static_cast<std::size_t>(i)].setBounds(panelBounds(148, 313.0f + i * 42.0f, 229, 39));
+    browser.setBounds(panelBounds(542, 322, 435, 284));
     size.setBounds(panelBounds(201, 524, 114, 114));
     tone.setBounds(panelBounds(201, 717, 114, 114));
     episodeSwitch.setBounds(panelBounds(1230, 746, 273, 67));
@@ -184,21 +186,16 @@ void SpatialLabEditor::timerCallback()
         (inputs == 1 && outputs == 2 ? juce::String::fromUTF8("MONO → STEREO") : outputs == 1 ? "MONO" : "STEREO")
         + juce::String::fromUTF8(" · ") + juce::String(rate / 1000.0f, rate == 44100 ? 1 : 0) + " kHz";
     const int current = selectedRoom();
-    if (current != displayedRoom || configuration != previousConfig)
+    const bool reveal = roomNotification.exchange(false, std::memory_order_acquire);
+    if (reveal || current != displayedRoom || configuration != previousConfig)
     {
+        if (reveal || current != displayedRoom) browser.syncSelection(current);
         displayedRoom = current;
-        for(int row=0;row<3;++row)
-        {
-            const int n=spatiallab::pageStart(current)+row;
-            auto& button=presets[static_cast<std::size_t>(row)];
-            button.setVisible(n<spatiallab::categoryEnd(current));
-            if(n<19){button.setName(names[static_cast<std::size_t>(n)]);button.setTooltip(names[static_cast<std::size_t>(n)]);}
-        }
         repaint();
     }
     else
     {
-        repaint(panelBounds(510, 300, 503, 336));
+        repaint(panelBounds(145, 290, 233, 155));
         repaint(panelBounds(1205, 121, 270, 113));
         repaint(panelBounds(710,35,245,50));
         repaint(panelBounds(1469,559,60,66));
@@ -248,11 +245,31 @@ void SpatialLabEditor::drawCrt(juce::Graphics& g)
     juce::Path clip; clip.addRoundedRectangle(514, 306, 491, 324, 48);
     g.saveState(); g.reduceClipRegion(clip);
     // Clear only the glass region. The immutable artwork still supplies the bezel.
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff201405), 755, 461, dark, 516, 310, true));
+    g.setColour(juce::Colour(0xff090805));
     g.fillAll();
+    for (int y = 309; y < 632; y += 4)
+    { g.setColour(juce::Colours::black.withAlpha(0.14f)); g.drawHorizontalLine(y, 514, 1005); }
+    g.restoreState();
+}
+
+void SpatialLabEditor::drawSmallRoom(juce::Graphics& g)
+{
+    juce::Graphics::ScopedSaveState small(g);
+    juce::Path glass; glass.addRoundedRectangle(145,290,233,155,3);
+    g.reduceClipRegion(glass);
+    g.setColour(juce::Colour(0xff090805)); g.fillPath(glass);
     const int room = selectedRoom();
-    drawRoomGeometry(g, room);
-    text(g, names[static_cast<std::size_t>(room)].toUpperCase(), 647, 314, 222, 25, 17, amber, juce::Justification::centred);
+    text(g,names[static_cast<std::size_t>(room)].toUpperCase(),151,293,221,20,13,amber,juce::Justification::centred);
+    {
+        juce::Graphics::ScopedSaveState geometry(g);
+        // One proportional transform for all 19 existing drawings, including their edges.
+        constexpr float shrink = 221.0f / 448.0f;
+        g.addTransform(juce::AffineTransform::translation(-538,-342).scaled(shrink).translated(151,321));
+        drawRoomGeometry(g,room);
+    }
+    // Keep the same wet-driven trace/phase, moved with the room display and scaled uniformly.
+    g.saveState();
+    g.addTransform(juce::AffineTransform::translation(-554,-574).scaled(.5f).translated(155,434));
     // A deliberately stylised signal trace, driven only by the observed wet level.
     juce::Path trace; trace.startNewSubPath(554, 574);
     for (int x = 554; x <= 967; x += 3)
@@ -264,9 +281,9 @@ void SpatialLabEditor::drawCrt(juce::Graphics& g)
     }
     g.setColour(amber.withAlpha(0.12f)); g.strokePath(trace, juce::PathStrokeType(7));
     g.setColour(amber); g.strokePath(trace, juce::PathStrokeType(1.5f));
-    for (int y = 309; y < 632; y += 4)
-    { g.setColour(juce::Colours::black.withAlpha(0.14f)); g.drawHorizontalLine(y, 514, 1005); }
     g.restoreState();
+    for (int y = 292; y < 445; y += 4)
+    { g.setColour(juce::Colours::black.withAlpha(0.10f)); g.drawHorizontalLine(y,145,378); }
 }
 
 void SpatialLabEditor::drawRoomGeometry(juce::Graphics& g, int room)
@@ -352,18 +369,7 @@ void SpatialLabEditor::paint(juce::Graphics& g)
     g.addTransform(juce::AffineTransform::scale(scale).translated(offsetX, offsetY));
     g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
     g.drawImage(panel, juce::Rectangle<float>(0, 0, panelWidth, panelHeight));
-    const int room = selectedRoom();
-    g.setGradientFill(juce::ColourGradient(juce::Colour(0xff261706), 145, 290, dark, 375, 446, false));
-    g.fillRoundedRectangle(145, 290, 233, 155, 3);
-    text(g,juce::String::fromUTF8(spatiallab::categoryName(room))+" "+juce::String(room+1)+"/19",151,290,224,22,13,amber);
-    for(int row=0;row<3;++row)
-    {
-        const int i=spatiallab::pageStart(room)+row;
-        if(i>=spatiallab::categoryEnd(room))break;
-        const float y=314.0f+row*42.0f;
-        if(i==room){g.setColour(amber);g.fillRoundedRectangle(151,y,221,35,3);}
-        text(g,(i==room?juce::String::fromUTF8("› "):juce::String())+names[static_cast<std::size_t>(i)],158,y,209,35,18,i==room?dark:amber);
-    }
+    drawSmallRoom(g);
     // Neutralise the baked-in STEREO/48 kHz claim; show atomically published host data.
     g.setGradientFill(juce::ColourGradient(panel.getPixelAt(2276, 1242), 1138, 621,
                                          panel.getPixelAt(2780, 1300), 1390, 651, false));
