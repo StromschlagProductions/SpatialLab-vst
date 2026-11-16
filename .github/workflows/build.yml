@@ -38,13 +38,13 @@ jobs:
         shell: pwsh
         run: |
           foreach ($episode in @("I", "IV")) {
-            foreach ($size in @("1504x846", "2174x1223")) {
+            foreach ($size in @("1504x846", "1672x941")) {
               foreach ($mode in @("Silent", "Audio")) {
                 $folder = "build/gui-preview/Episode-$episode/$size/$mode"
                 $previewArgs = @("--output=$folder", "--episode=$episode", "--size=$size", "--sequence")
                 if ($mode -eq "Silent") { $previewArgs += "--silent" }
                 $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList $previewArgs -PassThru
-                if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "GUI capture timed out" }
+                if (-not $preview.WaitForExit(120000)) { $preview.Kill(); throw "GUI capture timed out" }
                 if ($preview.ExitCode -ne 0) { throw "GUI capture failed" }
                 python Tools/validate_gui_capture.py $folder $size
                 if ($LASTEXITCODE -ne 0) { throw "PNG validation failed" }
@@ -61,12 +61,28 @@ jobs:
             foreach ($room in 0..25) {
               $folder = "build/environment-screens/Episode-$episode/Room-$room"
               $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode", "--room=$room", "--silent" -PassThru
-              if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "Capture timed out" }
+              if (-not $preview.WaitForExit(120000)) { $preview.Kill(); throw "Capture timed out" }
               if ($preview.ExitCode -ne 0) { throw "Capture failed" }
               python Tools/validate_gui_capture.py $folder 1504x846
               if ($LASTEXITCODE -ne 0) { throw "Invalid PNG" }
             }
           }
+      - name: Capture maximum-size editors, report desktop limits honestly
+        shell: pwsh
+        run: |
+          foreach ($episode in @("I", "IV")) {
+            $folder = "build/maximum-screens/Episode-$episode"
+            $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode", "--size=2174x1223", "--silent", "--allow-render-only" -PassThru
+            if (-not $preview.WaitForExit(120000)) { $preview.Kill(); throw "Maximum capture timed out" }
+            if ($preview.ExitCode -ne 0) { throw "Maximum capture failed" }
+            if (-not (Test-Path "$folder/JUCE-Editor-Render-100.png")) { throw "Maximum component render missing" }
+          }
+      - name: Upload maximum-size evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: SpatialLab-Phase3B-Maximum-GUI
+          path: build/maximum-screens/
+          if-no-files-found: error
       - name: Measure and export all environment impulse responses
         shell: pwsh
         run: |

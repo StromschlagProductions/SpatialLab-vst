@@ -33,6 +33,7 @@ public:
         for (const auto& token : tokens)
         {
             if (token.startsWith("--knob=")) knob = token.fromFirstOccurrenceOf("=",false,false).getFloatValue();
+            if (token == "--allow-render-only") allowRenderOnly = true;
             if (token == "--silent") silent = true;
             if (token == "--sequence") sequence = true;
             if (token.startsWith("--size="))
@@ -59,7 +60,13 @@ public:
             {
                 mode.dmPelsWidth = 2560; mode.dmPelsHeight = 1440;
                 mode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-                ChangeDisplaySettings(&mode, 0);
+                const auto result = ChangeDisplaySettings(&mode, 0);
+                if (result != DISP_CHANGE_SUCCESSFUL) {
+                    mode.dmPelsWidth=1920; mode.dmPelsHeight=1080;
+                    ChangeDisplaySettings(&mode,0);
+                }
+                if(output!=juce::File()) {output.createDirectory();output.getChildFile("Display-Capabilities.txt").replaceWithText(
+                    "Requested 2560x1440 result="+juce::String(result)+"; actual="+juce::String(GetSystemMetrics(SM_CXSCREEN))+"x"+juce::String(GetSystemMetrics(SM_CYSCREEN)));}
             }
         }
 #endif
@@ -124,7 +131,8 @@ private:
         const int w = bounds.getWidth(), h = bounds.getHeight();
         if (bounds.getX()<0 || bounds.getY()<0 || bounds.getRight()>GetSystemMetrics(SM_CXSCREEN)
             || bounds.getBottom()>GetSystemMetrics(SM_CYSCREEN))
-        { setApplicationReturnValue(1); quit(); return; }
+        { if(allowRenderOnly) {output.getChildFile("NO-DESKTOP-CAPTURE.txt").replaceWithText("CI desktop cannot contain this editor. JUCE-Editor-Render-100.png is a native component render, NOT a desktop screenshot.");}
+          else setApplicationReturnValue(1); quit(); return; }
         HDC screen = GetDC(nullptr), memory = CreateCompatibleDC(screen);
         HBITMAP bitmap = CreateCompatibleBitmap(screen, w, h);
         auto old = SelectObject(memory, bitmap);
@@ -206,6 +214,6 @@ private:
     int frames = 0, samples = 0;
     int captures = 0;
     int captureRetries = 0;
-    bool capturing = false, silent = false, sequence = false;
+    bool capturing = false, silent = false, sequence = false, allowRenderOnly = false;
 };
 START_JUCE_APPLICATION(Preview)

@@ -127,7 +127,7 @@ int main()
         restored.setStateInformation(invalid, sizeof(invalid));
         require(restored.parameter("room")->convertFrom0to1(restored.parameter("room")->getValue()) == 1,
             "Rejected state changed room");
-        juce::XmlElement invalidValue("SpatialLabState"); invalidValue.setAttribute("schemaVersion", 3);
+        juce::XmlElement invalidValue("SpatialLabState"); invalidValue.setAttribute("schemaVersion", 5); invalidValue.setAttribute("environmentKey","living");
         invalidValue.setAttribute("room", 0); invalidValue.setAttribute("size", 4.0);
         restoreXml(restored, invalidValue);
         require(restored.parameter("room")->convertFrom0to1(restored.parameter("room")->getValue()) == 1,
