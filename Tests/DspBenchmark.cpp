@@ -8,7 +8,7 @@ int main()
 {
     std::cout << "rate,room,layout,controls,ns_per_frame,single_core_percent,checksum\n";
     for (double rate : {44100.0, 48000.0})
-        for (int preset=0;preset<19;++preset)
+        for (int preset=0;preset<26;++preset)
         for (bool mono : {true, false})
             for (int mode : {0, 1, 2})
             {
@@ -22,7 +22,7 @@ int main()
                     if (i % 64 == 0)
                     {
                         const int block = i / 64;
-                        engine.set(mode == 2 ? (preset + block / 32) % 19 : preset,
+                        engine.set(mode == 2 ? (preset + block / 32) % 26 : preset,
                             mode == 1 ? static_cast<float>(block % 2) : 0.5f,
                             mode == 1 ? static_cast<float>((block / 2) % 2) : 0.5f);
                     }

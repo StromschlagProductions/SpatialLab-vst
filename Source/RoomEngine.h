@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
+#include "RoomCatalog.h"
+#include "OutdoorEngine.h"
 
 namespace spatiallab
 {
@@ -204,6 +206,8 @@ public:
         // Preallocate all presets so selecting a room can never allocate on the audio thread.
         for (std::size_t i = 0; i < reverbs.size(); ++i)
             reverbs[i].prepare(rate, rooms[i], decay, tone);
+        outdoor.prepare(rate);
+        if(isOutdoor(room)) outdoor.select(room-9,sizeValue,tone);
         activeRoom = room; lastSize = sizeValue; decayMultiplier = decay;
         size.reset(rate, sizeValue);
         pendingRoom=room;pendingSize=sizeValue;pendingTone=tone;switchGain=1;switching=false;fadeStep=static_cast<float>(1.0/(rate*0.03));
@@ -220,11 +224,12 @@ public:
         { switching=true; return; }
         if(!switching)
         {
-            reverbs[static_cast<std::size_t>(activeRoom)].set(decayMultiplier,tone,rooms[static_cast<std::size_t>(activeRoom)]);
+            if(isOutdoor(activeRoom)) outdoor.set(sizeValue,tone);
+            else reverbs[static_cast<std::size_t>(indoorIndex(activeRoom))].set(decayMultiplier,tone,rooms[static_cast<std::size_t>(indoorIndex(activeRoom))]);
             size.set(sizeValue);
         }
     }
-    void reset() noexcept { for (auto& room : reverbs) room.reset(); }
+    void reset() noexcept { for (auto& room : reverbs) room.reset(); outdoor.reset(); }
     Stereo process(float left, float right) noexcept
     {
         if(switching)
@@ -233,13 +238,17 @@ public:
             if(switchGain==0)
             {
                 activeRoom=pendingRoom;
-                auto& next=reverbs[static_cast<std::size_t>(activeRoom)];next.reset();
-                next.set(std::exp2(2*(pendingSize-.5f)),pendingTone,rooms[static_cast<std::size_t>(activeRoom)],true);
+                if(isOutdoor(activeRoom)) outdoor.select(activeRoom-9,pendingSize,pendingTone);
+                else {
+                    auto& next=reverbs[static_cast<std::size_t>(indoorIndex(activeRoom))]; next.reset();
+                    next.set(std::exp2(2*(pendingSize-.5f)),pendingTone,rooms[static_cast<std::size_t>(indoorIndex(activeRoom))],true);
+                }
                 size.reset(sampleRate,pendingSize);switching=false;
             }
         }
         else switchGain=std::min(1.0f,switchGain+fadeStep);
-        const auto value = reverbs[static_cast<std::size_t>(activeRoom)].process(left, right);
+        if(isOutdoor(activeRoom)) {const auto y=outdoor.process(left,right);return {switchGain*y[0],switchGain*y[1]};}
+        const auto value = reverbs[static_cast<std::size_t>(indoorIndex(activeRoom))].process(left, right);
         const float s = size.next();
         // A size impression from decay and preset-internal early/late voicing, with no
         // variable-delay motion, distance model, cross-room blend or user gain controls.
@@ -248,6 +257,7 @@ public:
                 switchGain*(earlyGain * value.early.right + lateGain * value.late.right)};
     }
 private:
+    OutdoorEngine outdoor;
     std::array<Room, 19> reverbs;
     Ramp size;
     double sampleRate = 48000;

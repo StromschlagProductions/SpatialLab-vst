@@ -110,7 +110,7 @@ int main()
             bool finite = true;
             for (int block = 0; block < 1000; ++block)
             {
-                engine.set((block / 17) % 19, static_cast<float>(block % 2), static_cast<float>((block / 2) % 2));
+                engine.set((block / 17) % 26, static_cast<float>(block % 2), static_cast<float>((block / 2) % 2));
                 for (int i = 0; i < 127; ++i)
                 {
                     const float input = std::sin(static_cast<float>(block * 127 + i) * 0.071f) * 0.5f;

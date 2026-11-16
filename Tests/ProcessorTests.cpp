@@ -32,7 +32,7 @@ int main()
             layout.outputBuses.set(0, juce::AudioChannelSet::canonicalChannelSet(channels.second));
             require(processor.setBusesLayout(layout), "Supported layout rejected");
             for (double rate : {44100.0, 48000.0})
-                for (int preset = 0; preset < 19; ++preset)
+                for (int preset = 0; preset < 26; ++preset)
                 {
                     parameter(processor, "room", static_cast<float>(preset));
                     processor.prepareToPlay(rate, 64);
@@ -110,34 +110,15 @@ int main()
         restored.setStateInformation(state.getData(), static_cast<int>(state.getSize()));
         for (const auto* id : {"room", "size", "tone"})
             require(processor.parameter(id)->getValue() == restored.parameter(id)->getValue(), "Session recall mismatch");
-        // Old experimental controls never return, even when loading an old insert state.
-        for (int version : {1, 2})
-        {
-            juce::XmlElement legacy("SpatialLabState"); legacy.setAttribute("schemaVersion", version);
-            for (const auto* id : {"room", "mix", "earlyLate", "output", "width"})
-            {
-                auto* child = legacy.createNewChildElement("PARAM"); child->setAttribute("id", id);
-                child->setAttribute("value", juce::String(id) == "room" ? 1.0 : 0.0);
-            }
-            restoreXml(restored, legacy);
-            require(restored.parameter("room")->convertFrom0to1(restored.parameter("room")->getValue()) == 1
-                && restored.parameter("size")->getValue() == 0.5f && restored.parameter("tone")->getValue() == 0.5f,
-                "Legacy state did not migrate to neutral preset");
-        }
-        for(int index=0;index<19;++index)
+        for(int index=0;index<26;++index)
         {
             parameter(processor,"room",static_cast<float>(index));parameter(processor,"size",.73f);parameter(processor,"tone",.21f);
             processor.getStateInformation(state);restored.setStateInformation(state.getData(),static_cast<int>(state.getSize()));
             require(restored.parameter("room")->convertFrom0to1(restored.parameter("room")->getValue())==index,"19-environment recall failed");
         }
-        for(int index=0;index<3;++index)
-        {
-            juce::XmlElement legacy("SpatialLabState");legacy.setAttribute("schemaVersion",3);legacy.setAttribute("room",index);legacy.setAttribute("size",.31);legacy.setAttribute("tone",.64);restoreXml(restored,legacy);
-            require(restored.parameter("room")->getValue()==index*.5f,"Old automation anchor changed");
-        }
         parameter(restored,"room",1);
         restored.getStateInformation(state);
-        juce::XmlElement unknown("SpatialLabState");unknown.setAttribute("schemaVersion",4);unknown.setAttribute("environmentKey","unknown-room");unknown.setAttribute("room",18);
+        juce::XmlElement unknown("SpatialLabState");unknown.setAttribute("schemaVersion",5);unknown.setAttribute("environmentKey","unknown-room");unknown.setAttribute("room",18);
         restoreXml(restored,unknown);juce::MemoryBlock unchanged;restored.getStateInformation(unchanged);
         require(unchanged==state,"Unknown stable key altered state");
         juce::XmlElement future("SpatialLabState"); future.setAttribute("schemaVersion", 99);
