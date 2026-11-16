@@ -1,0 +1,93 @@
+{
+  "commit": "f176a828d6de54d927e16c9b8e86554926ee2eb9",
+  "run": "43834864168",
+  "source": {
+    "channels": 1,
+    "text": "Behind the heavy door, the house was quiet. I put the keys on the table and listened. A glass touched the sink. Then a soft voice came from the next room: leave the light on, I will be back before morning.",
+    "voice": "Microsoft David Desktop",
+    "origin": "New original text synthesized locally by Windows System.Speech; no third-party recording",
+    "sampleRate": 48000,
+    "culture": "en-US",
+    "volume": 60,
+    "bits": 16,
+    "rate": 0
+  },
+  "sendDB": -6,
+  "sendLinear": 0.5011872336272722,
+  "fxDB": 0,
+  "size": 0.5,
+  "tone": 0.5,
+  "processing": "Actual built Windows VST3 loaded by JUCE host; stereo in/out; no GUI; 256-sample blocks; 3 seconds tail; no normalization/limiter",
+  "moduleSHA256": "21d786c1d78192bc8fdd88bd28aed448682b7bfa2f9523ccc3795f4125b98adc",
+  "measurements": [
+    {
+      "source": "speech",
+      "room": 0,
+      "rate": 48000,
+      "peakWet": 0.130340576171875,
+      "peakMix": 0.37335205078125,
+      "rmsWet": 0.009597336616054941,
+      "mixErrorLSB": 1.0
+    },
+    {
+      "source": "speech",
+      "room": 1,
+      "rate": 48000,
+      "peakWet": 0.0867919921875,
+      "peakMix": 0.32757568359375,
+      "rmsWet": 0.007898211559262597,
+      "mixErrorLSB": 1.0
+    },
+    {
+      "source": "speech",
+      "room": 2,
+      "rate": 48000,
+      "peakWet": 0.087921142578125,
+      "peakMix": 0.335601806640625,
+      "rmsWet": 0.009275364479250158,
+      "mixErrorLSB": 1.0
+    },
+    {
+      "source": "bass",
+      "room": 0,
+      "rate": 44100,
+      "peakWet": 0.07000732421875,
+      "peakMix": 0.312591552734375,
+      "rmsWet": 0.030136955992198223,
+      "mixErrorLSB": 1.0,
+      "bassWetTransferDB": {
+        "45": -11.026965375617356,
+        "80": -11.914817853753759,
+        "160": -19.703491597784183
+      }
+    },
+    {
+      "source": "bass",
+      "room": 1,
+      "rate": 44100,
+      "peakWet": 0.06927490234375,
+      "peakMix": 0.307464599609375,
+      "rmsWet": 0.02556484317807303,
+      "mixErrorLSB": 1.0,
+      "bassWetTransferDB": {
+        "45": -14.280494760161552,
+        "80": -12.927263582282805,
+        "160": -5.227824811306297
+      }
+    },
+    {
+      "source": "bass",
+      "room": 2,
+      "rate": 44100,
+      "peakWet": 0.060760498046875,
+      "peakMix": 0.31097412109375,
+      "rmsWet": 0.021290818517567266,
+      "mixErrorLSB": 1.0,
+      "bassWetTransferDB": {
+        "45": -13.76579612136525,
+        "80": -20.45249481799504,
+        "160": -12.452668528740368
+      }
+    }
+  ]
+}

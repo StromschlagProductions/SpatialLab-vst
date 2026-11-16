@@ -65,3 +65,7 @@ Aktuelle Herstelleridentität: **Stromschlag Audio**, `Strm` / `SpLb`, Bundle-ID
 ## Phase 2.2
 
 Statische Original-Leuchtfelder, korrigierte Reglerflächen und pausierende unsichtbare Editoranimationen. Die Akustik bleibt bis zur eindeutigen Hörtestdiagnose erhalten. [Messbericht](docs/phase2.2/PHASE2_2.md) · [Windows-Build, Installationspaket und echte Prüfbilder](docs/phase2.2/PRUEFBILDER.md).
+
+## Phase 2.3
+
+[Offline-Hörvergleich aus der tatsächlich gebauten VST3: Download, Quellen, Pegel und Prüfbericht](docs/phase2.3/PHASE2_3.md). Die zwei zusätzlichen orangefarbenen Glimmstellen sind reine GUI-Animationen; DSP und Raumabstimmung bleiben erhalten. Audio und große Testmedien liegen ausschließlich in Actions-Artefakten.
