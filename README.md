@@ -69,3 +69,7 @@ Statische Original-Leuchtfelder, korrigierte Reglerflächen und pausierende unsi
 ## Phase 2.3
 
 [Offline-Hörvergleich aus der tatsächlich gebauten VST3: Download, Quellen, Pegel und Prüfbericht](docs/phase2.3/PHASE2_3.md). Die zwei zusätzlichen orangefarbenen Glimmstellen sind reine GUI-Animationen; DSP und Raumabstimmung bleiben erhalten. Audio und große Testmedien liegen ausschließlich in Actions-Artefakten.
+
+## Phase 3A
+
+19 Umgebungen: die bisherigen drei Räume plus sechs Innenräume, vier Fahrzeugkabinen, Kapelle/Kathedrale/Höhle und drei eigenständig abgestimmte Sci-Fi-Cockpits. Gruppierte Auswahl im bestehenden Display, eigene bernsteinfarbene CRT-Szenen, unveränderte Originalfrontplatten und weiterhin genau drei Audioparameter. [Preset-Liste, DSP-/Migrationsprüfung, Messwerte und Windows-Downloads](docs/phase3a/PHASE3A.md). Alte diskrete Raum-Automationspunkte bleiben erhalten; die Einschränkung interpolierter Zwischenwerte ist dort ausdrücklich dokumentiert. Phase 3B ist nur vorbereitet, keine Outdoor-Presets oder neue Browser-Demo.

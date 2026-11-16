@@ -1,5 +1,7 @@
 # SPATIAL LAB Phase 3A
 
+[Windows-VST3 herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226906488) · [38 echte Screenshots](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226960903) · [38 Impulsantworten und Messdaten](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226518817) · [Erfolgreicher CI-Lauf](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113)
+
 ## Umfang und akustische Ziele
 
 19 auswählbare Indoor-/Fahrzeug-/Cockpit-Umgebungen. Die ersten drei behalten semantische Indizes 0/1/2 und ihre freigegebenen neutralen Impulsantworten. Alle folgenden Presets sind eigenständige RoomSpec-Datensätze mit individuellen frühen Zeiten, Vorzeichen/Pegeln, FDN-Delaylängen, Dämpfung, Diffusionswinkel und Crossfeed. Kein Lautheitsnormalisierer, kein Dry-Signal, kein Oversampling. Neutrale Regler jeweils SIZE/TONE 50 %.
@@ -64,7 +66,7 @@ Die vier lokalen Release-Tests (Environments, DSP, RetroMotion, RoomVoicing) pr�
 
 Windows ergänzt Prozessor-Routing bei allen 19 Räumen, sechs Blockgrößen inklusive 0/1 Samples, alle Zustands-Roundtrips, Legacy-Anker, Legacy-Schemata, unveränderte GUI-/Audio-Zustände, 19 unterschiedliche CRT-Geometrien je Skin, Größen/Präferenzen und geschlossene Instanzen. Linux-CI behält ASan/UBSan und Leak-Prüfung.
 
-Der Mess-Export erstellt 38 Stereo-Float32-Impulsantworten bei 44,1/48 kHz und eine CSV mit Energie, T20-Schätzung, Spitzenwerten und Signaturen. Kein Normalisieren. Die Daten sind reproduzierbare technische Raumantworten, keine physikalische Raumvermessung. [Lokale Messwerte](environments-local.csv). Windows-Resultate und echte Screenshots aller 19 Umgebungen beider Skins werden im Actions-Artefakt bereitgestellt.
+Der Mess-Export erstellt 38 Stereo-Float32-Impulsantworten bei 44,1/48 kHz und eine CSV mit Energie, T20-Schätzung, Spitzenwerten und Signaturen. Kein Normalisieren. Die Daten sind reproduzierbare technische Raumantworten, keine physikalische Raumvermessung. [Lokale Messwerte](environments-local.csv). [Windows-Resultate](environments-windows.csv) und echte Screenshots aller 19 Umgebungen beider Skins stehen in den oben verlinkten Actions-Artefakten.
 
 Die früheren sofortigen Hard-Reset-Tests sind an die ausdrücklich neue Klickschutz-Ein-/Ausblendung angepasst: nach Ablauf der Wechselzeit darf kein alter Tail zurückkehren. Subjektive Klickfreiheit, Sprachverständlichkeit und angenehm unterscheidbare Fahrzeug-/Cockpitfärbung können automatisierte Zahlen nicht garantieren und bedürfen des Hörtests in Fender Studio Pro.
 
@@ -72,8 +74,106 @@ Die früheren sofortigen Hard-Reset-Tests sind an die ausdrücklich neue Klicksc
 
 Vorgemerkt: offene Landschaft, Wald, Straße/Gasse, Innenhof, Schlucht/Canyon, Tunnel, Unterführung. Keine dieser Umgebungen ist in Phase 3A auswählbar.
 
-`Source/OutdoorPlan.h` definiert nur einen geprüften Datenvertrag für maximal 16 diskrete Taps: Verzögerung, Pegel, Tiefpassfrequenz, Stereo-Panorama und begrenztes optionales Feedback, plus diffuse Beimischung. Kein Prozessor und keine aktive Instanz. Die spätere eigenständige Engine soll alle Speicher in prepare vorallokieren, Tap-Parameter glätten, Delaywechsel über getrennte Lesezeiger entschärfen und kontrollierte Feedbackpfade stabil begrenzen. Tap-Panorama ist Energieverteilung pro Reflexion, keine Bewegungssimulation. Sehr trockene offene Räume können keinen Late-Anteil und nur wenige leise Reflexionen erhalten; Canyon benötigt lange diskrete Wiederholungen.
+`Source/OutdoorPlan.h` definiert nur einen geprüften Datenvertrag für maximal 16 diskrete Taps: Verzögerung, Pegel, Tiefpassfrequenz, Stereo-Panorama und begrenztes optionales Feedback, plus diffuse Beimischung. Kein Prozessor und keine aktive Instanz. Die spätere eigenständige Engine soll alle Speicher in prepare vorallokieren, Tap-Parameter glätten, Delaywechsel über getrennte Lesezeiger entschärfen und kontrollierte Feedbackpfade stabil begrenzen. Tap-Panorama ist Energieverteilung pro Reflexion, keine Bewegungssimulation. Die Einzelgrenze eines Feedback-Taps ist noch kein Stabilitätsbeweis für ein verschaltetes Tap-Netz: Die spätere Engine benötigt zusätzlich ein globales Feedback-Gain-Budget beziehungsweise eine geprüfte Rückkopplungsmatrix. Sehr trockene offene Räume können keinen Late-Anteil und nur wenige leise Reflexionen erhalten; Canyon benötigt lange diskrete Wiederholungen.
 
 Slapper ST dient nur als vom Auftraggeber benannte konzeptionelle Referenz für getrennte Taps. Es liegen keine geprüften Messungen oder Originaldateien dieses Plugins vor; keine nachgemessenen Eigenschaften behauptet und kein Code/Asset daraus übernommen.
 
 Phase 2.3 bleibt abgeschlossen: keine neue HTML-Seite und keine GIF-Demopakete. Die CI erzeugt für diese Phase ausschließlich Build, native Screenshots, technische Protokolle und IR-Messmedien. Kein Merge nach main, kein Release, keine öffentliche Veröffentlichung.
+
+### Reproduzieren ohne Plugin-Build
+
+```sh
+cmake -S . -B build-ir -DSPATIALLAB_BUILD_PLUGIN=OFF -DCMAKE_BUILD_TYPE=Release
+cmake --build build-ir --parallel 2
+ctest --test-dir build-ir --output-on-failure
+./build-ir/SpatialLabEnvironmentTests build-ir/impulses > build-ir/environments.csv
+```
+
+Unter Windows bei Visual-Studio-Generator entsprechend `--config Release`, `ctest -C Release` und `build-ir/Release/SpatialLabEnvironmentTests.exe` verwenden. Der Export verwendet einen unveränderten Einheitspuls identisch links/rechts, neutrale Makros, keine Normalisierung, drei frühe Referenztests und alle 38 Messantworten. Zusätzliche Auswertungen und abgeschnittene Darstellungen sind keine eigenen Raummodelle.
+
+Der informative DSP-Benchmark deckt alle 19 Räume bei beiden Zielraten, Mono-/Stereo-Anregung und konstanten/automatisierten Makros sowie Presetwechseln ab. Die Messwerte sind Maschinen-/Build-abhängig und haben keine universelle CPU-Prozent-Garantie. Die Screenshot- und IR-Artefakte werden getrennt bereitgestellt; kein Browserpaket wird erzeugt.
+
+Für Phase 3B muss die Trennung zwischen stabilem Environment-Key, DSP-Backend und normiertem Host-Transport erhalten bleiben. Insbesondere darf der jetzige 19-Schritt-Parameter nicht blind durch einen gleichmäßig normierten 26er Choice ersetzt werden: Das würde erneut bestehende Automationscodes verschieben. Die Schema-4-Schlüssel sichern die Session-Zuordnung; der zusätzliche Host-Transport benötigt vor der nächsten Erweiterung eine ausdrücklich getestete versionierte Lösung. Dies ist eine bekannte Voraussetzung der späteren Erweiterung, kein bereits implementiertes Outdoor-Verhalten.
+
+
+### Lokaler CPU-Vorlauf
+
+Release, GCC 14.2.0, Linux x86-64; je Messfall vier Sekunden Audio, 64-Sample-Parameter-Refresh, alle 19 Räume, Mono/Stereo. Vorbereitung/Speicherreservierung, Host und GUI sind nicht in dieser reinen DSP-Zeit enthalten. [Alle 228 Rohwerte](cpu-local.csv).
+
+| Rate | konstant: Median | Makro-Automation: Median | Presetwechsel: Median |
+| --- | ---: | ---: | ---: |
+| 44,1 kHz | 0,176 % | 0,189 % | 0,190 % |
+| 48 kHz | 0,190 % | 0,204 % | 0,205 % |
+
+Prozent eines CPU-Kerns auf dieser Ausführungsmaschine; größte gemessene Einzelmessung 0,506 %. Kurze Laufzeiten unterliegen Scheduler-/Takt-Schwankungen. Dies ersetzt keine Messung im Zielhost und keine Worst-Case-Deadline-Prüfung kleinster Audioblöcke.
+
+
+### Verfahren für echte GUI-Nachweise
+
+Der separate Windows-Prüfhost öffnet den unveränderten Produktionseditor mit JUCEs Software-Fenster-Renderer. Screenshots stammen aus Win32-Desktop-Pixeln (BitBlt), nicht aus einer nachträglich zusammengesetzten Frontplatte. Vor der Aufnahme werden ausstehende Repaints ausgeführt. Drei statische Metallstellen werden gegen den gleichzeitig erzeugten Komponenten-Render geprüft: Ist der Desktop verdeckt, wird die Aufnahme verworfen und begrenzt erneut versucht. Ein Komponentenbild ersetzt niemals den Desktop-Screenshot; die bestehenden Sichtbarkeits-/Restglut-Grenzen bleiben unverändert. Diese Maßnahmen betreffen ausschließlich `Tools/GuiPreview.cpp`, nicht den Renderer des Plugins im Zielhost.
+
+
+## Abgeschlossene Windows-/Linux-Abnahme
+
+Geprüfter Branch-Code: `33dde1b07ad4c4c4716054000aea868213d7ae6c`. Actions prüfte den virtuellen PR-Merge-Commit `0fe9d269a0101d1aeb552ec804ffbb29260f620e`; beide besitzen exakt denselben Git-Tree `206538e7f6a046240589514e730db15ba8a68f30`. Dies ist ein GitHub-Prüfcommit, kein Merge des Entwicklungsbranches in main. Der anschließende Nachweiscommit ergänzt ausschließlich Dokumentation/CSV/README.
+
+[CI 43865790113](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113), JUCE 8.0.6 am festen SHA, CMake 3.31.6, VS 2022 x64 / Ubuntu 24.04:
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Windows Release | 6/6 bestanden, 17,31 s: Environments, DSP, RetroMotion, RoomVoicing, Processor, RetroGUI |
+| Linux ASan/UBSan mit Leak-Prüfung | 4/4 bestanden, 36,67 s; keine Sanitizer-Meldungen |
+| Originalgrafiken und eingefrorene Audio-Referenz | SHA-Prüfungen bestanden; ursprüngliche drei neutrale Antworten pro Compiler bei beiden Zielraten sampleweise bitgleich |
+| Alle 19 Umgebungen | je Zielrate 19 unterschiedliche IR-Signaturen, endliche begrenzte Antworten, Stereoanteil, ausklingende Fahnen, SIZE/TONE wirksam |
+| Routing/State | alle 19 Räume, Mono→Mono/Mono→Stereo/Stereo→Stereo, Blockgrößen 0/1/7/64/511/2048; 19 Roundtrips, Legacy-Schemata/Anker und ungültige Schlüssel geprüft |
+| Echtzeit-/GUI-Lifecycle | keine gezählten new/new[]-Allokationen im automatisierten DSP-Stress; 32 geschlossene Instanzen ohne GUI-Telemetrie; sichtbare/unsichtbare Editoren geprüft |
+| Beleuchtung | alle acht Kombinationen aus Skin/Größe/Stille/Audio bestanden; individuelle Röhren-/Glutänderung und Restglut, unveränderte statische Leuchtfelder |
+| CRT/Screenshots | 19 unterschiedliche Geometrien je Skin; 38 native Desktop-PNGs, jeweils 1504×846; CRC/Abmessungen nach Download erneut geprüft |
+| Windows-Paket | beide ZIP-Ebenen per CRC geprüft; genau ein vollständiger SpatialLab.vst3-Ordner; PE-Maschine x64 und alle drei Strm/SpLb-CIDs verifiziert |
+
+Die Begrenzung/Allokationsprüfung ist ein automatisierter Belastungstest, kein Beweis subjektiver Klickfreiheit oder jedes denkbaren Host-/Deadline-Verhaltens. Bei Raumwechseln ist die dokumentierte kurze Wet-Absenkung beabsichtigt. GUI-Prüfungen bestätigen Verhalten/Zustand und tatsächliche Bildänderungen; eine allgemeine CPU-Garantie für jeden Grafiktreiber folgt daraus nicht.
+
+### Nachgewiesene akustische Unterschiede
+
+[Windows-Messwerte aller 38 Fälle](environments-windows.csv), identischer Einheitspuls L=R, SIZE/TONE 50 %, Float32-Stereo ohne Normalisierung. Beispiele bei 44,1 kHz:
+
+| Umgebung | T20-basierte RT60-Schätzung | Wet-Spitze pro Kanal |
+| --- | ---: | ---: |
+| Kleinwagen | 0,0415 s | 0,3422 |
+| Transporter | 0,1561 s | 0,4500 |
+| Kleine Kapelle | 1,2709 s | 0,2280 |
+| Kathedrale | 3,2373 s | 0,1660 |
+| Höhle | 0,8990 s | 0,3968 |
+| X-Wing Cockpit | 0,0671 s | 0,4284 |
+| Y-Wing Cockpit | 0,1016 s | 0,4826 |
+| Snowspeeder Cockpit | 0,0453 s | 0,3744 |
+
+Die Höhle setzt stärker auf späte einzelne Rückwürfe und schwächere Diffusion, die Kathedrale auf eine längere diffuse Fahne; beide haben eigene Laufzeit-/Dämpfungsverteilungen. Unterschiede in Pegel und Energie bleiben erhalten. Diese Zahlen und eindeutige IRs zeigen technische Unterschiede, garantieren aber keine subjektiv überzeugende Raumidentität. Fiktive Cockpits sind kreative Voicings.
+
+### Windows-CPU-Messung
+
+[228 Windows-Rohwerte](cpu-windows.csv), gleiche vier Sekunden Audio und Messbedingungen wie im lokalen Vorlauf; Prozent eines Kerns, ohne prepare, Host und GUI:
+
+| Rate | konstant: Median | Makro-Automation: Median | Presetwechsel: Median |
+| --- | ---: | ---: | ---: |
+| 44,1 kHz | 0,221 % | 0,254 % | 0,227 % |
+| 48 kHz | 0,239 % | 0,273 % | 0,247 % |
+
+Größter Mittelwert eines viersekündigen Messfalls 0,497 %. Kurzzeitige Reset-Spitzen und Echtzeit-Deadline-Grenzen werden von solchen Durchschnittswerten nicht aufgelöst. Die Messungen sind informativ, keine hardwareübergreifenden Grenzwerte.
+
+### Downloads und Installation
+
+- [Installationspaket](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226906488): Actions-ZIP entpacken, darin `SpatialLab-VST3-Windows.zip` vollständig entpacken. Den kompletten Ordner `SpatialLab.vst3` bei geschlossener DAW nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren. Danach neu scannen, insbesondere bei zwischengespeicherter alter Parameter-Schrittzahl.
+- [Screenshots Episode I/IV, alle 19 Umgebungen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226960903): `Episode-I/Room-0..18/Windows-Editor-Screenshot.png` beziehungsweise `Episode-IV/...`; Indizes entsprechen der obigen Liste. Originale unbeschnittene Desktop-PNGs. Visuell geprüft: beide vollständigen Skins sowie alle 19 CRT-Geometrien.
+- [Impulsantworten/Messdaten/Presets](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226518817): 38 Stereo-Float32-WAVs bei 44,1/48 kHz, CSV und vollständige Preset-Tabelle.
+- [Vollständige Build-Provenienz und Protokolle](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226364931): VST3, Toolchain, CPU-/IR-/Bass-/Referenzmessungen, CTest-Protokoll und Lichtprüfbericht. Der Name trägt den virtuellen PR-Prüfcommit.
+
+Downloads benötigen angemeldeten Repository-Zugriff; aktuelle Actions-Aufbewahrung bis 14.02.2027. Keine Medien dauerhaft eingecheckt, keine neue HTML-Demo, keine GIF-Präsentation, kein öffentliches Hosting, kein Release und kein Merge.
+
+SHA-256 des inneren Installations-ZIP: `fca72f8edd00f134bab00e0a206d25c5fd03f265ce82512ffe5b26ffad090fa9`.
+
+SHA-256 des tatsächlich enthaltenen Windows-x64-Moduls: `7047bc8fdd52be72b73fca43212a70086495bd9067de90069e06c2b0ee218cc9`.
+
+### Noch beim Anwender zu prüfen
+
+Hörfreigabe mit eigener Sprache/Geräuschen in Fender Studio Pro: Raumidentität, Verständlichkeit, natürliche lange Fahnen, Tiefton-/Resonanzfärbung der Fahrzeuge/Cockpits und Wechsel bei starken Transienten. Alte reale Studio-Pro-Projekte einschließlich Automation nach Rescan öffnen und vergleichen; automatisierte Zustandstests ersetzen diese Host-Abnahme nicht. Alte frei interpolierte Raum-Automationskurven haben ausdrücklich die oben beschriebene Einschränkung. Neue Schema-4-Sitzungen sind nicht rückwärts in alte Plugin-Versionen ladbar.
