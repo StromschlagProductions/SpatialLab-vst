@@ -27,6 +27,7 @@ private:
     void drawCrt(juce::Graphics&);
     void drawSmallRoom(juce::Graphics&);
     void drawRoomGeometry(juce::Graphics&, int room);
+    void drawOutdoorGeometry(juce::Graphics&,int);
     void drawExtendedRoom(juce::Graphics&,int);
     void drawLighting(juce::Graphics&);
     void drawEpisodeSwitch(juce::Graphics&, juce::Button&, bool hover);

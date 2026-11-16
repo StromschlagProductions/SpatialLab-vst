@@ -65,6 +65,11 @@ int main()
             for (const auto& p:processors) require(!p->gui.observing.load() && p->gui.blocks.load()==0,"Closed instances still publish GUI telemetry");
             std::cout << "32 closed instances / 1s audio each: " << std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count() << " CPU-wall seconds; GUI telemetry zero\n";
         }
+        {
+            SpatialLabProcessor p; juce::TemporaryFile preferences(".gui.settings");
+            { SpatialLabEditor editor(p,preferences.getFile()); editor.setSize(2174,1223); }
+            { SpatialLabEditor editor(p,preferences.getFile()); require(editor.getWidth()==2174 && editor.getHeight()==1223,"New maximum size not restored"); }
+        }
         for (double rate : {44100.0, 48000.0})
         {
             SpatialLabProcessor reference, observed;
@@ -132,7 +137,7 @@ int main()
                     for (int c = 0; c < 2; ++c) for (int i = 0; i < 64; ++i)
                         require(a.getSample(c, i) == b.getSample(c, i), "Episode selection changed audio");
                 }
-                for (auto dimensions : {std::pair<int,int>{1003,565}, {1504,846}, {1672,941}})
+                for (auto dimensions : {std::pair<int,int>{1003,565}, {1504,846}, {1672,941},{2174,1223}})
                 {
                     editor->setSize(dimensions.first, dimensions.second);
                     const auto control = toggle->getBounds().toFloat();
@@ -149,18 +154,18 @@ int main()
                 require(browser != nullptr,"Central preset browser missing");
                 editor->setSize(1504,846); editor->addToDesktop(0); editor->setVisible(true);
                 editor->visibilityChanged();
-                for (auto dimensions : {std::pair<int,int>{1003,565},{1504,846},{1672,941}})
+                for (auto dimensions : {std::pair<int,int>{1003,565},{1504,846},{1672,941},{2174,1223}})
                 {
                     editor->setSize(dimensions.first,dimensions.second);
                     const float scale = dimensions.first/1672.0f;
                     require(std::abs(browser->getX()-542*scale)<2 && std::abs(browser->getY()-322*scale)<2,
                             "Browser escaped the central CRT");
-                    for(int room=0;room<19;++room)
+                    for(int room=0;room<26;++room)
                     {
                         browser->revealRoom(room);
                         set(observed,"size",.9f); set(observed,"tone",.1f);
                         // Start the first loop from a different room, too.
-                        if(browser->getSelectedRoom()==room) { set(observed,"room",float((room+1)%19)); editor->visibilityChanged(); browser->revealRoom(room); }
+                        if(browser->getSelectedRoom()==room) { set(observed,"room",float((room+1)%26)); editor->visibilityChanged(); browser->revealRoom(room); }
                         click(*browser,browser->roomBounds(room));
                         require(browser->getSelectedRoom()==room &&
                             juce::roundToInt(observed.parameter("room")->convertFrom0to1(observed.parameter("room")->getValue()))==room,
@@ -171,11 +176,11 @@ int main()
                     }
                 }
                 const float retained = browser->getScrollOffset();
-                click(*browser,browser->roomBounds(17));
+                click(*browser,browser->roomBounds(24));
                 require(browser->getScrollOffset()==retained,"Nearby choice jumped to list start");
                 set(observed,"size",.7f); set(observed,"tone",.3f);
                 observed.getStateInformation(before);
-                click(*browser,browser->roomBounds(17));
+                click(*browser,browser->roomBounds(24));
                 observed.getStateInformation(after); require(before==after,"Repeated active-row click changed audio state");
                 wheel(*browser,.1f);
                 const float manual = browser->getScrollOffset(); editor->visibilityChanged();
@@ -192,17 +197,18 @@ int main()
                 wheel(*browser,1000);
                 click(*browser,browser->categoryBounds(0));
                 require(!browser->isExpanded(0) && browser->roomBounds(0).isEmpty(),"Category did not collapse");
+                browser->revealRoom(23);
                 click(*browser,browser->categoryBounds(3));
                 require(!browser->isExpanded(3),"Sci-Fi did not collapse");
                 observed.getStateInformation(after); require(before==after,"Category click changed audio state");
-                set(observed,"room",16); editor->visibilityChanged();
-                require(browser->isExpanded(3) && browser->getSelectedRoom()==16,"Host automation did not reveal its category");
-                requireVisible(*browser,16);
+                set(observed,"room",23); editor->visibilityChanged();
+                require(browser->isExpanded(3) && browser->getSelectedRoom()==23,"Host automation did not reveal its category");
+                requireVisible(*browser,23);
                 observed.getStateInformation(before);
                 click(*browser,browser->categoryBounds(3));
                 observed.setStateInformation(before.getData(),static_cast<int>(before.getSize())); editor->visibilityChanged();
                 require(browser->isExpanded(3),"Same-room session recall did not reopen category");
-                requireVisible(*browser,16);
+                requireVisible(*browser,23);
                 // Scrolling over the browser reaches only the browser; knob wheels still work.
                 auto point=browser->localPointToGlobal(browser->getLocalBounds().getCentre());
                 require(editor->getComponentAt(editor->getLocalPoint(nullptr,point))==browser,"Browser hit target overlaps a knob");
@@ -213,14 +219,14 @@ int main()
                     require(slider->getValue()!=previous,"Knob wheel stopped working");
                 }
                 for(auto* child:editor->getChildren()) if(auto* button=dynamic_cast<juce::TextButton*>(child))
-                    if(button->getName()=="Raum nach oben") { button->onClick(); require(browser->getSelectedRoom()==15,"Alternative arrows lost room mapping"); }
+                    if(button->getName()=="Raum nach oben") { button->onClick(); require(browser->getSelectedRoom()==22,"Alternative arrows lost room mapping"); }
                 editor->setVisible(false); editor->removeFromDesktop();
                 editor->setSize(1003,565);
                 for (bool skin : {false,true})
                 {
                     editor->setEpisodeIV(skin,false);
-                    std::array<std::uint64_t,19> fingerprints {};
-                    for (int roomIndex = 0; roomIndex < 19; ++roomIndex)
+                    std::array<std::uint64_t,26> fingerprints {};
+                    for (int roomIndex = 0; roomIndex < 26; ++roomIndex)
                     {
                         set(observed,"room",static_cast<float>(roomIndex));
                         const auto image = editor->createComponentSnapshot(editor->getLocalBounds());
@@ -230,7 +236,7 @@ int main()
                         { hash ^= image.getPixelAt(x,y).getARGB(); hash *= 1099511628211ull; }
                         fingerprints[static_cast<std::size_t>(roomIndex)] = hash;
                     }
-                    for(int a=0;a<19;++a)for(int b=a+1;b<19;++b)require(fingerprints[a]!=fingerprints[b],"Duplicate CRT geometry");
+                    for(int a=0;a<26;++a)for(int b=a+1;b<26;++b)require(fingerprints[a]!=fingerprints[b],"Duplicate CRT geometry");
                 }
             }
             {

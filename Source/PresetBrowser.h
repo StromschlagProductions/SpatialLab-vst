@@ -130,11 +130,9 @@ public:
     }
 
 private:
-    struct Group { const char* name; int first, end; };
-    inline static constexpr std::array<Group,4> groups {{{"INNENRÄUME",0,9},{"FAHRZEUGE",9,13},
-        {"SPEZIALRÄUME",13,16},{"SCI-FI",16,19}}};
+    inline static constexpr auto groups = spatiallab::categories;
     struct Row { int category = 0, room = -1; };
-    std::array<Row,23> rows {};
+    std::array<Row,30> rows {};
     std::array<bool,4> expanded {{true,true,true,true}};
     int rowCount = 0, selected = -1;
     float scroll = 0, dragOffset = 0;

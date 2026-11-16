@@ -23,7 +23,6 @@ jobs:
         run: |
           python Tools/check_episode_artwork.py
           python Tools/check_protected_audio.py
-          python Tools/check_phase3a1_scope.py
       - name: Configure (JUCE 8.0.6, VS 2022 x64)
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
       - name: Build VST3 and tests
@@ -39,7 +38,7 @@ jobs:
         shell: pwsh
         run: |
           foreach ($episode in @("I", "IV")) {
-            foreach ($size in @("1504x846", "1672x941")) {
+            foreach ($size in @("1504x846", "2174x1223")) {
               foreach ($mode in @("Silent", "Audio")) {
                 $folder = "build/gui-preview/Episode-$episode/$size/$mode"
                 $previewArgs = @("--output=$folder", "--episode=$episode", "--size=$size", "--sequence")
@@ -55,11 +54,11 @@ jobs:
           python -m pip install --disable-pip-version-check Pillow==11.3.0
           python Tools/check_lighting_capture.py build/gui-preview
           if ($LASTEXITCODE -ne 0) { throw "Visible animation verification failed" }
-      - name: Capture all 19 environments in both Episode skins
+      - name: Capture all 26 environments in both Episode skins
         shell: pwsh
         run: |
           foreach ($episode in @("I", "IV")) {
-            foreach ($room in 0..18) {
+            foreach ($room in 0..25) {
               $folder = "build/environment-screens/Episode-$episode/Room-$room"
               $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode", "--room=$room", "--silent" -PassThru
               if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "Capture timed out" }
@@ -73,20 +72,20 @@ jobs:
         run: |
           ./build/Release/SpatialLabEnvironmentTests.exe build/environment-ir | Tee-Object -FilePath build/environments.csv
           if ($LASTEXITCODE -ne 0) { throw "Environment IR tests failed" }
-      - name: Upload all 38 native GUI screenshots
+      - name: Upload all 52 native GUI screenshots
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: SpatialLab-Phase3A1-Screenshots
+          name: SpatialLab-Phase3B-Screenshots
           path: build/environment-screens/**/Windows-Editor-Screenshot.png
           if-no-files-found: error
       - name: Upload reproducible impulse responses and voicing data
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: SpatialLab-Phase3A-IR-Messungen
+          name: SpatialLab-Phase3B-IR-Messungen
           path: |
             build/environment-ir/
             build/environments.csv
-            docs/phase3a/presets.json
+            docs/phase3b/
           if-no-files-found: error
       - name: Preserve real GUI diagnostics if capture verification fails
         if: failure()

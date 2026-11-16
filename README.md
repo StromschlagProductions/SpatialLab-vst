@@ -95,3 +95,7 @@ Statische Original-Leuchtfelder, korrigierte Reglerflächen und pausierende unsi
 ## Phase 3A.1
 
 Großes CRT als scrollbarer Preset-Browser mit aufklappbaren Kategorien und Direktwahl; die vorhandenen Raumzeichnungen samt Wellenform stehen verkleinert links. Alle 19 Raumzuordnungen, DSP, Automation und Originalfrontplatten bleiben unverändert. [Bedienung, Grenzen und Windows-Testbuild](docs/phase3a1/PHASE3A_1.md).
+
+## Phase 3B
+
+26 Umgebungen in vier Kategorien, eigenständige Outdoor-Tap-Engine und maximale Fenstergröße 2174×1223. Die bisherigen 19 Raumabstimmungen bleiben erhalten. Die neue lineare Preset-Nummerierung und State-Schema 5 ersetzen ausdrücklich die alten Test-Zustände. [Architektur, Zuordnung und Prüfung](docs/phase3b/PHASE3B.md).

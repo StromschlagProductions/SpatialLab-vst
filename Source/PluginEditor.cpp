@@ -7,7 +7,7 @@ namespace
 {
 constexpr float panelWidth = 1672, panelHeight = 941;
 const juce::Colour amber(0xffffad19), dark(0xff100b05);
-const auto names=[] {std::array<juce::String,19> result;for(int i=0;i<19;++i)result[static_cast<std::size_t>(i)]=juce::String::fromUTF8(spatiallab::roomNames[static_cast<std::size_t>(i)]);return result;}();
+const auto names=[] {std::array<juce::String,26> result;for(int i=0;i<26;++i)result[static_cast<std::size_t>(i)]=juce::String::fromUTF8(spatiallab::roomNames[static_cast<std::size_t>(i)]);return result;}();
 void text(juce::Graphics& g, const juce::String& value, float x, float y, float w, float h,
           float height, juce::Colour colour, int justification = juce::Justification::centredLeft)
 {
@@ -55,8 +55,8 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     episodeSwitch.setClickingTogglesState(true);
     episodeSwitch.setTooltip({});
     setEpisodeIV(guiSettings->getBoolValue("episodeIV", true), false);
-    button(listUp, "Raum nach oben", [this] { selectRoom((selectedRoom() + 18) % 19); });
-    button(listDown, "Raum nach unten", [this] { selectRoom((selectedRoom() + 1) % 19); });
+    button(listUp, "Raum nach oben", [this] { selectRoom((selectedRoom() + 25) % 26); });
+    button(listDown, "Raum nach unten", [this] { selectRoom((selectedRoom() + 1) % 26); });
     const auto knob = [this](juce::Slider& control, const juce::String& name, const juce::String& help)
     {
         control.setName(name); control.setTooltip(help);
@@ -73,11 +73,11 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     sizeAttachment = std::make_unique<juce::SliderParameterAttachment>(*processor.parameter("size"), size);
     toneAttachment = std::make_unique<juce::SliderParameterAttachment>(*processor.parameter("tone"), tone);
     setResizable(true, true);
-    setResizeLimits(1003, 565, 1672, 941);
+    setResizeLimits(1003, 565, 2174, 1223);
     getConstrainer()->setFixedAspectRatio(panelWidth / panelHeight);
     const int savedWidth = guiSettings->getIntValue("windowWidth", 1504);
     const int savedHeight = guiSettings->getIntValue("windowHeight", 846);
-    const bool validSize = savedWidth >= 1003 && savedWidth <= 1672 && savedHeight >= 565 && savedHeight <= 941
+    const bool validSize = savedWidth >= 1003 && savedWidth <= 2174 && savedHeight >= 565 && savedHeight <= 1223
         && std::abs(savedWidth / static_cast<double>(savedHeight) - panelWidth / panelHeight) < 0.004;
     setSize(validSize ? savedWidth : 1504, validSize ? savedHeight : 846);
     browser.syncSelection(selectedRoom());
@@ -114,7 +114,7 @@ void SpatialLabEditor::setEpisodeIV(bool selected, bool persist)
 int SpatialLabEditor::selectedRoom() const
 {
     auto* parameter = processor.parameter("room");
-    return juce::jlimit(0, 18, juce::roundToInt(parameter->convertFrom0to1(parameter->getValue())));
+    return juce::jlimit(0, 25, juce::roundToInt(parameter->convertFrom0to1(parameter->getValue())));
 }
 
 void SpatialLabEditor::selectRoom(int index)
@@ -288,6 +288,8 @@ void SpatialLabEditor::drawSmallRoom(juce::Graphics& g)
 
 void SpatialLabEditor::drawRoomGeometry(juce::Graphics& g, int room)
 {
+    if(spatiallab::isOutdoor(room)){drawOutdoorGeometry(g,room-9);return;}
+    room=spatiallab::indoorIndex(room);
     if(room>=3){drawExtendedRoom(g,room);return;}
     const auto line = [&g](float x, float y, float x2, float y2, float brightness = 0.78f)
     { g.setColour(amber.withAlpha(brightness)); g.drawLine(x,y,x2,y2,1.15f); };
@@ -576,4 +578,16 @@ void SpatialLabEditor::drawExtendedRoom(juce::Graphics& g,int room)
     if(room==6){for(float x:{581.0f,863.0f}){rect(x,401,58,107);for(float y:{423.0f,451.0f,481.0f})line(x,y,x+58,y);}ellipse(716,443,39,49);ellipse(775,450,36,43);line(564,380,931,380);line(610,380,610,406);}
     if(room==7){poly({{558,410},{758,345},{958,410},{958,520},{558,520}});line(758,345,758,396);for(float x:{602.0f,655.0f,863.0f,914.0f})line(x,395,x,518,.45f);rect(703,443,85,43);poly({{800,467},{846,467},{875,499},{817,499}});}
     if(room==8){rect(687,402,137,67);for(int i=0;i<4;++i)line(693+i*32.0f,403,693+i*32.0f,469);poly({{582,460},{704,460},{740,479},{602,479}});line(603,479,603,514);line(728,479,728,511);rect(856,432,61,62);ellipse(865,485,11,11);ellipse(897,485,11,11);}
+}
+
+void SpatialLabEditor::drawOutdoorGeometry(juce::Graphics& g,int room)
+{
+    g.setColour(amber.withAlpha(.85f));
+    const auto line=[&](float a,float b,float c,float d){g.drawLine(a,b,c,d,1.5f);};
+    if(room==0){line(550,462,972,462);for(int i=0;i<6;++i){float x=550+i*70.f;line(x,462,x+35,438-i%2*17.f);line(x+35,438-i%2*17.f,x+70,462);}}
+    if(room==1){for(int i=0;i<8;++i){float x=560+i*55.f,y=390+(i%3)*19.f;line(x,y,x,519);g.drawEllipse(x-22,y-38,44,58,1.5f);line(x,451,x-16,432);}}
+    if(room==2 || room==3){line(550,516,724,433);line(974,516,792,433);for(int i=0;i<4;++i){float x=551+i*29.f;line(x,366+i*17.f,x,515-i*14.f);line(974-i*29.f,366+i*17.f,974-i*29.f,515-i*14.f);}line(550,365,724,431);line(974,365,792,431);if(room==3){g.drawRect(724.f,385.f,68.f,49.f,1.5f);g.drawRect(743.f,402.f,22.f,32.f,1.5f);}}
+    if(room==4){for(int side=0;side<2;++side){float x=side?974.f:550.f,dir=side?-1.f:1.f;for(int i=0;i<5;++i){line(x,350+i*33.f,x+dir*(36+i*18.f),369+i*31.f);line(x+dir*(36+i*18.f),369+i*31.f,x,383+i*33.f);}}line(648,520,735,448);line(868,520,781,448);}
+    if(room==5){for(int i=0;i<5;++i){float x=553+i*31.f,y=351+i*18.f;g.drawRoundedRectangle(x,y,421-i*62.f,170-i*32.f,45-i*8.f,1.5f);}}
+    if(room==6){line(550,368,974,368);line(550,389,974,389);for(float x:{586.f,668.f,848.f,930.f}){g.drawRect(x,389.f,16.f,128.f,1.5f);}line(550,519,974,519);line(551,368,694,342);line(974,368,823,342);}
 }

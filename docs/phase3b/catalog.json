@@ -1,0 +1,184 @@
+[
+  {
+    "index": 0,
+    "name": "Wohnzimmer",
+    "key": "living",
+    "backend": "indoor",
+    "profile": 0
+  },
+  {
+    "index": 1,
+    "name": "Küche",
+    "key": "kitchen",
+    "backend": "indoor",
+    "profile": 1
+  },
+  {
+    "index": 2,
+    "name": "Badezimmer",
+    "key": "bathroom",
+    "backend": "indoor",
+    "profile": 2
+  },
+  {
+    "index": 3,
+    "name": "Schlafzimmer",
+    "key": "bedroom",
+    "backend": "indoor",
+    "profile": 3
+  },
+  {
+    "index": 4,
+    "name": "Flur",
+    "key": "hallway",
+    "backend": "indoor",
+    "profile": 4
+  },
+  {
+    "index": 5,
+    "name": "Treppenhaus",
+    "key": "stairwell",
+    "backend": "indoor",
+    "profile": 5
+  },
+  {
+    "index": 6,
+    "name": "Keller",
+    "key": "cellar",
+    "backend": "indoor",
+    "profile": 6
+  },
+  {
+    "index": 7,
+    "name": "Dachboden",
+    "key": "attic",
+    "backend": "indoor",
+    "profile": 7
+  },
+  {
+    "index": 8,
+    "name": "Garage / Werkstatt",
+    "key": "workshop",
+    "backend": "indoor",
+    "profile": 8
+  },
+  {
+    "index": 9,
+    "name": "Offene Landschaft",
+    "key": "open-land",
+    "backend": "outdoor",
+    "profile": 0
+  },
+  {
+    "index": 10,
+    "name": "Wald",
+    "key": "forest",
+    "backend": "outdoor",
+    "profile": 1
+  },
+  {
+    "index": 11,
+    "name": "Straße / Gasse",
+    "key": "street",
+    "backend": "outdoor",
+    "profile": 2
+  },
+  {
+    "index": 12,
+    "name": "Innenhof",
+    "key": "courtyard",
+    "backend": "outdoor",
+    "profile": 3
+  },
+  {
+    "index": 13,
+    "name": "Schlucht / Canyon",
+    "key": "canyon",
+    "backend": "outdoor",
+    "profile": 4
+  },
+  {
+    "index": 14,
+    "name": "Tunnel",
+    "key": "tunnel",
+    "backend": "outdoor",
+    "profile": 5
+  },
+  {
+    "index": 15,
+    "name": "Unterführung",
+    "key": "underpass",
+    "backend": "outdoor",
+    "profile": 6
+  },
+  {
+    "index": 16,
+    "name": "Kleinwagen",
+    "key": "compact-car",
+    "backend": "indoor",
+    "profile": 9
+  },
+  {
+    "index": 17,
+    "name": "Großer PKW",
+    "key": "large-car",
+    "backend": "indoor",
+    "profile": 10
+  },
+  {
+    "index": 18,
+    "name": "Transporter",
+    "key": "van",
+    "backend": "indoor",
+    "profile": 11
+  },
+  {
+    "index": 19,
+    "name": "LKW-Kabine",
+    "key": "truck-cab",
+    "backend": "indoor",
+    "profile": 12
+  },
+  {
+    "index": 20,
+    "name": "Kleine Kapelle",
+    "key": "chapel",
+    "backend": "indoor",
+    "profile": 13
+  },
+  {
+    "index": 21,
+    "name": "Kathedrale",
+    "key": "cathedral",
+    "backend": "indoor",
+    "profile": 14
+  },
+  {
+    "index": 22,
+    "name": "Höhle",
+    "key": "cave",
+    "backend": "indoor",
+    "profile": 15
+  },
+  {
+    "index": 23,
+    "name": "X-Wing Cockpit",
+    "key": "x-wing",
+    "backend": "indoor",
+    "profile": 16
+  },
+  {
+    "index": 24,
+    "name": "Y-Wing Cockpit",
+    "key": "y-wing",
+    "backend": "indoor",
+    "profile": 17
+  },
+  {
+    "index": 25,
+    "name": "Snowspeeder Cockpit",
+    "key": "snowspeeder",
+    "backend": "indoor",
+    "profile": 18
+  }
+]

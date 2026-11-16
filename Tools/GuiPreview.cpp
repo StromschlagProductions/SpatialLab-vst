@@ -41,7 +41,7 @@ public:
                 if (dimensions.size() == 2) { width = dimensions[0].getIntValue(); height = dimensions[1].getIntValue(); }
             }
             if (token == "--episode=I") episodeIV = false;
-            if (token.startsWith("--room=")) roomIndex = juce::jlimit(0,18,token.fromFirstOccurrenceOf("=",false,false).getIntValue());
+            if (token.startsWith("--room=")) roomIndex = juce::jlimit(0,25,token.fromFirstOccurrenceOf("=",false,false).getIntValue());
             if (token.startsWith("--output=")) output = juce::File::getCurrentWorkingDirectory().getChildFile(token.fromFirstOccurrenceOf("=", false, false).unquoted());
         }
         processor = std::make_unique<SpatialLabProcessor>();
@@ -52,12 +52,12 @@ public:
         processor->prepareToPlay(48000, 1600);
 #if JUCE_WINDOWS
         // CI's desktop must contain the entire visible editor; never capture clipped/off-screen pixels.
-        if (GetSystemMetrics(SM_CXSCREEN) < 1800 || GetSystemMetrics(SM_CYSCREEN) < 1000)
+        if (GetSystemMetrics(SM_CXSCREEN) < 2300 || GetSystemMetrics(SM_CYSCREEN) < 1300)
         {
             DEVMODE mode {}; mode.dmSize = sizeof(mode);
             if (EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &mode))
             {
-                mode.dmPelsWidth = 1920; mode.dmPelsHeight = 1080;
+                mode.dmPelsWidth = 2560; mode.dmPelsHeight = 1440;
                 mode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
                 ChangeDisplaySettings(&mode, 0);
             }
