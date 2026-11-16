@@ -1,0 +1,61 @@
+name: Publish verified SPATIAL LAB v1.0
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-spatiallab-v1
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify successful final release-code acceptance
+        shell: bash
+        run: |
+          gh run view 43950657115 --json conclusion,headSha > acceptance.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('acceptance.json'))
+          assert x['conclusion']=='success'
+          assert x['headSha']=='03de37e2678ad19fbc8fd84d872c42540b9cdfb3'
+          PY
+          gh api repos/$GH_REPO/git/ref/tags/v1.0.0 > tag.json
+          tag_sha=$(python3 -c "import json; print(json.load(open('tag.json'))['object']['sha'])")
+          gh api repos/$GH_REPO/git/tags/$tag_sha --jq .object.sha > commit.txt
+          test "$(cat commit.txt)" = "03de37e2678ad19fbc8fd84d872c42540b9cdfb3"
+      - name: Download and verify exact accepted Windows bundle
+        shell: bash
+        run: |
+          gh run download 43950657115 --name SpatialLab-VST3-Windows-Installieren --dir incoming
+          python3 - <<'PY'
+          import zipfile,hashlib,pathlib,io,json,re
+          p=pathlib.Path('incoming/SpatialLab-VST3-Windows.zip')
+          data=p.read_bytes()
+          expected='c006db96e8e1b8996a64afc3469ff28175b819ac464bea8333d0f8071be9a69b'
+          assert hashlib.sha256(data).hexdigest()==expected
+          z=zipfile.ZipFile(io.BytesIO(data));assert z.testzip() is None
+          assert all(n.startswith('SpatialLab.vst3/') for n in z.namelist())
+          m=z.read('SpatialLab.vst3/Contents/Resources/moduleinfo.json').decode('utf-8-sig')
+          assert json.loads(re.sub(r',\s*(?=[}\]])','',m))['Version']=='1.0.0'
+          name='SpatialLab-v1.0.0-Windows-x64-VST3.zip'
+          pathlib.Path(name).write_bytes(data)
+          pathlib.Path('SHA256SUMS.txt').write_text(expected+'  '+name+'\n')
+          PY
+      - name: Upload accepted files then publish stable latest release
+        shell: bash
+        run: |
+          gh release upload v1.0.0 SpatialLab-v1.0.0-Windows-x64-VST3.zip SHA256SUMS.txt --clobber
+          gh release view v1.0.0 --json assets > assets.json
+          python3 - <<'PY'
+          import json
+          a={a['name']:a for a in json.load(open('assets.json'))['assets']}
+          assert a['SpatialLab-v1.0.0-Windows-x64-VST3.zip']['size']>10000000
+          assert a['SHA256SUMS.txt']['size']>64
+          PY
+          gh release edit v1.0.0 --draft=false --prerelease=false --latest
+          gh api repos/$GH_REPO/releases/latest --jq '{tag_name,draft,prerelease,html_url,assets:[.assets[].name]}'

@@ -48,7 +48,7 @@ SPATIAL LAB liefert **immer 100 % Wet** und ist für FX-/Send-Kanäle ausgelegt.
 
 ![Episode IV: echte Windows-Oberfläche](docs/release-v1/screenshots/Episode-IV.png)
 
-Die Bilder zeigen den freigegebenen Phase-3B-Editor als echte Windows-Desktop-Aufnahmen. Der kosmetische Episode-Schalter verändert keine Audioeinstellungen. Beide Originalfrontplatten sind unverändert eingebettet.
+Die Bilder zeigen den Editor als echte Windows-Desktop-Aufnahmen. Der kosmetische Episode-Schalter verändert keine Audioeinstellungen. Beide Originalfrontplatten sind unverändert eingebettet.
 
 ## Installation
 
@@ -72,6 +72,7 @@ Host-Auswahl und Session-Recall machen den aktiven Eintrag im Browser sichtbar. 
 ## System und Formate
 
 - Windows x64, Windows 10/11 und ein kompatibler **64-Bit-VST3-Host**.
+- **Microsoft Visual C++ Redistributable v14 für x64 (2015–2022)**; falls noch nicht vorhanden: [offizieller Microsoft-Installer](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 - Mono→Mono, Mono→Stereo und Stereo→Stereo.
 - Primäre Qualitäts- und Test-Sampleraten: **44,1 und 48 kHz**. Höhere Raten sind nicht gleichwertig umfassend abgenommen.
 - Fenster: mindestens **1003×565**, Standard **1504×846**, maximal **2174×1223**, proportional skalierbar. Für die vollständige Maximalansicht ist ein entsprechend großer Desktop erforderlich.
