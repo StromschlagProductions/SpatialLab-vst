@@ -128,7 +128,8 @@ private:
             SelectObject(memory, old);
             if (GetDIBits(screen, bitmap, 0, static_cast<UINT>(h), pixels.data(), &info, DIB_RGB_COLORS))
             {
-                juce::Image screenshot(juce::Image::RGB, w, h, false);
+                juce::Image screenshot(juce::Image::RGB, w, h, false, juce::SoftwareImageType());
+                {
                 juce::Image::BitmapData destination(screenshot,juce::Image::BitmapData::writeOnly);
                 for (int y = 0; y < h; ++y)
                     for (int x = 0; x < w; ++x)
@@ -136,6 +137,7 @@ private:
                         const auto offset = static_cast<std::size_t>((y * w + x) * 4);
                         destination.setPixelColour(x, y, juce::Colour(pixels[offset + 2], pixels[offset + 1], pixels[offset]));
                     }
+                } // Release the write mapping before any PNG read or clipped-image view.
                 if (captures == 0) writeImage(screenshot, "Windows-Editor-Screenshot.png");
                 if (sequence)
                 {
