@@ -12,13 +12,15 @@ Wer Hörspiele produziert, kennt das Problem: Tausende Impulsantworten (IRs), un
 
 Das Ziel ist nicht, jeden denkbaren Raum der Welt abzubilden, sondern eine überschaubare Auswahl charakteristischer akustischer Umgebungen für Dialoge, Geräusche und Geschichten bereitzustellen. Die Reflexionen und der Nachhall werden algorithmisch erzeugt; es wird keine riesige IR-Bibliothek benötigt.
 
-## Aktueller Entwicklungsstand – Phase 3A
+## Aktueller Entwicklungsstand – Phase 3B
 
-**19 auswählbare Umgebungen:** Wohnzimmer, Küche, Badezimmer, Schlafzimmer, Flur, Treppenhaus, Keller, Dachboden, Garage/Werkstatt, Kleinwagen, großer PKW, Transporter, LKW-Kabine, kleine Kapelle, Kathedrale, Höhle sowie die kreativen Sci-Fi-Cockpits X-Wing, Y-Wing und Snowspeeder.
+**26 Umgebungen in vier Kategorien:** neun Innenräume, sieben Außenräume, vier Fahrzeuge und sechs Spezialräume einschließlich der drei Cockpits. Die bisherigen 19 Raumprofile bleiben unverändert; die Außenräume verwenden eine eigenständige Stereo-Tap-Engine statt weiterer Indoor-Hallvarianten.
 
-Die Räume besitzen eigenständige Abstimmungen der frühen Reflexionen, Nachhallfahnen und Dämpfung sowie individuelle bernsteinfarbene CRT-Darstellungen. Zwei Retro-Frontplatten (Episode I und Episode IV) stehen zur Wahl. **Die subjektive Hörprüfung in Fender Studio Pro steht noch aus.**
+Der fertige Preset-Browser bleibt im großen CRT; links erscheinen die verkleinerten Raumzeichnungen. Standardgröße 1504×846, Minimum 1003×565, neues Maximum 2174×1223. Beide Originalfrontplatten bleiben unverändert. **Die subjektive Hörprüfung in Fender Studio Pro bleibt erforderlich.**
 
-[Windows-VST3-Testbuild herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226906488) · [Phase-3A-Bericht und Installation](docs/phase3a/PHASE3A.md) · [Screenshots](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226960903)
+**Entwicklungsreset:** Raumautomation verwendet nun die lineare Zuordnung Index/25. Neue Sessions verwenden Schema 5; bisherige Test-Sessions und deren Raumautomation sind absichtlich nicht kompatibel. Keine Änderung von Hersteller, Plugin-ID oder SIZE/TONE.
+
+[Phase-3B-Architektur, Zuordnung, Messungen und Downloads](docs/phase3b/PHASE3B.md)
 
 Technik: Windows x64 VST3, C++17, JUCE **8.0.6** und CMake; **100 % Wet**, für FX-/Send-Kanäle. Unterstützt Mono → Mono, Mono → Stereo und Stereo → Stereo, Host-Automation und Session-Wiederherstellung. Entwicklungsschwerpunkte sind **48 kHz für Hörspiele** und **44,1 kHz für Musik**. Höhere Sampleraten besitzen grundlegende Funktionstests, sind aber keine primären Klang- oder CPU-Abnahmeziele. Kein Oversampling.
 
