@@ -41,7 +41,7 @@ public:
                 if (dimensions.size() == 2) { width = dimensions[0].getIntValue(); height = dimensions[1].getIntValue(); }
             }
             if (token == "--episode=I") episodeIV = false;
-            if (token.startsWith("--room=")) roomIndex = juce::jlimit(0,2,token.fromFirstOccurrenceOf("=",false,false).getIntValue());
+            if (token.startsWith("--room=")) roomIndex = juce::jlimit(0,18,token.fromFirstOccurrenceOf("=",false,false).getIntValue());
             if (token.startsWith("--output=")) output = juce::File::getCurrentWorkingDirectory().getChildFile(token.fromFirstOccurrenceOf("=", false, false).unquoted());
         }
         processor = std::make_unique<SpatialLabProcessor>();

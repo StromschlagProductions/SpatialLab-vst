@@ -23,6 +23,7 @@ private:
     void drawButtonText(juce::Graphics&, juce::TextButton&, bool, bool) override {}
     void drawCrt(juce::Graphics&);
     void drawRoomGeometry(juce::Graphics&, int room);
+    void drawExtendedRoom(juce::Graphics&,int);
     void drawLighting(juce::Graphics&);
     void drawEpisodeSwitch(juce::Graphics&, juce::Button&, bool hover);
     juce::Rectangle<int> panelBounds(float x, float y, float width, float height) const;

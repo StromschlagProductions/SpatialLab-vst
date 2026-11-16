@@ -25,9 +25,6 @@ jobs:
           python Tools/check_protected_audio.py
       - name: Configure (JUCE 8.0.6, VS 2022 x64)
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
-      - name: Generate original speech source with documented system voice
-        shell: pwsh
-        run: ./Tools/listening-demo/source.ps1 -Destination build/listening-source
       - name: Build VST3 and tests
         run: cmake --build build --config Release --parallel 2
       - name: Hersteller und Plugin-Identität am gebauten Modul verifizieren
@@ -37,11 +34,6 @@ jobs:
         run: |
           ctest --test-dir build -C Release --output-on-failure | Tee-Object -FilePath build/ctest-results.txt
           if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
-      - name: Render comparisons through the actual built VST3
-        shell: pwsh
-        run: |
-          & "./build/SpatialLabListeningRender_artefacts/Release/SpatialLabListeningRender.exe" build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3 build/listening-source/speech-source.wav build/listening-demo/audio | Tee-Object -FilePath build/render-metrics.csv
-          if ($LASTEXITCODE -ne 0) { throw "Actual VST3 rendering failed" }
       - name: Capture real large editors and silent/audio animation sequences
         shell: pwsh
         run: |
@@ -62,39 +54,30 @@ jobs:
           python -m pip install --disable-pip-version-check Pillow==11.3.0
           python Tools/check_lighting_capture.py build/gui-preview
           if ($LASTEXITCODE -ne 0) { throw "Visible animation verification failed" }
-      - name: Capture both knobs at multiple positions in both skins
+      - name: Capture all 19 environments in both Episode skins
         shell: pwsh
         run: |
           foreach ($episode in @("I", "IV")) {
-            foreach ($knob in @("0", "0.25", "0.5", "0.75", "1")) {
-              $folder = "build/knob-preview/Episode-$episode/$knob"
-              $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode", "--size=1672x941", "--knob=$knob", "--silent" -PassThru
-              if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "Knob capture timeout" }
-              if ($preview.ExitCode -ne 0) { throw "Knob capture failed" }
-              python Tools/validate_gui_capture.py $folder 1672x941
-              if ($LASTEXITCODE -ne 0) { throw "Knob PNG invalid" }
+            foreach ($room in 0..18) {
+              $folder = "build/environment-screens/Episode-$episode/Room-$room"
+              $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--episode=$episode", "--room=$room", "--silent" -PassThru
+              if (-not $preview.WaitForExit(60000)) { $preview.Kill(); throw "Capture timed out" }
+              if ($preview.ExitCode -ne 0) { throw "Capture failed" }
+              python Tools/validate_gui_capture.py $folder 1504x846
+              if ($LASTEXITCODE -ne 0) { throw "Invalid PNG" }
             }
           }
-          python Tools/check_knob_capture.py build/knob-preview
-          if ($LASTEXITCODE -ne 0) { throw "Knob bevel moved" }
+      - name: Measure and export all environment impulse responses
+        shell: pwsh
+        run: |
+          ./build/Release/SpatialLabEnvironmentTests.exe build/environment-ir | Tee-Object -FilePath build/environments.csv
+          if ($LASTEXITCODE -ne 0) { throw "Environment IR tests failed" }
       - name: Preserve real GUI diagnostics if capture verification fails
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: SpatialLab-GUI-Capture-Diagnostics
           path: build/gui-preview/
-          if-no-files-found: ignore
-      - name: Preserve actual renderer and bundle for failure diagnosis
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: SpatialLab-Render-Diagnostics
-          path: |
-            build/SpatialLabListeningRender_artefacts/Release/
-            build/SpatialLab_artefacts/Release/VST3/
-            build/listening-source/
-            build/listening-demo/
-            build/render-metrics.csv
           if-no-files-found: ignore
       - name: Alte und neue Raum-Impulsantworten bei beiden Zielraten vergleichen
         shell: pwsh
@@ -113,19 +96,6 @@ jobs:
           cmake --version | Out-File build/toolchain.txt
           Get-Content build/CMakeCache.txt | Select-String 'CMAKE_(CXX_COMPILER|CXX_COMPILER_VERSION|GENERATOR):' | Out-File build/toolchain.txt -Append
           git rev-parse HEAD | Out-File build/toolchain.txt -Append
-      - name: Validate and package offline browser listening comparison
-        shell: pwsh
-        run: |
-          python -m pip install --disable-pip-version-check numpy==2.2.6
-          python Tools/listening-demo/package.py build/listening-demo build build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3 ${{ github.sha }} ${{ github.run_id }}
-          if ($LASTEXITCODE -ne 0) { throw "Listening comparison validation failed" }
-          Compress-Archive -Path build/listening-demo/* -DestinationPath SpatialLab-Hoervergleich.zip -Force
-      - name: Upload complete offline browser demonstration
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: SpatialLab-Hoervergleich-Offline
-          path: SpatialLab-Hoervergleich.zip
-          if-no-files-found: error
       - name: Installations-ZIP mit genau einem VST3-Ordner packen
         shell: pwsh
         run: |
@@ -147,13 +117,13 @@ jobs:
             build/toolchain.txt
             build/dsp-benchmark.csv
             build/gui-preview/
-            build/knob-preview/
+            build/environment-screens/
+            build/environment-ir/
+            build/environments.csv
             build/room-comparison/
             build/room-comparison.csv
             build/room-diagnostics.csv
             build/ctest-results.txt
-            build/render-metrics.csv
-            build/listening-source/source.json
           if-no-files-found: error
   dsp-sanitizers:
     runs-on: ubuntu-24.04

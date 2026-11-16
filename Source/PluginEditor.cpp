@@ -7,7 +7,7 @@ namespace
 {
 constexpr float panelWidth = 1672, panelHeight = 941;
 const juce::Colour amber(0xffffad19), dark(0xff100b05);
-const std::array<juce::String, 3> names {"Wohnzimmer", juce::String::fromUTF8("Küche"), "Badezimmer"};
+const auto names=[] {std::array<juce::String,19> result;for(int i=0;i<19;++i)result[static_cast<std::size_t>(i)]=juce::String::fromUTF8(spatiallab::roomNames[static_cast<std::size_t>(i)]);return result;}();
 void text(juce::Graphics& g, const juce::String& value, float x, float y, float w, float h,
           float height, juce::Colour colour, int justification = juce::Justification::centredLeft)
 {
@@ -49,13 +49,13 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
         addAndMakeVisible(control);
     };
     for (int i = 0; i < 3; ++i)
-        button(presets[static_cast<std::size_t>(i)], names[static_cast<std::size_t>(i)], [this, i] { selectRoom(i); });
+        button(presets[static_cast<std::size_t>(i)], names[static_cast<std::size_t>(i)], [this, i] { const int n=spatiallab::pageStart(selectedRoom())+i;if(n<spatiallab::categoryEnd(selectedRoom()))selectRoom(n); });
     button(episodeSwitch, "Episode", [this] { setEpisodeIV(episodeSwitch.getToggleState()); });
     episodeSwitch.setClickingTogglesState(true);
     episodeSwitch.setTooltip({});
     setEpisodeIV(guiSettings->getBoolValue("episodeIV", true), false);
-    button(listUp, "Raum nach oben", [this] { selectRoom((selectedRoom() + 2) % 3); });
-    button(listDown, "Raum nach unten", [this] { selectRoom((selectedRoom() + 1) % 3); });
+    button(listUp, "Raum nach oben", [this] { selectRoom((selectedRoom() + 18) % 19); });
+    button(listDown, "Raum nach unten", [this] { selectRoom((selectedRoom() + 1) % 19); });
     const auto knob = [this](juce::Slider& control, const juce::String& name, const juce::String& help)
     {
         control.setName(name); control.setTooltip(help);
@@ -112,7 +112,7 @@ void SpatialLabEditor::setEpisodeIV(bool selected, bool persist)
 int SpatialLabEditor::selectedRoom() const
 {
     auto* parameter = processor.parameter("room");
-    return juce::jlimit(0, 2, juce::roundToInt(parameter->convertFrom0to1(parameter->getValue())));
+    return juce::jlimit(0, 18, juce::roundToInt(parameter->convertFrom0to1(parameter->getValue())));
 }
 
 void SpatialLabEditor::selectRoom(int index)
@@ -135,7 +135,7 @@ void SpatialLabEditor::resized()
     offsetX = (getWidth() - panelWidth * scale) * 0.5f;
     offsetY = (getHeight() - panelHeight * scale) * 0.5f;
     for (int i = 0; i < 3; ++i)
-        presets[static_cast<std::size_t>(i)].setBounds(panelBounds(148, 294.0f + i * 47.0f, 229, 43));
+        presets[static_cast<std::size_t>(i)].setBounds(panelBounds(148, 313.0f + i * 42.0f, 229, 39));
     size.setBounds(panelBounds(201, 524, 114, 114));
     tone.setBounds(panelBounds(201, 717, 114, 114));
     episodeSwitch.setBounds(panelBounds(1230, 746, 273, 67));
@@ -187,6 +187,13 @@ void SpatialLabEditor::timerCallback()
     if (current != displayedRoom || configuration != previousConfig)
     {
         displayedRoom = current;
+        for(int row=0;row<3;++row)
+        {
+            const int n=spatiallab::pageStart(current)+row;
+            auto& button=presets[static_cast<std::size_t>(row)];
+            button.setVisible(n<spatiallab::categoryEnd(current));
+            if(n<19){button.setName(names[static_cast<std::size_t>(n)]);button.setTooltip(names[static_cast<std::size_t>(n)]);}
+        }
         repaint();
     }
     else
@@ -264,6 +271,7 @@ void SpatialLabEditor::drawCrt(juce::Graphics& g)
 
 void SpatialLabEditor::drawRoomGeometry(juce::Graphics& g, int room)
 {
+    if(room>=3){drawExtendedRoom(g,room);return;}
     const auto line = [&g](float x, float y, float x2, float y2, float brightness = 0.78f)
     { g.setColour(amber.withAlpha(brightness)); g.drawLine(x,y,x2,y2,1.15f); };
     const auto polygon = [&g](std::initializer_list<juce::Point<float>> points)
@@ -347,15 +355,14 @@ void SpatialLabEditor::paint(juce::Graphics& g)
     const int room = selectedRoom();
     g.setGradientFill(juce::ColourGradient(juce::Colour(0xff261706), 145, 290, dark, 375, 446, false));
     g.fillRoundedRectangle(145, 290, 233, 155, 3);
-    for (int i = 0; i < 3; ++i)
+    text(g,juce::String::fromUTF8(spatiallab::categoryName(room))+" "+juce::String(room+1)+"/19",151,290,224,22,13,amber);
+    for(int row=0;row<3;++row)
     {
-        const float y = 296.0f + i * 47.0f;
-        if (i == room)
-        {
-            g.setColour(amber); g.fillRoundedRectangle(151, y, 221, 39, 3);
-            text(g, juce::String::fromUTF8("› ") + names[static_cast<std::size_t>(i)], 158, y, 207, 39, 24, dark);
-        }
-        else text(g, names[static_cast<std::size_t>(i)], 175, y, 195, 39, 24, amber);
+        const int i=spatiallab::pageStart(room)+row;
+        if(i>=spatiallab::categoryEnd(room))break;
+        const float y=314.0f+row*42.0f;
+        if(i==room){g.setColour(amber);g.fillRoundedRectangle(151,y,221,35,3);}
+        text(g,(i==room?juce::String::fromUTF8("› "):juce::String())+names[static_cast<std::size_t>(i)],158,y,209,35,18,i==room?dark:amber);
     }
     // Neutralise the baked-in STEREO/48 kHz claim; show atomically published host data.
     g.setGradientFill(juce::ColourGradient(panel.getPixelAt(2276, 1242), 1138, 621,
@@ -480,4 +487,87 @@ void SpatialLabEditor::drawEpisodeSwitch(juce::Graphics& graphics, juce::Button&
     {
         g.setColour(amber.withAlpha(0.8f)); g.drawRoundedRectangle(97, 3, 80, 57, 26, 1);
     }
+}
+
+void SpatialLabEditor::drawExtendedRoom(juce::Graphics& g,int room)
+{
+    const auto line=[&](float x,float y,float xx,float yy,float alpha=.85f){g.setColour(amber.withAlpha(alpha));g.drawLine(x,y,xx,yy,1.4f);};
+    const auto poly=[&](std::initializer_list<juce::Point<float>> points){juce::Path p;auto it=points.begin();p.startNewSubPath(*it++);while(it!=points.end())p.lineTo(*it++);p.closeSubPath();g.setColour(amber.withAlpha(.85f));g.strokePath(p,juce::PathStrokeType(1.4f));};
+    const auto rect=[&](float x,float y,float w,float h){g.setColour(amber.withAlpha(.85f));g.drawRect(x,y,w,h,1.3f);};
+    const auto ellipse=[&](float x,float y,float w,float h){g.setColour(amber.withAlpha(.8f));g.drawEllipse(x,y,w,h,1.4f);};
+    if(room>=9 && room<=12)
+    {
+        const float spread=static_cast<float>((room-9)*8);
+        poly({{575,370},{941,370},{958,491},{558,491}});
+        poly({{609-spread,391},{907+spread,391},{925,460},{590,460}});
+        line(575,370,609-spread,391);line(941,370,907+spread,391);
+        poly({{590,466},{925,466},{946,515},{567,515}});
+        ellipse(635,463,63,41);ellipse(648,471,37,23);line(667,480,667,501);
+        rect(740,475,115,20);for(int i=0;i<room-7;++i)rect(748+i*18.0f,481,9,7);
+        if(room==9){line(758,391,758,459);rect(780,409,39,18);}
+        if(room==10){rect(711,379,91,9);line(575,404,603,418);line(941,404,914,418);}
+        if(room==11){line(621,391,621,457);rect(816,399,56,44);line(816,421,872,421);}
+        if(room==12){rect(585,378,42,20);rect(890,378,42,20);line(758,391,758,462);ellipse(850,471,18,18);}
+        return;
+    }
+    if(room>=16)
+    {
+        // Authored schematic cockpit silhouettes, no film stills or imported models.
+        poly({{565,354},{950,354},{969,516},{551,516}});
+        if(room==16)
+        {
+            poly({{581,365},{688,396},{688,473},{570,505}});poly({{936,365},{827,396},{827,473},{950,505}});
+            rect(696,398,123,73);rect(747,429,23,19);
+            for(int i=0;i<5;++i){float y=401+i*13.0f;line(583,y,688,425+(y-435)*.32f,.5f);line(827,425+(y-435)*.32f,937,y,.5f);}
+            line(688,396,747,429);line(827,396,770,429);line(688,473,747,448);line(827,473,770,448);
+            rect(681,488,153,26);line(758,475,758,519);
+        }
+        else if(room==17)
+        {
+            poly({{582,367},{665,397},{665,475},{570,497}});poly({{935,367},{848,397},{848,475},{952,497}});
+            ellipse(711,377,94,94);line(715,424,801,424,.5f);ellipse(771,395,16,16);
+            for(int i=0;i<6;++i){float x=695+i*16.0f;line(x,386,x+12,458,.22f);}
+            rect(690,483,137,29);ellipse(727,487,22,16);ellipse(775,487,22,16);
+            for(auto point: {juce::Point<float>{693,368},{839,380},{818,462},{680,446},{865,420}}){line(point.x-2,point.y,point.x+2,point.y);}
+        }
+        else
+        {
+            poly({{585,366},{930,366},{943,479},{572,479}});line(700,367,722,479);line(816,367,794,479);
+            poly({{739,409},{796,409},{810,430},{731,430}});poly({{810,413},{832,413},{840,424},{810,427}});
+            line(742,430,736,453);line(736,453,725,466);line(758,430,763,451);line(763,451,752,468);
+            line(785,430,788,454);line(788,454,801,467);line(797,430,809,450);line(809,450,821,466);
+            for(float x:{721.0f,749.0f,798.0f,819.0f})line(x,468,x+12,468);
+            line(583,473,938,473,.3f);poly({{586,488},{930,488},{945,519},{571,519}});rect(697,493,123,18);
+        }
+        return;
+    }
+    if(room==15)
+    {
+        poly({{553,515},{571,411},{611,372},{663,385},{710,349},{768,370},{812,355},{856,387},{913,374},{958,427},{974,518}});
+        poly({{641,496},{663,427},{704,401},{752,417},{797,399},{839,438},{856,497}});
+        line(571,411,663,427,.4f);line(913,374,839,438,.4f);line(553,515,641,496);line(974,518,856,497);
+        for(int i=0;i<6;++i)line(603+i*57.0f,517,682+i*27.0f,493,.25f);
+        return;
+    }
+    if(room==13 || room==14)
+    {
+        const int arches=room==14?4:2;
+        for(int i=0;i<arches;++i)
+        {
+            const float inset=i*26.0f;
+            poly({{564+inset,514},{564+inset,415},{652+inset*.6f,360+inset*.4f},{758,344+inset*.6f},{866-inset*.6f,360+inset*.4f},{952-inset,415},{952-inset,514}});
+        }
+        rect(735,424,46,69);if(room==14){ellipse(730,369,56,42);line(758,371,758,411);line(733,389,783,389);}
+        for(int i=0;i<4;++i){float y=466+i*14.0f;line(601-i*7.0f,y,719,y);line(796,y,915+i*7.0f,y);}
+        line(724,516,739,492,.4f);line(792,516,777,492,.4f);return;
+    }
+    // Shared fixed perspective, individual authored furnishings/structural geometry.
+    poly({{559,359},{958,359},{958,520},{559,520}});rect(669,396,168,78);
+    line(559,359,669,396);line(958,359,837,396);line(559,520,669,474);line(958,520,837,474);
+    if(room==3){poly({{688,438},{777,438},{817,493},{705,493}});rect(689,431,87,10);line(705,493,705,506);line(813,493,813,505);rect(856,437,43,53);ellipse(865,412,24,16);line(877,429,877,437);}
+    if(room==4){rect(721,398,63,76);for(float x:{578.0f,872.0f}){rect(x,405,42,96);line(x+32,450,x+37,450);}line(559,520,721,474);line(958,520,784,474);}
+    if(room==5){for(int i=0;i<8;++i){float y=514-i*13.0f;float x=593+i*9.0f;line(x,y,790+i*4.0f,y);line(x,y,x,y-9);line(x,y-9,790+i*4.0f,y-9);}line(580,485,670,378);line(848,492,807,378);}
+    if(room==6){for(float x:{581.0f,863.0f}){rect(x,401,58,107);for(float y:{423.0f,451.0f,481.0f})line(x,y,x+58,y);}ellipse(716,443,39,49);ellipse(775,450,36,43);line(564,380,931,380);line(610,380,610,406);}
+    if(room==7){poly({{558,410},{758,345},{958,410},{958,520},{558,520}});line(758,345,758,396);for(float x:{602.0f,655.0f,863.0f,914.0f})line(x,395,x,518,.45f);rect(703,443,85,43);poly({{800,467},{846,467},{875,499},{817,499}});}
+    if(room==8){rect(687,402,137,67);for(int i=0;i<4;++i)line(693+i*32.0f,403,693+i*32.0f,469);poly({{582,460},{704,460},{740,479},{602,479}});line(603,479,603,514);line(728,479,728,511);rect(856,432,61,62);ellipse(865,485,11,11);ellipse(897,485,11,11);}
 }

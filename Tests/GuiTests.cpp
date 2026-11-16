@@ -132,8 +132,8 @@ int main()
                 for (bool skin : {false,true})
                 {
                     editor->setEpisodeIV(skin,false);
-                    std::array<std::uint64_t,3> fingerprints {};
-                    for (int roomIndex = 0; roomIndex < 3; ++roomIndex)
+                    std::array<std::uint64_t,19> fingerprints {};
+                    for (int roomIndex = 0; roomIndex < 19; ++roomIndex)
                     {
                         set(observed,"room",static_cast<float>(roomIndex));
                         const auto image = editor->createComponentSnapshot(editor->getLocalBounds());
@@ -143,8 +143,7 @@ int main()
                         { hash ^= image.getPixelAt(x,y).getARGB(); hash *= 1099511628211ull; }
                         fingerprints[static_cast<std::size_t>(roomIndex)] = hash;
                     }
-                    require(fingerprints[0] != fingerprints[1] && fingerprints[1] != fingerprints[2]
-                        && fingerprints[0] != fingerprints[2], "CRT room geometry not distinct in both skins");
+                    for(int a=0;a<19;++a)for(int b=a+1;b<19;++b)require(fingerprints[a]!=fingerprints[b],"Duplicate CRT geometry");
                 }
             }
             {

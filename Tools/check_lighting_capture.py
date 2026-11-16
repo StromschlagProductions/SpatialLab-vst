@@ -29,13 +29,8 @@ for folder in sorted(root.glob('Episode-*/*/*')):
                          for i,a in enumerate(crops) for b in crops[i+1:])
         changes[name] = round(difference,3)
         assert difference >= (0.2 if name.endswith("ember") else 3.0), f'{folder}/{name}: insufficient visible screen change ({difference:.2f}/255)'
-    # Animated presentation only: the original lossless GDI frames remain alongside it.
     times = [float(row['seconds_monotonic']) for row in csv.DictReader((folder/'Capture-Times.csv').open())]
     durations = [max(20,round((b-a)*1000)) for a,b in zip(times,times[1:])] + [333]
-    palette = frames[0].quantize(colors=256)
-    gif_frames = [frame.quantize(palette=palette) for frame in frames]
-    gif_frames[0].save(folder/'Actual-Windows-Sequence.gif',save_all=True,append_images=gif_frames[1:],
-                       duration=durations[:len(frames)],loop=0,optimize=False,disposal=2)
     times = [float(row['seconds_monotonic']) for row in csv.DictReader((folder/'Capture-Times.csv').open())]
     tube_frames = [Image.open(p).convert('RGB') for p in sorted(folder.glob('Tubes-*.png'))]
     assert len(tube_frames) == (48 if folder.name == 'Silent' else 16)
@@ -56,11 +51,6 @@ for folder in sorted(root.glob('Episode-*/*/*')):
             assert hi>15 and lo>0.5 and lo/hi<0.50, f'{folder}/tube-{i}: no convincing residual ember ({lo:.1f}/{hi:.1f})'
             tube_levels[str(i)] = {'minimum_rgb_mean':round(lo,3),'maximum_rgb_mean':round(hi,3),'rest_peak_ratio':round(lo/hi,3)}
         assert times[-1]-times[0] >= 14, 'Tube evidence must cover several full slow phases'
-    tube_palette = tube_frames[0].quantize(colors=256)
-    tube_gif = [f.quantize(palette=tube_palette) for f in tube_frames]
-    durations = [max(20,round((b-a)*1000)) for a,b in zip(times,times[1:])] + [333]
-    tube_gif[0].save(folder/'Actual-Tube-Detail-Sequence.gif',save_all=True,append_images=tube_gif[1:],
-                     duration=durations,loop=0,optimize=False,disposal=2)
     report.append({'capture':str(folder.relative_to(root)),'max_pair_mean_absolute_change_255':changes,'silent_glass_brightness':tube_levels})
     print('OK visible screen animation:',folder,changes)
 assert len(report) == 8, 'Expected both skins, both large sizes, silence and audio'
