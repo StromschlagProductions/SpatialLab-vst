@@ -30,7 +30,6 @@ for folder in sorted(root.glob('Episode-*/*/*')):
         changes[name] = round(difference,3)
         assert difference >= (0.2 if name.endswith("ember") else 3.0), f'{folder}/{name}: insufficient visible screen change ({difference:.2f}/255)'
     times = [float(row['seconds_monotonic']) for row in csv.DictReader((folder/'Capture-Times.csv').open())]
-    times = [float(row['seconds_monotonic']) for row in csv.DictReader((folder/'Capture-Times.csv').open())]
     tube_frames = [Image.open(p).convert('RGB') for p in sorted(folder.glob('Tubes-*.png'))]
     assert len(tube_frames) == (48 if folder.name == 'Silent' else 16)
     # Separate evidence for every actual upper-right glass tube over the longer silence recording.

@@ -74,6 +74,9 @@ public:
         window->setAlwaysOnTop(true);
         window->setVisible(true);
         window->toFront(true);
+        // CI screen capture must not depend on a remote desktop's Direct2D swap chain.
+        // This selects JUCE's real software window renderer, not an off-screen substitute.
+        if (auto* peer = window->getPeer()) peer->setCurrentRenderingEngine(0);
         startTimerHz(30);
     }
     void shutdown() override
@@ -113,6 +116,9 @@ private:
             writeImage(editor->createComponentSnapshot(editor->getLocalBounds()), "JUCE-Editor-Render-100.png");
 #if JUCE_WINDOWS
         window->toFront(true);
+        editor->repaint();
+        if (auto* peer = window->getPeer()) peer->performAnyPendingRepaintsNow();
+        const auto reference = editor->createComponentSnapshot(editor->getLocalBounds());
         // Actual desktop pixels of the visible production editor, not a concept render.
         const auto bounds = editor->getScreenBounds();
         const int w = bounds.getWidth(), h = bounds.getHeight();
@@ -141,6 +147,29 @@ private:
                         destination.setPixelColour(x, y, juce::Colour(pixels[offset + 2], pixels[offset + 1], pixels[offset]));
                     }
                 } // Release the write mapping before any PNG read or clipped-image view.
+                // A busy/covered CI desktop occasionally returns a black rectangle although
+                // the editor is correct. Check stationary metal, never animated glass/CRT.
+                // Reject that acquisition and retry later; never replace desktop pixels
+                // with the component render or weaken the lighting assertions.
+                bool obscured = false;
+                const float anchorScale = std::min(w/1672.0f,h/941.0f);
+                for (const auto anchor : {juce::Point<float>{1080,280},{1450,460},{1100,530}})
+                {
+                    const int x = juce::roundToInt((w-1672*anchorScale)*0.5f+anchor.x*anchorScale);
+                    const int y = juce::roundToInt((h-941*anchorScale)*0.5f+anchor.y*anchorScale);
+                    const auto actual = screenshot.getPixelAt(x,y), expected = reference.getPixelAt(x,y);
+                    obscured = obscured || std::abs(int(actual.getRed())-int(expected.getRed()))
+                        + std::abs(int(actual.getGreen())-int(expected.getGreen()))
+                        + std::abs(int(actual.getBlue())-int(expected.getBlue())) > 96;
+                }
+                if (obscured)
+                {
+                    DeleteObject(bitmap); DeleteDC(memory); ReleaseDC(nullptr,screen);
+                    capturing = false;
+                    if (++captureRetries > 10) { setApplicationReturnValue(1); quit(); }
+                    return;
+                }
+                captureRetries = 0;
                 if (captures >= 46)
                 {
                     writeImage(screenshot,"Late-Desktop-"+juce::String(captures)+".png");
@@ -176,6 +205,7 @@ private:
     std::unique_ptr<juce::DocumentWindow> window;
     int frames = 0, samples = 0;
     int captures = 0;
+    int captureRetries = 0;
     bool capturing = false, silent = false, sequence = false;
 };
 START_JUCE_APPLICATION(Preview)
