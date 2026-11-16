@@ -72,6 +72,21 @@ jobs:
         run: |
           ./build/Release/SpatialLabEnvironmentTests.exe build/environment-ir | Tee-Object -FilePath build/environments.csv
           if ($LASTEXITCODE -ne 0) { throw "Environment IR tests failed" }
+      - name: Upload all 38 native GUI screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: SpatialLab-Phase3A-Screenshots
+          path: build/environment-screens/**/Windows-Editor-Screenshot.png
+          if-no-files-found: error
+      - name: Upload reproducible impulse responses and voicing data
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: SpatialLab-Phase3A-IR-Messungen
+          path: |
+            build/environment-ir/
+            build/environments.csv
+            docs/phase3a/presets.json
+          if-no-files-found: error
       - name: Preserve real GUI diagnostics if capture verification fails
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -116,8 +131,9 @@ jobs:
             build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3
             build/toolchain.txt
             build/dsp-benchmark.csv
-            build/gui-preview/
-            build/environment-screens/
+            build/gui-preview/**/Windows-Editor-Screenshot.png
+            build/gui-preview/lighting-visibility.json
+            build/environment-screens/**/Windows-Editor-Screenshot.png
             build/environment-ir/
             build/environments.csv
             build/room-comparison/

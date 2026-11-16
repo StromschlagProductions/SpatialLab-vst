@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <set>
+#include <string>
 #include <stdexcept>
 void need(bool v,const char* m){if(!v)throw std::runtime_error(m);}
 void le(std::ostream& s,std::uint32_t x,int n=4){for(int i=0;i<n;++i)s.put(static_cast<char>((x>>(8*i))&255));}
