@@ -43,10 +43,19 @@ int main(int argc,char** argv)
             for(int room=0;room<3;++room)
             {
                 juce::String error;auto plugin=manager.createPluginInstance(*descriptions[0],rate,256,error);check(plugin!=nullptr,"Built VST3 failed to instantiate");
-                auto params=plugin->getParameters();check(params.size()==3,"Unexpected audio parameters");
-                for(auto* p:params)if(p->getName(50).containsIgnoreCase("room") || p->getName(50).containsIgnoreCase("raum"))p->setValueNotifyingHost(room/2.0f);
-                // Production parameter order: room, size, tone. Reset macros after room selection.
-                params[0]->setValueNotifyingHost(room/2.0f);params[1]->setValueNotifyingHost(.5f);params[2]->setValueNotifyingHost(.5f);
+                juce::AudioProcessorParameter *roomParameter=nullptr,*sizeParameter=nullptr,*toneParameter=nullptr;
+                for(auto* p:plugin->getParameters())
+                {
+                    const auto name=p->getName(100);
+                    if(name=="Raum")roomParameter=p;
+                    if(name=="Klang")toneParameter=p;
+                    if(name.startsWith("Gr"))sizeParameter=p;
+                }
+                check(roomParameter && sizeParameter && toneParameter,"Actual module room/size/tone missing");
+                if(auto* bypass=plugin->getBypassParameter()) bypass->setValueNotifyingHost(0);
+                roomParameter->setValueNotifyingHost(room/2.0f);
+                sizeParameter->setValueNotifyingHost(.5f);toneParameter->setValueNotifyingHost(.5f);
+                check(std::abs(roomParameter->getValue()-room/2.0f)<.001f && sizeParameter->getValue()==.5f && toneParameter->getValue()==.5f,"Actual VST3 parameter values not applied");
                 plugin->setPlayConfigDetails(2,2,rate,256);plugin->prepareToPlay(rate,256);
                 juce::AudioBuffer<float> wet(2,length),mix(2,length);wet.clear();
                 juce::MidiBuffer midi;constexpr float send=0.5011872336f;
