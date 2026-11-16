@@ -1,0 +1,79 @@
+cmake_minimum_required(VERSION 3.22)
+project(SpatialLab VERSION 1.0.0 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
+include(CTest)
+option(SPATIALLAB_BUILD_PLUGIN "Build JUCE VST3 and processor tests" ON)
+if(BUILD_TESTING)
+    add_executable(SpatialLabEnvironmentTests Tests/Environments.cpp)
+    target_include_directories(SpatialLabEnvironmentTests PRIVATE Source)
+    add_test(NAME Environments COMMAND SpatialLabEnvironmentTests)
+    add_executable(SpatialLabDspTests Tests/DspTests.cpp)
+    target_include_directories(SpatialLabDspTests PRIVATE Source)
+    add_test(NAME DSP COMMAND SpatialLabDspTests)
+    add_executable(SpatialLabRetroMotionTests Tests/RetroMotionTests.cpp)
+    target_include_directories(SpatialLabRetroMotionTests PRIVATE Source)
+    add_test(NAME RetroMotion COMMAND SpatialLabRetroMotionTests)
+    add_executable(SpatialLabRoomComparison Tests/RoomComparison.cpp)
+    target_include_directories(SpatialLabRoomComparison PRIVATE Source)
+    add_test(NAME RoomVoicing COMMAND SpatialLabRoomComparison)
+    add_executable(SpatialLabRoomDiagnostics Tests/RoomDiagnostics.cpp)
+    target_include_directories(SpatialLabRoomDiagnostics PRIVATE Source)
+    add_executable(SpatialLabDspBenchmark Tests/DspBenchmark.cpp)
+    target_include_directories(SpatialLabDspBenchmark PRIVATE Source)
+endif()
+if(SPATIALLAB_BUILD_PLUGIN)
+    include(FetchContent)
+    FetchContent_Declare(JUCE
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG 51a8a6d7aeae7326956d747737ccf1575e61e209
+        GIT_PROGRESS TRUE)
+    FetchContent_MakeAvailable(JUCE)
+    juce_add_binary_data(SpatialLabArtwork HEADER_NAME SpatialLabArtwork.h NAMESPACE SpatialLabArtwork
+        SOURCES assets/SpatialLab_Episode_I.png assets/SpatialLab_Episode_IV.png)
+    juce_add_plugin(SpatialLab
+        COMPANY_NAME "Stromschlag Audio"
+        BUNDLE_ID "com.stromschlagaudio.spatiallab"
+        PLUGIN_MANUFACTURER_CODE Strm
+        PLUGIN_CODE SpLb
+        FORMATS VST3
+        PRODUCT_NAME "SpatialLab"
+        VST3_CATEGORIES Fx Reverb
+        IS_SYNTH FALSE
+        NEEDS_MIDI_INPUT FALSE
+        NEEDS_MIDI_OUTPUT FALSE
+        IS_MIDI_EFFECT FALSE
+        COPY_PLUGIN_AFTER_BUILD FALSE)
+    target_sources(SpatialLab PRIVATE Source/PluginProcessor.cpp Source/PluginProcessor.h Source/PluginEditor.cpp Source/PluginEditor.h Source/RoomEngine.h)
+    target_compile_options(SpatialLab PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
+    target_compile_definitions(SpatialLab PUBLIC JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0)
+    target_link_libraries(SpatialLab PRIVATE SpatialLabArtwork juce::juce_audio_processors
+        PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
+    if(BUILD_TESTING)
+        juce_add_console_app(SpatialLabProcessorTests PRODUCT_NAME "SpatialLab Processor Tests")
+        target_sources(SpatialLabProcessorTests PRIVATE Tests/ProcessorTests.cpp)
+        target_include_directories(SpatialLabProcessorTests PRIVATE Source)
+        target_link_libraries(SpatialLabProcessorTests PRIVATE SpatialLab juce::juce_audio_processors)
+        add_test(NAME Processor COMMAND SpatialLabProcessorTests)
+        juce_add_console_app(SpatialLabGuiTests PRODUCT_NAME "SpatialLab GUI Tests")
+        target_sources(SpatialLabGuiTests PRIVATE Tests/GuiTests.cpp)
+        target_include_directories(SpatialLabGuiTests PRIVATE Source)
+        target_compile_options(SpatialLabGuiTests PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
+        target_link_libraries(SpatialLabGuiTests PRIVATE SpatialLab juce::juce_audio_processors)
+        add_test(NAME RetroGUI COMMAND SpatialLabGuiTests)
+        juce_add_console_app(SpatialLabListeningRender PRODUCT_NAME "SpatialLab Listening Render")
+        target_sources(SpatialLabListeningRender PRIVATE Tools/ListeningRender.cpp)
+        target_compile_definitions(SpatialLabListeningRender PRIVATE JUCE_PLUGINHOST_VST3=1 JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0)
+        target_link_libraries(SpatialLabListeningRender PRIVATE juce::juce_audio_processors juce::juce_audio_formats)
+        juce_add_gui_app(SpatialLabGuiPreview PRODUCT_NAME "SpatialLab GUI Preview")
+        target_sources(SpatialLabGuiPreview PRIVATE Tools/GuiPreview.cpp)
+        target_include_directories(SpatialLabGuiPreview PRIVATE Source)
+        target_compile_options(SpatialLabGuiPreview PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
+        target_link_libraries(SpatialLabGuiPreview PRIVATE SpatialLab juce::juce_audio_processors)
+        if(WIN32)
+            target_link_libraries(SpatialLabGuiPreview PRIVATE gdi32 user32)
+        endif()
+    endif()
+endif()

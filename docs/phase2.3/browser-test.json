@@ -1,0 +1,11 @@
+{
+  "browser": "Chromium",
+  "mode": "localhost HTTP; managed Chromium blocks file://",
+  "audioButtons": 14,
+  "allTracksDecodeAndPlay": true,
+  "onlyOnePlaying": true,
+  "volume": 1,
+  "positionSwitch": true,
+  "screenshotsLoaded": true,
+  "pageErrors": []
+}

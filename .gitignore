@@ -1,0 +1,6 @@
+/build*/
+/.deps/
+/.venv/
+*.user
+.vs/
+.DS_Store
