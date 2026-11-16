@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   windows-vst3:
-    if: (github.event_name == 'workflow_dispatch' && inputs.full_windows) || (github.event.action == 'labeled' && github.event.label.name == 'ci:full')
+    if: (github.event_name == 'workflow_dispatch' && inputs.full_windows) || (github.event_name == 'pull_request' && (github.event.action != 'labeled' || github.event.label.name == 'ci:full'))
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -185,9 +185,5 @@ jobs:
           -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
           -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
       - run: cmake --build build --parallel 2
-      - name: Fast sanitizer checks on PR updates
-        if: github.event_name == 'pull_request' && github.event.action != 'labeled'
-        run: ctest --test-dir build --output-on-failure -E '^Environments$'
       - name: Complete sanitizer suite for explicit acceptance
-        if: github.event_name == 'workflow_dispatch' || (github.event.action == 'labeled' && github.event.label.name == 'ci:full')
         run: ctest --test-dir build --output-on-failure
