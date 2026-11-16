@@ -61,3 +61,7 @@ Hersteller: **Stromschlag Audio**. Plugin-Identität/Audio-State bleiben kompati
 Aktuelle Herstelleridentität: **Stromschlag Audio**, `Strm` / `SpLb`, Bundle-ID `com.stromschlagaudio.spatiallab`. Neue Standardgröße 1504×846 mit separater Größenwiederherstellung, sichtbarere Lichtanimationen und verwitterte Episode-IV-Schalterfassung. Die freigegebene Phase-2-Akustik bleibt unverändert. [Änderungen, Identitätswechsel und Windows-Installation](docs/phase2.1/PHASE2_1.md).
 
 [Phase 2.1: echte große Windows-Screenshots, Röhrenanimationen bei Stille/Audio und erfolgreiches Installationspaket](docs/phase2.1/PRUEFBILDER.md).
+
+## Phase 2.2
+
+Statische Original-Leuchtfelder, korrigierte Reglerflächen und pausierende unsichtbare Editoranimationen. Die Akustik bleibt bis zur eindeutigen Hörtestdiagnose erhalten. [Messbericht](docs/phase2.2/PHASE2_2.md) · [Windows-Build, Installationspaket und echte Prüfbilder](docs/phase2.2/PRUEFBILDER.md).
