@@ -71,7 +71,9 @@ public:
         editor->setSize(width,height);
         window->setContentOwned(editor, true);
         window->setTopLeftPosition(0, 0);
+        window->setAlwaysOnTop(true);
         window->setVisible(true);
+        window->toFront(true);
         startTimerHz(30);
     }
     void shutdown() override
@@ -110,6 +112,7 @@ private:
         if (captures == 0)
             writeImage(editor->createComponentSnapshot(editor->getLocalBounds()), "JUCE-Editor-Render-100.png");
 #if JUCE_WINDOWS
+        window->toFront(true);
         // Actual desktop pixels of the visible production editor, not a concept render.
         const auto bounds = editor->getScreenBounds();
         const int w = bounds.getWidth(), h = bounds.getHeight();
@@ -138,6 +141,11 @@ private:
                         destination.setPixelColour(x, y, juce::Colour(pixels[offset + 2], pixels[offset + 1], pixels[offset]));
                     }
                 } // Release the write mapping before any PNG read or clipped-image view.
+                if (captures >= 46)
+                {
+                    writeImage(screenshot,"Late-Desktop-"+juce::String(captures)+".png");
+                    writeImage(editor->createComponentSnapshot(editor->getLocalBounds()),"Late-Component-"+juce::String(captures)+".png");
+                }
                 if (captures == 0) writeImage(screenshot, "Windows-Editor-Screenshot.png");
                 if (sequence)
                 {

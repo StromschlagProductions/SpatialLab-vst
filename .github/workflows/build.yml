@@ -93,6 +93,7 @@ jobs:
             build/SpatialLabListeningRender_artefacts/Release/
             build/SpatialLab_artefacts/Release/VST3/
             build/listening-source/
+            build/listening-demo/
             build/render-metrics.csv
           if-no-files-found: ignore
       - name: Alte und neue Raum-Impulsantworten bei beiden Zielraten vergleichen
