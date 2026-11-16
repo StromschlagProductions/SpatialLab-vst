@@ -26,7 +26,9 @@ Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich per
 | **FAHRZEUGE** | Kleinwagen, großer PKW, Transporter, LKW-Kabine |
 | **SPEZIALRÄUME** | Kleine Kapelle, Kathedrale, Höhle, X-Wing Cockpit, Y-Wing Cockpit, Snowspeeder Cockpit |
 
-Die Cockpits sind natürlich kreative Klanginterpretationen. Ich habe schließlich nicht persönlich neben Luke Skywalker im X-Wing gesessen und ihm ein Mikrofon über die Schulter gehalten. Aber ein bisschen so, wie man sich das Innere dieser Maschinen vorstellt, dürfen sie schon klingen.
+*Die Cockpits sind natürlich kreative Klanginterpretationen. Ich habe schließlich nicht persönlich neben Luke Skywalker im X-Wing gesessen und ihm ein Mikrofon über die Schulter gehalten. Aber ein bisschen so, wie man sich das Innere dieser Maschinen vorstellt, dürfen sie schon klingen.*
+
+*Coming next: Darth Vader & Boba Fett Helmet.*
 
 ## Algorithmische Akustik
 
