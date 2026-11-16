@@ -1,8 +1,26 @@
-# SpatialLab
+# SPATIAL LAB
 
 **Spatial Environments for Audio Drama** · Stromschlag Audio
 
-An initial Windows x64 VST3 **send-only** room effect built with C++17, JUCE **8.0.6** and CMake. Living Room, Kitchen and Bathroom combine distinct early reflections with a damped eight-line feedback delay network. The output is always **100% wet**. Supports mono → mono, mono → stereo and stereo → stereo, host automation and session recall. Development prioritizes **48 kHz for audio drama** and **44.1 kHz for music**. Higher rates have basic correctness coverage but are not tuning or CPU targets. No oversampling is used.
+**Weniger suchen. Mehr Geschichten erzählen.**
+
+## Warum SPATIAL LAB?
+
+Wer Hörspiele produziert, kennt das Problem: Tausende Impulsantworten (IRs), unzählige Hallbibliotheken und die ständige Suche nach **dem einen Raum**, der zur Szene passt. Ist das Wohnzimmer zu groß? Klingt der Keller zu sauber? Welche Kirchen-Impulsantwort passt wirklich?
+
+**SPATIAL LAB entstand aus dem Wunsch, diese Suche überflüssig zu machen.** Statt sich durch endlose IR-Sammlungen zu hören, wählt man eine typische Hörspiel-Location und passt sie mit nur zwei Reglern an: **SIZE** und **TONE**.
+
+Das Ziel ist nicht, jeden denkbaren Raum der Welt abzubilden, sondern eine überschaubare Auswahl charakteristischer akustischer Umgebungen für Dialoge, Geräusche und Geschichten bereitzustellen. Die Reflexionen und der Nachhall werden algorithmisch erzeugt; es wird keine riesige IR-Bibliothek benötigt.
+
+## Aktueller Entwicklungsstand – Phase 3A
+
+**19 auswählbare Umgebungen:** Wohnzimmer, Küche, Badezimmer, Schlafzimmer, Flur, Treppenhaus, Keller, Dachboden, Garage/Werkstatt, Kleinwagen, großer PKW, Transporter, LKW-Kabine, kleine Kapelle, Kathedrale, Höhle sowie die kreativen Sci-Fi-Cockpits X-Wing, Y-Wing und Snowspeeder.
+
+Die Räume besitzen eigenständige Abstimmungen der frühen Reflexionen, Nachhallfahnen und Dämpfung sowie individuelle bernsteinfarbene CRT-Darstellungen. Zwei Retro-Frontplatten (Episode I und Episode IV) stehen zur Wahl. **Die subjektive Hörprüfung in Fender Studio Pro steht noch aus.**
+
+[Windows-VST3-Testbuild herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226906488) · [Phase-3A-Bericht und Installation](docs/phase3a/PHASE3A.md) · [Screenshots](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/43865790113/artifacts/14226960903)
+
+Technik: Windows x64 VST3, C++17, JUCE **8.0.6** und CMake; **100 % Wet**, für FX-/Send-Kanäle. Unterstützt Mono → Mono, Mono → Stereo und Stereo → Stereo, Host-Automation und Session-Wiederherstellung. Entwicklungsschwerpunkte sind **48 kHz für Hörspiele** und **44,1 kHz für Musik**. Höhere Sampleraten besitzen grundlegende Funktionstests, sind aber keine primären Klang- oder CPU-Abnahmeziele. Kein Oversampling.
 
 This is a development prototype, not a release. See [validation](docs/VALIDATION.md) for tested behavior and remaining listening/host checks. Work takes place on development branches and pull requests; do not merge without review.
 
@@ -36,11 +54,11 @@ The editor exposes exactly **Raum**, **Größe** (smaller → neutral → larger
 The output is always **100% wet**; there is no direct path, output gain or loudness knob. Early reflections, tail, diffusion, delays, damping and stereo voicing are authored internally by the preset. Size changes decay and internal early/late voicing, while Tone changes spectral damping. Room selection replaces the room and clears the previous tail; there are no room blends, distance or movement simulations. Locations handles scene transitions separately.
 
 When the host invokes the plugin bypass callback, the send is muted while processing continues. Hosts that route around the plugin control their own external path; mute the return in those hosts. Schema-1/2 prototype sessions restore the selected room with neutral macros; obsolete extra controls are discarded.
-Die vom Auftraggeber nach dem Sprachhörtest freigegebene Phase-2-Abstimmung bildet kompakte Sprachräume ab: Wohnzimmer mit kräftigerer früher Raumantwort (nominale tieffrequente RT60 0,40 s), eine kurze, hellere Küche (0,32 s) und ein kleines gekacheltes Bad (0,38 s). Dies sind entworfene Raumeindrücke, keine gemessenen Akustikmodelle. Phase 2.1 lässt diese Akustik unverändert. The reported host tail is conservatively 6 s; latency is zero. Read [DSP and parameter design](docs/DESIGN.md) before extending the engine or changing parameter IDs.
+Die vom Auftraggeber nach dem Sprachhörtest freigegebene Phase-2-Abstimmung bildet kompakte Sprachräume ab: Wohnzimmer mit kräftigerer früher Raumantwort (nominale tieffrequente RT60 0,40 s), eine kurze, hellere Küche (0,32 s) und ein kleines gekacheltes Bad (0,38 s). Dies sind entworfene Raumeindrücke, keine gemessenen Akustikmodelle. Phase 2.1 lässt diese Akustik unverändert. The reported host tail is conservatively 24 s in Phase 3A; latency is zero. Read [DSP and parameter design](docs/DESIGN.md) before extending the engine or changing parameter IDs.
 
 ## Roadmap and licensing
 
-Die Retro-Oberfläche ist im separaten GUI-Branch implementiert. Light-/Dark-Skins, weitere Innenräume und kuratierte Outdoor-Presets folgen später; alle verwenden dasselbe Drei-Regler-Konzept. Appearance must never change audio behavior.
+Die Retro-Oberfläche mit den Episode-I-/Episode-IV-Frontplatten und 19 Indoor-, Fahrzeug- und Cockpit-Umgebungen ist auf `develop/retro-gui` implementiert. Die sieben geplanten Outdoor-Umgebungen und ihre eigenständige Multitap-Reflection-Engine gehören zu Phase 3B und sind noch nicht implementiert. Die Bedienung bleibt bei Raumwahl, SIZE und TONE. Die Skin-Auswahl darf den Klang nicht verändern.
 
 The project's distribution license remains undecided. JUCE is third-party software with its own AGPLv3/commercial licensing requirements; review the JUCE license and bundled VST3 SDK notices before distributing any binary. No third-party DSP code, impulse responses or artwork have been copied into the engine.
 
