@@ -41,7 +41,7 @@ public:
   buffer[position]={left+feedback[0],right+feedback[1]}; if(++position==buffer.size())position=0;return output;
  }
 private:
- float read(float delay,int c) const noexcept {delay=std::clamp(delay,1.f,float(buffer.size()-2));float at=float(position)-delay;if(at<0)at+=float(buffer.size());auto a=static_cast<std::size_t>(at);auto b=(a+1)%buffer.size();float f=at-float(a);return buffer[a][c]*(1-f)+buffer[b][c]*f;}
+ float read(float delay,int c) const noexcept {delay=std::clamp(delay,1.f,float(buffer.size()-2));double at=double(position)-double(delay);if(at<0)at+=double(buffer.size());auto integral=static_cast<std::size_t>(at);auto a=integral%buffer.size();auto b=(a+1)%buffer.size();float f=float(at-double(integral));return buffer[a][c]*(1-f)+buffer[b][c]*f;}
  std::vector<std::array<float,2>> buffer;
  std::array<std::array<float,2>,16> filtered{};
  std::array<float,16> poles{},targetPoles{};
