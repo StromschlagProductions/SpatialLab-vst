@@ -1,9 +1,21 @@
 name: Build and test
 on:
-  push:
-    branches: [main, 'develop/**']
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - 'Source/**'
+      - 'Tests/**'
+      - 'Tools/**'
+      - 'assets/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
+    inputs:
+      full_windows:
+        description: 'Complete Windows VST3, GUI captures, measurements and installation package'
+        type: boolean
+        default: true
+        required: true
 permissions:
   contents: read
 concurrency:
@@ -11,6 +23,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   windows-vst3:
+    if: (github.event_name == 'workflow_dispatch' && inputs.full_windows) || (github.event.action == 'labeled' && github.event.label.name == 'ci:full')
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -158,6 +171,7 @@ jobs:
             build/ctest-results.txt
           if-no-files-found: error
   dsp-sanitizers:
+    if: github.event.action != 'labeled' || github.event.label.name == 'ci:full'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -171,4 +185,9 @@ jobs:
           -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
           -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
       - run: cmake --build build --parallel 2
-      - run: ctest --test-dir build --output-on-failure
+      - name: Fast sanitizer checks on PR updates
+        if: github.event_name == 'pull_request' && github.event.action != 'labeled'
+        run: ctest --test-dir build --output-on-failure -E '^Environments$'
+      - name: Complete sanitizer suite for explicit acceptance
+        if: github.event_name == 'workflow_dispatch' || (github.event.action == 'labeled' && github.event.label.name == 'ci:full')
+        run: ctest --test-dir build --output-on-failure
