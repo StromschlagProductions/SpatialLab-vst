@@ -136,6 +136,10 @@ int main()
             require(restored.parameter("room")->getValue()==index*.5f,"Old automation anchor changed");
         }
         parameter(restored,"room",1);
+        restored.getStateInformation(state);
+        juce::XmlElement unknown("SpatialLabState");unknown.setAttribute("schemaVersion",4);unknown.setAttribute("environmentKey","unknown-room");unknown.setAttribute("room",18);
+        restoreXml(restored,unknown);juce::MemoryBlock unchanged;restored.getStateInformation(unchanged);
+        require(unchanged==state,"Unknown stable key altered state");
         juce::XmlElement future("SpatialLabState"); future.setAttribute("schemaVersion", 99);
         restoreXml(restored, future);
         const char invalid[] = "not a plugin state";

@@ -33,7 +33,7 @@ struct RoomSpec
     float earlyLevel = 1, lateLevel = 1, earlyCrossfeed = 0.2f, diffusionAngle = 0;
     std::array<float, 6> reflectionGains {0.30f, -0.23f, 0.19f, 0.15f, -0.12f, 0.09f};
 };
-// Phase 2 proposal: compact residential speech rooms, neutral Size/Tone = 0.5.
+// Original three phase-2 rooms followed by 16 individually voiced phase-3A environments.
 inline constexpr std::array<RoomSpec, 19> rooms {{
     {0.40f, 3400.0f, {23.3f, 29.9f, 34.7f, 39.1f, 43.7f, 48.7f, 53.3f, 59.9f},
      {5.3f, 9.1f, 14.7f, 20.9f, 28.3f, 36.7f}, 1.30f, 1.15f, 0.30f, 0.48f,

@@ -17,6 +17,7 @@ int main(int argc,char** argv)
   spatiallab::future::OutdoorPlan plan;need(plan.valid(),"Invalid empty 3B contract");plan.count=17;need(!plan.valid(),"Unbounded outdoor contract");
   if(argc>1)std::filesystem::create_directories(argv[1]);
   need(spatiallab::normalizedRoom(0)==0 && spatiallab::normalizedRoom(.5f)==1 && spatiallab::normalizedRoom(1)==2,"Legacy anchors changed");
+  need(spatiallab::normalizedRoom(1e30f)==2 && spatiallab::normalizedRoom(-1e30f)==0,"Out-of-range host value overflow");
   for(int i=0;i<19;++i)need(spatiallab::normalizedRoom(spatiallab::roomNormalized(i))==i,"Room index not bijective");
   std::cout<<"rate,index,key,nominal_rt60,cutoff,early_level,late_level,energy,T20_RT60,peak,stereo_difference,hash\n";
   for(int rate:{44100,48000})
