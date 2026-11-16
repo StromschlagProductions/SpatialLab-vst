@@ -21,6 +21,10 @@ public:
     const juce::String getApplicationVersion() override { return "0.1.0"; }
     void initialise(const juce::String& args) override
     {
+#if JUCE_WINDOWS
+        // Prevent a long CI compilation followed by capture from hitting display idle timeout.
+        SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
+#endif
         bool episodeIV = true;
         int roomIndex = 0;
         float knob = 0.5f;
@@ -73,6 +77,9 @@ public:
     void shutdown() override
     {
         stopTimer(); window.reset(); processor.reset();
+#if JUCE_WINDOWS
+        SetThreadExecutionState(ES_CONTINUOUS);
+#endif
     }
     void systemRequestedQuit() override { quit(); }
 private:
