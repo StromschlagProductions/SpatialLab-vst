@@ -27,7 +27,7 @@ void click(PresetBrowser& browser, juce::Rectangle<float> row)
 }
 void wheel(PresetBrowser& browser, float delta)
 {
-    juce::MouseWheelDetails details; details.deltaY = delta;
+    juce::MouseWheelDetails details {}; details.deltaY = delta;
     browser.mouseWheelMove(eventAt(browser,browser.getLocalBounds().toFloat().getCentre()),details);
 }
 void requireVisible(PresetBrowser& browser, int room)
@@ -208,7 +208,7 @@ int main()
                 require(editor->getComponentAt(editor->getLocalPoint(nullptr,point))==browser,"Browser hit target overlaps a knob");
                 for(auto* child : editor->getChildren()) if(auto* slider=dynamic_cast<juce::Slider*>(child))
                 {
-                    const double previous=slider->getValue(); juce::MouseWheelDetails details; details.deltaY=.2f;
+                    const double previous=slider->getValue(); juce::MouseWheelDetails details {}; details.deltaY=.2f;
                     slider->mouseWheelMove(eventAt(*slider,slider->getLocalBounds().toFloat().getCentre()),details);
                     require(slider->getValue()!=previous,"Knob wheel stopped working");
                 }
