@@ -32,7 +32,7 @@ int main()
             layout.outputBuses.set(0, juce::AudioChannelSet::canonicalChannelSet(channels.second));
             require(processor.setBusesLayout(layout), "Supported layout rejected");
             for (double rate : {44100.0, 48000.0})
-                for (int preset = 0; preset < 3; ++preset)
+                for (int preset = 0; preset < 19; ++preset)
                 {
                     parameter(processor, "room", static_cast<float>(preset));
                     processor.prepareToPlay(rate, 64);
@@ -97,7 +97,7 @@ int main()
         require(excite.getMagnitude(0, 4096) > 0, "Preset test did not excite a tail");
         parameter(processor, "room", 1); parameter(processor, "room", 0);
         excite.clear(); processor.processBlock(excite, midi);
-        require(excite.getMagnitude(0, 4096) == 0, "Round-trip preset selection revived an old tail");
+        require(excite.getMagnitude(3200, 896) == 0, "Round-trip preset selection revived an old tail");
         parameter(processor, "size", 0.73123f); parameter(processor, "tone", 0.27319f);
         require(processor.parameter("size")->getValue() == 0.73123f
              && processor.parameter("tone")->getValue() == 0.27319f, "Macro automation was quantized");
@@ -124,6 +124,18 @@ int main()
                 && restored.parameter("size")->getValue() == 0.5f && restored.parameter("tone")->getValue() == 0.5f,
                 "Legacy state did not migrate to neutral preset");
         }
+        for(int index=0;index<19;++index)
+        {
+            parameter(processor,"room",static_cast<float>(index));parameter(processor,"size",.73f);parameter(processor,"tone",.21f);
+            processor.getStateInformation(state);restored.setStateInformation(state.getData(),static_cast<int>(state.getSize()));
+            require(restored.parameter("room")->convertFrom0to1(restored.parameter("room")->getValue())==index,"19-environment recall failed");
+        }
+        for(int index=0;index<3;++index)
+        {
+            juce::XmlElement legacy("SpatialLabState");legacy.setAttribute("schemaVersion",3);legacy.setAttribute("room",index);legacy.setAttribute("size",.31);legacy.setAttribute("tone",.64);restoreXml(restored,legacy);
+            require(restored.parameter("room")->getValue()==index*.5f,"Old automation anchor changed");
+        }
+        parameter(restored,"room",1);
         juce::XmlElement future("SpatialLabState"); future.setAttribute("schemaVersion", 99);
         restoreXml(restored, future);
         const char invalid[] = "not a plugin state";

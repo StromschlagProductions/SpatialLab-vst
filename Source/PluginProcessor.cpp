@@ -82,8 +82,9 @@ juce::AudioProcessorEditor* SpatialLabProcessor::createEditor() { return new Spa
 void SpatialLabProcessor::getStateInformation(juce::MemoryBlock& destination)
 {
     juce::XmlElement state("SpatialLabState");
-    state.setAttribute("schemaVersion", 3);
+    state.setAttribute("schemaVersion", 4);
     state.setAttribute("room", room->getIndex());
+    state.setAttribute("environmentKey",spatiallab::roomKeys[static_cast<std::size_t>(room->getIndex())]);
     state.setAttribute("size", static_cast<double>(size->get()));
     state.setAttribute("tone", static_cast<double>(tone->get()));
     copyXmlToBinary(state, destination);
@@ -94,15 +95,21 @@ void SpatialLabProcessor::setStateInformation(const void* data, int length)
     auto xml = getXmlFromBinary(data, length);
     if (xml == nullptr || !xml->hasTagName("SpatialLabState")) return;
     const int version = xml->getIntAttribute("schemaVersion");
-    if (version < 1 || version > 3) return;
+    if (version < 1 || version > 4) return;
     int roomIndex = xml->getIntAttribute("room", 0);
     if (version < 3)
         for (auto* child : xml->getChildIterator())
             if (child->getStringAttribute("id") == "room")
                 roomIndex = child->getIntAttribute("value", 0);
-    const double sizeValue = version == 3 ? xml->getDoubleAttribute("size", 0.5) : 0.5;
-    const double toneValue = version == 3 ? xml->getDoubleAttribute("tone", 0.5) : 0.5;
-    if (roomIndex < 0 || roomIndex >= 3 || !std::isfinite(sizeValue) || !std::isfinite(toneValue)
+    const double sizeValue = version >= 3 ? xml->getDoubleAttribute("size", 0.5) : 0.5;
+    const double toneValue = version >= 3 ? xml->getDoubleAttribute("tone", 0.5) : 0.5;
+    if(version==4)
+    {
+        const auto key=xml->getStringAttribute("environmentKey");
+        int found=-1;for(int i=0;i<19;++i)if(key==spatiallab::roomKeys[static_cast<std::size_t>(i)])found=i;
+        if(found<0)return;roomIndex=found;
+    }
+    if (roomIndex < 0 || roomIndex >= (version<4?3:19) || !std::isfinite(sizeValue) || !std::isfinite(toneValue)
         || sizeValue < 0 || sizeValue > 1 || toneValue < 0 || toneValue > 1) return;
     // Restore room first (which resets macros), then the saved session offsets.
     room->setValueNotifyingHost(room->convertTo0to1(static_cast<float>(roomIndex)));

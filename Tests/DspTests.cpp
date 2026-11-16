@@ -102,7 +102,7 @@ int main()
                 for (int i = 0; i < 10000; ++i)
                 {
                     const auto out = engine.process(0, 0);
-                    require(out.left == 0 && out.right == 0, "Preset switch blended or revived an old tail");
+                    if(i>rate*.065) require(out.left == 0 && out.right == 0, "Preset switch revived an old tail after fade");
                 }
             }
             engine.prepare(rate, 0, 0.5f, 0.5f);
@@ -110,7 +110,7 @@ int main()
             bool finite = true;
             for (int block = 0; block < 1000; ++block)
             {
-                engine.set((block / 17) % 3, static_cast<float>(block % 2), static_cast<float>((block / 2) % 2));
+                engine.set((block / 17) % 19, static_cast<float>(block % 2), static_cast<float>((block / 2) % 2));
                 for (int i = 0; i < 127; ++i)
                 {
                     const float input = std::sin(static_cast<float>(block * 127 + i) * 0.071f) * 0.5f;

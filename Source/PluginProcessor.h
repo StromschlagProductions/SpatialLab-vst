@@ -1,29 +1,42 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "RoomEngine.h"
+#include "RoomCatalog.h"
 #include "GuiTelemetry.h"
 
 // Changes to room reset macros immediately without audio-thread host notifications.
-class RoomParameter final : public juce::AudioParameterChoice
+class RoomParameter final : public juce::RangedAudioParameter
 {
 public:
-    RoomParameter(juce::AudioParameterFloat& sizeControl, juce::AudioParameterFloat& toneControl,
-                  std::atomic<unsigned>& revision)
-        : AudioParameterChoice(juce::ParameterID{"room", 1}, "Raum",
-            juce::StringArray{"Living Room", "Kitchen", "Bathroom"}, 0),
-          size(sizeControl), tone(toneControl), resetRevision(revision) {}
-private:
-    void valueChanged(int index) override
+    RoomParameter(juce::AudioParameterFloat& s,juce::AudioParameterFloat& t,std::atomic<unsigned>& r)
+      : RangedAudioParameter(juce::ParameterID{"room",1},"Raum"),size(s),tone(t),revision(r),
+        range(0.0f,18.0f,[](float,float,float n){return static_cast<float>(spatiallab::normalizedRoom(n));},
+            [](float,float,float i){return spatiallab::roomNormalized(juce::jlimit(0,18,juce::roundToInt(i)));},
+            [](float,float,float i){return static_cast<float>(juce::jlimit(0,18,juce::roundToInt(i)));}) {}
+    int getIndex() const noexcept {return index.load();}
+    const juce::NormalisableRange<float>& getNormalisableRange() const override {return range;}
+    float getValue() const override {return spatiallab::roomNormalized(getIndex());}
+    void setValue(float n) override
     {
-        if (lastRoom.exchange(index) == index) return;
-        static_cast<juce::AudioProcessorParameter&>(size).setValue(0.5f);
-        static_cast<juce::AudioProcessorParameter&>(tone).setValue(0.5f);
-        resetRevision.fetch_add(1, std::memory_order_release);
+        if(!std::isfinite(n))return;
+        const int next=spatiallab::normalizedRoom(n);
+        if(index.exchange(next)==next)return;
+        static_cast<juce::AudioProcessorParameter&>(size).setValue(.5f);
+        static_cast<juce::AudioProcessorParameter&>(tone).setValue(.5f);
+        revision.fetch_add(1,std::memory_order_release);
     }
-    juce::AudioParameterFloat& size;
-    juce::AudioParameterFloat& tone;
-    std::atomic<unsigned>& resetRevision;
-    std::atomic<int> lastRoom {0};
+    float getDefaultValue() const override {return 0;}
+    int getNumSteps() const override {return 19;}
+    bool isDiscrete() const override {return true;}
+    juce::String getText(float n,int) const override
+    {const int i=spatiallab::normalizedRoom(n);if(i<3)return std::array<juce::String,3>{"Living Room","Kitchen","Bathroom"}[static_cast<std::size_t>(i)];return juce::String::fromUTF8(spatiallab::roomNames[static_cast<std::size_t>(i)]);}
+    float getValueForText(const juce::String& text) const override
+    {if(text=="Living Room")return 0;if(text=="Kitchen")return .5f;if(text=="Bathroom")return 1;for(int i=0;i<19;++i)if(text==juce::String::fromUTF8(spatiallab::roomNames[static_cast<std::size_t>(i)]))return spatiallab::roomNormalized(i);return 0;}
+private:
+    juce::AudioParameterFloat &size,&tone;
+    std::atomic<unsigned>& revision;
+    std::atomic<int> index {0};
+    juce::NormalisableRange<float> range;
 };
 
 class SpatialLabProcessor final : public juce::AudioProcessor, private juce::Timer
@@ -42,7 +55,7 @@ public:
     const juce::String getName() const override { return "SpatialLab"; }
     bool acceptsMidi() const override { return false; }
     bool producesMidi() const override { return false; }
-    double getTailLengthSeconds() const override { return 6.0; }
+    double getTailLengthSeconds() const override { return 24.0; }
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
     void setCurrentProgram(int) override {}
