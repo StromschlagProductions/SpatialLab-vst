@@ -24,4 +24,12 @@ inline float tubeGlow(double seconds, unsigned index, bool aged) noexcept
     const float flare = aged ? 0.09f * static_cast<float>(std::exp(-std::pow((eventTime-0.4)/0.15,2))) : 0.0f;
     return std::clamp(0.12f + heat * 0.77f + organic + flare,0.10f,0.96f);
 }
+// Two independent, audio-free ember envelopes, deliberately unrelated to tube periods.
+inline float emberGlow(double t, unsigned index) noexcept
+{
+    const double p = index == 0 ? 0.43 : 0.31;
+    return 0.70f + 0.16f*static_cast<float>(std::sin(t*p+index*2.8))
+        + 0.07f*static_cast<float>(std::sin(t*(index == 0 ? 0.117 : 0.173)+1.2));
+}
+
 }

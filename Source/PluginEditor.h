@@ -28,6 +28,7 @@ private:
     juce::Rectangle<int> panelBounds(float x, float y, float width, float height) const;
     SpatialLabProcessor& processor;
     juce::Image panel, episodeI, episodeIV;
+    std::array<std::array<juce::Image,2>,2> emberMasks;
     std::unique_ptr<juce::PropertiesFile> guiSettings;
     juce::Slider size, tone;
     std::array<juce::TextButton, 3> presets;

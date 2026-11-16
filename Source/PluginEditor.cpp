@@ -23,6 +23,24 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
                                               SpatialLabArtwork::SpatialLab_Episode_I_pngSize);
     episodeIV = juce::ImageCache::getFromMemory(SpatialLabArtwork::SpatialLab_Episode_IV_png,
                                                SpatialLabArtwork::SpatialLab_Episode_IV_pngSize);
+    // Colour-select only existing warm luminous pixels; grille, lettering and metal stay intact.
+    const std::array<juce::Rectangle<int>,2> emberBounds {{{710,35,245,50},{1469,559,60,66}}};
+    for (int skin=0;skin<2;++skin) for (int light=0;light<2;++light)
+    {
+        const auto area=emberBounds[static_cast<std::size_t>(light)];
+        auto& mask=emberMasks[static_cast<std::size_t>(skin)][static_cast<std::size_t>(light)];
+        mask=juce::Image(juce::Image::ARGB,area.getWidth(),area.getHeight(),true);
+        const auto& original=skin==0?episodeI:episodeIV;
+        for(int y=0;y<area.getHeight();++y) for(int x=0;x<area.getWidth();++x)
+        {
+            const auto c=original.getPixelAt((area.getX()+x)*2,(area.getY()+y)*2);
+            const float nx=static_cast<float>(area.getX()+x),ny=static_cast<float>(area.getY()+y);
+            const bool inside=light==0 ? ((ny>=37 && ny<=48) || (ny>=59 && ny<=73))
+                : std::pow((nx-1498)/28,2)+std::pow((ny-592)/29,2)<1;
+            if(inside && c.getRed()>180 && c.getGreen()>60 && c.getGreen()<c.getRed()*0.85f && c.getBlue()<c.getGreen()*0.70f)
+                mask.setPixelAt(x,y,juce::Colours::black.withAlpha(0.85f));
+        }
+    }
     guiSettings = spatiallab::gui::openPreferences(settingsFile);
     const auto button = [this](juce::TextButton& control, const juce::String& name, std::function<void()> action)
     {
@@ -175,6 +193,8 @@ void SpatialLabEditor::timerCallback()
     {
         repaint(panelBounds(510, 300, 503, 336));
         repaint(panelBounds(1205, 121, 270, 113));
+        repaint(panelBounds(710,35,245,50));
+        repaint(panelBounds(1469,559,60,66));
     }
 }
 
@@ -381,6 +401,14 @@ void SpatialLabEditor::drawLighting(juce::Graphics& g)
             g.drawLine(centre+dx,173,centre+dx,200,1.25f);
         }
     }
+    const std::array<juce::Point<int>,2> emberOrigins {{{710,35},{1469,559}}};
+    for(unsigned i=0;i<2;++i)
+    {
+        juce::Graphics::ScopedSaveState state(g);
+        g.setOpacity((1.0f-spatiallab::retro::emberGlow(animationSeconds,i))*0.85f);
+        g.drawImageAt(emberMasks[isEpisodeIV()?1u:0u][i],emberOrigins[i].x,emberOrigins[i].y);
+    }
+
 }
 
 void SpatialLabEditor::drawEpisodeSwitch(juce::Graphics& graphics, juce::Button& button, bool hover)

@@ -16,6 +16,7 @@ for folder in sorted(root.glob('Episode-*/*/*')):
     def box(x,y,w,h):
         return tuple(round(v) for v in (ox+x*scale,oy+y*scale,ox+(x+w)*scale,oy+(y+h)*scale))
     regions = {f'tube-{i}':box(x-20,142,40,72) for i,x in enumerate((1235,1307,1376,1441))}
+    regions.update({'grille-ember':box(710,35,245,50),'engine-ember':box(1469,559,60,66)})
     static_regions = {'upper':box(925,180,115,50),'status':box(492,748,210,35),'lower':box(790,731,220,51)}
     for name,rect in static_regions.items():
         reference = frames[0].crop(rect)
@@ -27,7 +28,7 @@ for folder in sorted(root.glob('Episode-*/*/*')):
         difference = max(sum(ImageStat.Stat(ImageChops.difference(a,b)).mean)/3
                          for i,a in enumerate(crops) for b in crops[i+1:])
         changes[name] = round(difference,3)
-        assert difference >= 3.0, f'{folder}/{name}: insufficient visible screen change ({difference:.2f}/255)'
+        assert difference >= (0.2 if name.endswith("ember") else 3.0), f'{folder}/{name}: insufficient visible screen change ({difference:.2f}/255)'
     # Animated presentation only: the original lossless GDI frames remain alongside it.
     times = [float(row['seconds_monotonic']) for row in csv.DictReader((folder/'Capture-Times.csv').open())]
     durations = [max(20,round((b-a)*1000)) for a,b in zip(times,times[1:])] + [333]
