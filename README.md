@@ -1,6 +1,9 @@
-# SPATIAL LAB v1.0
+# SPATIAL LAB – Spatial Environments for Audio Drama
 
-**Spatial Environments for Audio Drama · Stromschlag Audio**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/StromschlagProductions/Locations-vst/main/docs/logo-dunkel.png">
+  <img src="https://raw.githubusercontent.com/StromschlagProductions/Locations-vst/main/docs/logo-hell.png" alt="Stromschlag Audio" height="64">
+</picture>
 
 ## Weniger suchen. Mehr Geschichten erzählen.
 
