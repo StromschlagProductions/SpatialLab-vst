@@ -1,5 +1,10 @@
 # Changes
 
+## 1.1.2 — Classic-Drehregler
+
+- Classic Dunkel/Hell: SIZE und TONE im selben Look wie LOCATIONS, RADIOPHONE und die übrigen Stromschlag-Plugins; Strichstärke und Punkt wachsen mit der Reglergröße statt bei 8 px zu enden.
+- Keine Änderungen an DSP, Räumen, Parametern, Session-Schema, Plugin-Identität oder Retro-Look.
+
 ## 1.1.0 — Classic GUI
 
 - Drei kosmetische Looks im selben Plugin: Retro, Classic Dunkel und Classic Hell. Retro behält Episode I/IV, Originalfrontplatten und Animationen.

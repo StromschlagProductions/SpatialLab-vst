@@ -17,9 +17,9 @@ Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich per
 
 – Lars Eickstädt, Stromschlag Audio
 
-**[SPATIAL LAB v1.1 für Windows herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.1.0)**
+**[SPATIAL LAB für Windows herunterladen (neueste Version)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)**
 
-[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.1.0/SpatialLab-v1.1.0-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
+[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.1.2/SpatialLab-v1.1.2-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
 
 ## 26 Umgebungen, vier Kategorien
 
@@ -66,13 +66,17 @@ Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.1.
 
 Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in Classic wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Episode I/IV wird weiterhin im Retro-Modus gewählt. Die Auswahl ist rein kosmetisch; alle Ansichten teilen dieselben Presets und Parameter. [GUI-Dokumentation und Bildherkunft](docs/classic/CLASSIC_GUI.md). Die historischen Screenshots bleiben im Repository erhalten.
 
+## Version 1.1.2
+
+Classic Dunkel und Classic Hell: Die Drehregler SIZE und TONE haben jetzt dieselben Proportionen wie in den anderen Stromschlag-Plugins (kräftiger Ring, dicker Wertebogen, großer Punkt). Klang, Räume, Parameter und Retro-Look sind unverändert. [Release-Hinweise](docs/RELEASE_v1.1.2.md)
+
 ## Technische Aktualisierung 1.1.1
 
 Weniger redundante Outdoor-Berechnungen, Schutz vor ungültigen Eingangs-/Steuerwerten und zusätzliche Grenzfalltests. [Release-Hinweise](docs/RELEASE_v1.1.1.md). Die unten dokumentierten Windows-Screenshots stammen weiterhin unverändert aus 1.1.0.
 
 ## Installation
 
-1. Die Datei **SpatialLab-v1.1.0-Windows-x64-VST3.zip** vom offiziellen Release herunterladen.
+1. Die Datei **SpatialLab-v1.1.x-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
 2. DAW schließen und das ZIP vollständig entpacken.
 3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
 4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.
