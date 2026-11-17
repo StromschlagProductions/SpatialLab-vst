@@ -62,6 +62,10 @@ Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.1.
 
 Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in Classic wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Episode I/IV wird weiterhin im Retro-Modus gewählt. Die Auswahl ist rein kosmetisch; alle Ansichten teilen dieselben Presets und Parameter. [GUI-Dokumentation und Bildherkunft](docs/classic/CLASSIC_GUI.md). Die historischen Screenshots bleiben im Repository erhalten.
 
+## Technische Aktualisierung 1.1.1
+
+Weniger redundante Outdoor-Berechnungen, Schutz vor ungültigen Eingangs-/Steuerwerten und zusätzliche Grenzfalltests. [Release-Hinweise](docs/RELEASE_v1.1.1.md). Die unten dokumentierten Windows-Screenshots stammen weiterhin unverändert aus 1.1.0.
+
 ## Installation
 
 1. Die Datei **SpatialLab-v1.1.0-Windows-x64-VST3.zip** vom offiziellen Release herunterladen.

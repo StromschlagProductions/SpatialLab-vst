@@ -53,6 +53,7 @@ void SpatialLabProcessor::prepareToPlay(double rate, int)
 void SpatialLabProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
+    if (buffer.getNumChannels() == 0 || buffer.getNumSamples() == 0) return;
     const auto revision = resetRevision.load(std::memory_order_acquire);
     engine.set(room->getIndex(), size->get(), tone->get(), revision != audioRevision);
     audioRevision = revision;

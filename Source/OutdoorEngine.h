@@ -32,7 +32,7 @@ public:
   const auto& p=outdoorProfiles[profile];
   for(int i=0;i<p.count;++i){const auto& t=p.taps[i];poles[i]+=smooth*(targetPoles[i]-poles[i]);
    const float dl=float(rate)*t.seconds*currentSize,dr=float(rate)*t.seconds*targetSize;
-   for(int c=0;c<2;++c){float x=(1-mix)*(.75f*read(dl,c)+.25f*read(dl,1-c))+mix*(.75f*read(dr,c)+.25f*read(dr,1-c));filtered[i][c]=(1-poles[i])*x+poles[i]*filtered[i][c];
+   for(int c=0;c<2;++c){float x=.75f*read(dr,c)+.25f*read(dr,1-c); if(mix<1) x=(1-mix)*(.75f*read(dl,c)+.25f*read(dl,1-c))+mix*x;filtered[i][c]=(1-poles[i])*x+poles[i]*filtered[i][c];
     if(std::abs(filtered[i][c])<1e-20f)filtered[i][c]=0;
     const float pan=c==0?(1-t.pan)*.5f:(1+t.pan)*.5f;
     // Preserve stereo excitation while distributing each surface between the two sides.
@@ -41,7 +41,7 @@ public:
   buffer[position]={left+feedback[0],right+feedback[1]}; if(++position==buffer.size())position=0;return output;
  }
 private:
- float read(float delay,int c) const noexcept {delay=std::clamp(delay,1.f,float(buffer.size()-2));double at=double(position)-double(delay);if(at<0)at+=double(buffer.size());auto integral=static_cast<std::size_t>(at);auto a=integral%buffer.size();auto b=(a+1)%buffer.size();float f=float(at-double(integral));return buffer[a][c]*(1-f)+buffer[b][c]*f;}
+ float read(float delay,int c) const noexcept {delay=std::clamp(delay,1.f,float(buffer.size()-2));double at=double(position)-double(delay);if(at<0)at+=double(buffer.size());auto integral=static_cast<std::size_t>(at);auto a=integral;auto b=a+1;if(b==buffer.size())b=0;float f=float(at-double(integral));return buffer[a][c]*(1-f)+buffer[b][c]*f;}
  std::vector<std::array<float,2>> buffer;
  std::array<std::array<float,2>,16> filtered{};
  std::array<float,16> poles{},targetPoles{};
