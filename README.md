@@ -1,8 +1,8 @@
 # SPATIAL LAB – Spatial Environments for Audio Drama
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/StromschlagProductions/Locations-vst/main/docs/logo-dunkel.png">
-  <img src="https://raw.githubusercontent.com/StromschlagProductions/Locations-vst/main/docs/logo-hell.png" alt="Stromschlag Audio" height="64">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dunkel.png">
+  <img src="docs/logo-hell.png" alt="Stromschlag Audio" height="64">
 </picture>
 
 ## Weniger suchen. Mehr Geschichten erzählen.
@@ -12,6 +12,10 @@ Bei der Arbeit an Hörspielen habe ich immer wieder festgestellt, wie viel Zeit 
 Aus diesem Frust entstand die Idee zu **SPATIAL LAB**: Statt immer neue Hallbibliotheken zu durchsuchen, wollte ich eine überschaubare Auswahl typischer Räume und akustischer Umgebungen für Hörspiele direkt griffbereit haben – vom Wohnzimmer über den Keller bis zum Wald oder zur Schlucht. Nicht als Anspruch, jeden realen Ort perfekt nachzubilden, sondern als verlässliche Ausgangspunkte, die sich mit **SIZE** und **TONE** schnell an die jeweilige Szene anpassen lassen.
 
 Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich perfekten Hall zu suchen. Ich möchte Geschichten erzählen – und mich auf die Stimmen, Geräusche und die Atmosphäre konzentrieren, die eine Szene lebendig machen.
+
+*SPATIAL LAB soll niemandem die Erfahrung abnehmen, Räume selbst zu gestalten. Gerade am Anfang kann es viel Spaß machen und lehrreich sein, einen Raum selbst aus Impulsantwort, Vorverzögerung, Dämpfung und Hallanteil zusammenzusetzen und zu hören, wie diese Bausteine ineinandergreifen. Ich bin dankbar, dass ich diesen Weg selbst gegangen bin, auch wenn er manchmal umständlich und mühselig war. Gerade dadurch weiß ich, was ich mir von einem Werkzeug wünsche, das all das in einem vereint. SPATIAL LAB soll das Gestalten nicht ersetzen, sondern die technische Umsetzung im Alltag einfacher machen.*
+
+– Lars Eickstädt, Stromschlag Audio
 
 **[SPATIAL LAB v1.1 für Windows herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.1.0)**
 
@@ -113,6 +117,8 @@ Vollständige Windows-/GUI- und Linux-Sanitizer-Prüfungen laufen bei relevanten
 ## Beta-Test und Danke
 
 **SOUNDJOB / Markus Hildebrandt** – Beta-Testing
+
+Ein großes Dankeschön an **Markus Hildebrandt** von SOUNDJOB. Markus betreibt ein eigenes Tonstudio und hat weit mehr Hörspiele produziert als ich. Er hat SPATIAL LAB im Studioalltag getestet und mir ehrliches, fachkundiges Feedback gegeben. Seine Hinweise zu Außenräumen, also wenig Hall und dafür deutliche, einzelne Echos, stecken in der eigenen Outdoor-Engine. Dafür danke ich ihm sehr: Seine Erfahrung hat das Plugin spürbar besser gemacht.
 
 ---
 
