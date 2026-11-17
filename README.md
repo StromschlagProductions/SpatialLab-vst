@@ -111,3 +111,7 @@ Das Projekt wird laufend weiterentwickelt. Trotz sorgfältiger Tests können Feh
 **Feedback, Fehlermeldungen und Verbesserungsvorschläge sind herzlich willkommen!**
 
 Wenn dieses kleine Werkzeug auch anderen die Hörspielarbeit erleichtert und mehr Raum für Geschichten und menschliche Kreativität schafft, freut mich das ganz besonders.
+
+## Classic GUI – Entwicklungsbranch
+
+Auf `feature/classic-gui` ergänzt eine zusätzliche Look-Auswahl **Retro / Classic Dunkel / Classic Hell**. Browser, SIZE/TONE und Audio-Engine werden gemeinsam verwendet. Retro behält seinen Episode-Schalter; die Look-Wahl ist eine separate GUI-Präferenz. [Technische Umsetzung und Prüfstand](docs/classic/CLASSIC_GUI.md). Diese Erweiterung ist nicht Bestandteil des unveränderten offiziellen v1.0-Downloads und wird erst nach Freigabe übernommen.

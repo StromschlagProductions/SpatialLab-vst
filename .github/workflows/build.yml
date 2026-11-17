@@ -36,6 +36,7 @@ jobs:
         run: |
           python Tools/check_episode_artwork.py
           python Tools/check_protected_audio.py
+          python Tools/check_classic_scope.py
       - name: Configure (JUCE 8.0.6, VS 2022 x64)
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DBUILD_TESTING=ON
       - name: Build VST3 and tests
@@ -47,6 +48,39 @@ jobs:
         run: |
           ctest --test-dir build -C Release --output-on-failure | Tee-Object -FilePath build/ctest-results.txt
           if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
+      - name: pluginval 1.0.4 strictness level 8
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/pluginval | Out-Null
+          Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/download/v1.0.4/pluginval_Windows.zip -OutFile build/pluginval.zip
+          if ((Get-FileHash build/pluginval.zip -Algorithm SHA256).Hash.ToLower() -ne "c08e61ce3b96db41636f8ec7e76f4c7e2c13ebdac7fa1b5a1f52b4f32ec715ab") { throw "pluginval checksum mismatch" }
+          Expand-Archive build/pluginval.zip build/pluginval-tool
+          & build/pluginval-tool/pluginval.exe --strictness-level 8 --validate "$pwd/build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3" --output-dir "$pwd/build/pluginval" 2>&1 | Tee-Object build/pluginval/stdout.txt
+          if ($LASTEXITCODE -ne 0) { throw "pluginval level 8 failed" }
+      - name: Preserve pluginval reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: SpatialLab-Classic-pluginval
+          path: build/pluginval/
+          if-no-files-found: ignore
+      - name: Capture all looks with the actual editor
+        shell: pwsh
+        run: |
+          foreach ($look in 0..2) {
+            $folder = "build/classic-screens/Look-$look"
+            $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--look=$look", "--silent" -PassThru
+            if (-not $preview.WaitForExit(120000)) { $preview.Kill(); throw "Look capture timed out" }
+            if ($preview.ExitCode -ne 0) { throw "Look capture failed" }
+            python Tools/validate_gui_capture.py $folder 1504x846
+            if ($LASTEXITCODE -ne 0) { throw "Look capture validation failed" }
+          }
+      - name: Upload Classic and Retro look screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: SpatialLab-Classic-Looks
+          path: build/classic-screens/
+          if-no-files-found: error
       - name: Capture real large editors and silent/audio animation sequences
         shell: pwsh
         run: |
