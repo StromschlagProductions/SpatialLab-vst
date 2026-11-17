@@ -276,8 +276,29 @@ void SpatialLabEditor::drawRotarySlider(juce::Graphics& g, int x, int y, int w, 
                                         float position, float startAngle, float endAngle, juce::Slider& control)
 {
     if(currentLook) {
-        // RADIOPHONE uses JUCE V4's outline, orange value arc and round thumb.
-        juce::LookAndFeel_V4::drawRotarySlider(g,x,y,w,h,position,startAngle,endAngle,control);
+        // Classic Dunkel/Hell: gleicher Regler wie bei LOCATIONS, RADIOPHONE usw. (JUCE V4: Ring, oranger Bogen,
+        // runder Punkt). JUCE begrenzt die Strichstaerke auf 8 px; bei den groesseren Reglern hier wirkte der Ring
+        // dadurch duenn. Darum Strichstaerke und Winkel in denselben Proportionen wie bei den anderen Plugins.
+        juce::ignoreUnused(startAngle, endAngle);
+        const float start = juce::MathConstants<float>::pi * 1.2f, end = juce::MathConstants<float>::pi * 2.8f;
+        auto bounds = juce::Rectangle<int>(x, y, w, h).toFloat().reduced(std::min(w, h) * 0.12f);
+        const float radius = std::min(bounds.getWidth(), bounds.getHeight()) * 0.5f;
+        const float toAngle = start + position * (end - start);
+        const float lineW = radius * (8.0f / 31.0f);     // wie LOCATIONS: 8 px Strich bei 31 px Radius
+        const float arcRadius = radius - lineW * 0.5f;
+        const auto c = bounds.getCentre();
+        const juce::PathStrokeType stroke(lineW, juce::PathStrokeType::curved, juce::PathStrokeType::rounded);
+        juce::Path back; back.addCentredArc(c.x, c.y, arcRadius, arcRadius, 0.0f, start, end, true);
+        g.setColour(control.findColour(juce::Slider::rotarySliderOutlineColourId)); g.strokePath(back, stroke);
+        if (control.isEnabled()) {
+            juce::Path value; value.addCentredArc(c.x, c.y, arcRadius, arcRadius, 0.0f, start, toAngle, true);
+            g.setColour(control.findColour(juce::Slider::rotarySliderFillColourId)); g.strokePath(value, stroke);
+        }
+        const float thumb = lineW * 2.0f;
+        const juce::Point<float> tp(c.x + arcRadius * std::cos(toAngle - juce::MathConstants<float>::halfPi),
+                                    c.y + arcRadius * std::sin(toAngle - juce::MathConstants<float>::halfPi));
+        g.setColour(control.findColour(juce::Slider::thumbColourId));
+        g.fillEllipse(juce::Rectangle<float>(thumb, thumb).withCentre(tp));
         return;
     }
     const auto bounds = juce::Rectangle<float>(static_cast<float>(x), static_cast<float>(y),
