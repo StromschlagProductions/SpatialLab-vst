@@ -70,7 +70,7 @@ public:
                 g.setColour(accent);
                 g.fillRoundedRectangle(21, y + 1, width-38, rowHeight - 2, 2);
             }
-            g.setColour(active ? juce::Colour(0xff182326) : ink.withAlpha(header ? .78f : 1.0f));
+            g.setColour(active ? (classicLook?juce::Colour(0xff182326):juce::Colour(0xff100b05)) : ink.withAlpha(header ? .78f : 1.0f));
             g.setFont(juce::FontOptions(header ? 16.0f : 18.0f, juce::Font::bold));
             if (header)
             {
