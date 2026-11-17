@@ -1,36 +1,45 @@
-# Zusätzliche Classic-Oberfläche
+# Oberflächen von SPATIAL LAB
 
-Branch: feature/classic-gui. Kein zweites Plugin, kein Release und keine Zusammenführung nach main.
+Version 1.1.0 bietet Retro sowie Classic Dunkel und Classic Hell im selben Plugin. PR #4 wurde nach erfolgreicher Abnahme nach `main` übernommen. Die offizielle Veröffentlichung ist freigegeben.
 
 ## Oberflächen direkt vergleichen
 
-Unveränderte echte Windows-Screenshots aus dem [erfolgreichen CI-Lauf 44039981196](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44039981196), jeweils 1504 × 846 Pixel. Keine Neuberechnung, Bildbearbeitung oder Skalierung der gespeicherten PNGs.
+Die Retro-Skins sind das ursprüngliche, charakteristische Gerätedesign: zuerst Episode I, dann Episode IV. Danach folgen Classic Dunkel und Classic Hell als schlichte Alternativen. Alle Aufnahmen stammen aus dem [vollständig erfolgreichen v1.1.0-Prüflauf 44047686119](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44047686119) und haben nativ 1504 × 846 Pixel.
 
-### Retro – Episode I mit Zahnrad
+### Retro Episode I – fabrikneu
 
-![SPATIAL LAB Retro – Episode I mit Zahnrad oben rechts](screenshots/Retro-Episode-I.png)
+![SPATIAL LAB Retro Episode I – fabrikneu](screenshots/v1.1.0/Retro-Episode-I.png)
 
-Quelle: Artefakt `SpatialLab-Phase3B-Screenshots`, `Episode-I/Room-0/Windows-Editor-Screenshot.png`. Das separate Look-Paket enthält als Retro-Beispiel Episode IV; hier wird ausdrücklich Episode I gezeigt.
+### Retro Episode IV – verwittert
 
-### Classic Dunkel
+![SPATIAL LAB Retro Episode IV – verwittert](screenshots/v1.1.0/Retro-Episode-IV.png)
 
-![SPATIAL LAB Classic Dunkel](screenshots/Classic-Dunkel.png)
+### Classic Dunkel – schlichte Alternative
 
-Quelle: Artefakt `SpatialLab-Classic-Looks`, `Look-1/Windows-Editor-Screenshot.png`.
+![SPATIAL LAB Classic Dunkel – schlichte Alternative](screenshots/v1.1.0/Classic-Dunkel.png)
 
-### Classic Hell
+### Classic Hell – schlichte Alternative
 
-![SPATIAL LAB Classic Hell](screenshots/Classic-Hell.png)
+![SPATIAL LAB Classic Hell – schlichte Alternative](screenshots/v1.1.0/Classic-Hell.png)
 
-Quelle: Artefakt `SpatialLab-Classic-Looks`, `Look-2/Windows-Editor-Screenshot.png`.
+Die Classic-Aufnahmen zeigen die finalen RADIOPHONE-artigen Drehregler mit orangefarbenem Wertebogen und den Untertitel rechts neben SPATIAL LAB. Die Retro-Aufnahmen zeigen beide Skins mit dem Look-Zahnrad oben rechts.
 
-Die drei Dateien liegen dauerhaft in diesem Branch unter `docs/classic/screenshots/` und sind bytegleich zu den genannten CI-Aufnahmen. Die Einbettung dient der optischen Beurteilung; sie ersetzt keine persönliche Bedienprüfung in der DAW.
+### Bildherkunft
+
+| Ansicht | CI-Artefakt | Originalpfad im Artefakt |
+|---|---|---|
+| Retro Episode I | SpatialLab-Phase3B-Screenshots | Episode-I/Room-0/Windows-Editor-Screenshot.png |
+| Retro Episode IV | SpatialLab-Phase3B-Screenshots | Episode-IV/Room-0/Windows-Editor-Screenshot.png |
+| Classic Dunkel | SpatialLab-Classic-Looks | Look-1/Windows-Editor-Screenshot.png |
+| Classic Hell | SpatialLab-Classic-Looks | Look-2/Windows-Editor-Screenshot.png |
+
+Die vier PNGs unter `docs/classic/screenshots/v1.1.0/` wurden bytegleich aus diesen Artefakten übernommen und visuell geprüft. Keine Neuzeichnung, Simulation, Bildbearbeitung, Skalierung oder neuer Plugin-Build. Die historischen Dateien unter `docs/classic/screenshots/` und `docs/release-v1/screenshots/` bleiben unverändert erhalten.
 
 ## Bestandsaufnahme und Wiederverwendung
 
 SpatialLabEditor besitzt bereits die beiden Slider samt SliderParameterAttachments, PresetBrowser, die unabhängige Episode-Präferenz und einen Editor-Timer. Diese Instanzen bleiben bestehen. Die Erweiterung ergänzt ausschließlich einen Look-Zustand und alternative Anordnung/Zeichnung im selben Editor. Kein eigener Classic-Prozessor, keine separaten Parameter, keine Änderungen an AudioProcessor, Raumkatalog, DSP oder Audio-State.
 
-Gestalterische Referenz: [Locations-vst PluginEditor.cpp](https://github.com/StromschlagProductions/Locations-vst/blob/d6a1a565842c23b313878d111e57c0aff2b1b630/Source/PluginEditor.cpp), insbesondere die Dunkel-/Hell-Paletten und Kopfzeile mit Original-Logo als Tintenmaske. Farben zentral in ClassicTheme.h; keine separate Hell-/Dunkel-Implementierung.
+Gestalterische Referenz: [Locations-vst PluginEditor.cpp](https://github.com/StromschlagProductions/Locations-vst/blob/d6a1a565842c23b313878d111e57c0aff2b1b630/Source/PluginEditor.cpp), insbesondere die Dunkel-/Hell-Paletten und Kopfzeile mit Original-Logo als Tintenmaske. Die finalen Classic-Regler folgen [RADIOPHONE](https://github.com/StromschlagProductions/Radiophone-vst/blob/f38f04eab69446891fd99b9f2b4284abadacaa53/Source/PluginEditor.cpp): JUCE V4, orangefarbener Wertebogen und runde Positionsmarkierung. Der Untertitel steht rechts neben dem Titel; seine Position folgt der tatsächlichen Titelbreite. Farben zentral in ClassicTheme.h; keine separate Hell-/Dunkel-Implementierung.
 
 ## Bedienung
 
@@ -44,11 +53,19 @@ Röhren, Glut und Raumzeichnungen werden nur im Retro-Modus gezeichnet. Classic 
 
 ## Abgrenzung und Prüfung
 
-Tools/check_classic_scope.py sichert zwölf unveränderte Release-Dateien per SHA-256: Prozessor/State/Identität, beide Engines, Katalog, RetroMotion, GuiTelemetry, GuiPreferences sowie Originalfrontplatten und Logo. Nur Git-Zeilenenden der Quelltexte werden kanonisiert; PNGs bleiben binär unverändert. CMake ergänzt lediglich die vorhandene Logo-PNG als eingebettete GUI-Ressource, ohne Plugin-ID oder Version zu ändern.
+Tools/check_classic_scope.py sichert zwölf unveränderte Release-Dateien per SHA-256: Prozessor/State/Identität, beide Engines, Katalog, RetroMotion, GuiTelemetry, GuiPreferences sowie Originalfrontplatten und Logo. Nur Git-Zeilenenden der Quelltexte werden kanonisiert; PNGs bleiben binär unverändert. CMake ergänzt lediglich die vorhandene Logo-PNG als eingebettete GUI-Ressource, ohne Plugin-IDs zu ändern. Die offizielle Versionsnummer ist 1.1.0.
 
 Erweiterte GUI-Tests prüfen wiederholte Look-/Episode-Wechsel, bytegleichen Audio-State und samplegleiches Audio gegenüber einer Instanz ohne Lookwechsel, 26 Direktwahlen je Look bei drei Größen, unabhängige Persistenz und unverändert drei Audio-Parameter. Bestehende Audio-/GUI-/Lichttests bleiben aktiv. Windows-CI ergänzt pluginval v1.0.4 mit festem Paket-Hash und strictness level 8 sowie echte Desktop-Aufnahmen der drei Looks.
 
-## Prüfnachweise
+## Finale Prüfnachweise für v1.1.0
+
+- [Vollständige Windows-/Linux-Abnahme](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44047686119): beide Jobs erfolgreich. Alle sechs Windows-CTest-Tests bestanden, Linux ASan/UBSan bestanden, unveränderte Originalgrafiken und DSP-Dateien sowie Hersteller-/VST3-IDs geprüft. Bestehende Retro-Lichtprüfungen, 52 Umgebungsaufnahmen und DSP-Messvergleiche ebenfalls erfolgreich.
+- [pluginval Level 8](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44047686119/artifacts/14311794682) erfolgreich.
+- [Herkunftsnachweis und Testzusammenfassung](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44047686119/artifacts/14313177559): getesteter Build-Commit `28fc8331b3f17491cf29abd5275e5f463cb9dabb`, Version 1.1.0. Alle Build-Eingaben auf `main` stimmen mit diesem Build überein; diese Bildkorrektur betrifft ausschließlich README, Dokumentation und zusätzliche Screenshots.
+- [Geprüftes Windows-x64-VST3-Paket](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44047686119/artifacts/14313272251). SHA-256 des inneren Installations-ZIP: `a4dd1a8ade87b633310c6abefaacafecdaa60060fe9228152067f75685a4ac30`.
+
+## Historische erste Classic-Abnahme
+
 
 Code-Stand: `81f9dc1c2b6ec1e5a1a66cc8e43022b7789e29aa`.
 
@@ -62,4 +79,4 @@ Lokal bestanden alle vier Release-DSP-Tests und der unveränderte Release-Dateie
 
 Installation wie beim bestehenden Plugin: den vollständigen Ordner nach `C:\Program Files\Common Files\VST3\` kopieren und die DAW neu scannen lassen. Da dies dieselbe Plugin-Identität ist, ersetzt das Testpaket die bisherige Installation; bei Bedarf vorher sichern. Actions-Downloads benötigen eine GitHub-Anmeldung und sind zeitlich befristet.
 
-Kein öffentlicher Release und kein Merge. Die abschließende Bedienprüfung in der eigenen DAW bleibt sinnvoll; eine Freigabe durch den Anwender wird nicht vorweggenommen.
+Die abschließende Bedienprüfung in der eigenen DAW bleibt sinnvoll; eine Freigabe durch den Anwender wird nicht vorweggenommen.

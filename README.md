@@ -38,31 +38,29 @@ Die separate **Outdoor-Engine** erzeugt diskrete Stereo-Reflexionen mit individu
 
 SPATIAL LAB liefert **immer 100 % Wet** und ist für FX-/Send-Kanäle ausgelegt. Es gibt keinen Dry/Wet- oder Ausgangspegel-Regler. Den Effektanteil stellst du mit dem Send-Pegel in der DAW ein.
 
-## Drei Oberflächen im selben Plugin
+## Oberflächen
 
-Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in der Classic-Kopfzeile wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Die Darstellung wird unabhängig von den Audioeinstellungen gespeichert. Alle Looks verwenden dieselben 26 Presets und SIZE/TONE-Parameter; Klang, Automation und gespeicherte Audioeinstellungen bleiben beim Wechsel erhalten.
+**Retro ist das ursprüngliche, charakteristische Design von SPATIAL LAB:** Episode I zeigt das fabrikneue Gerät, Episode IV die verwitterte Standardansicht. Classic Dunkel und Classic Hell sind schlichte Alternativen.
 
-**Classic Dunkel**
+### Retro Episode I – fabrikneu
 
-![Classic Dunkel: echte Windows-Oberfläche](docs/classic/screenshots/Classic-Dunkel.png)
+![SPATIAL LAB Retro Episode I – fabrikneu](docs/classic/screenshots/v1.1.0/Retro-Episode-I.png)
 
-**Classic Hell**
+### Retro Episode IV – verwittert
 
-![Classic Hell: echte Windows-Oberfläche](docs/classic/screenshots/Classic-Hell.png)
+![SPATIAL LAB Retro Episode IV – verwittert](docs/classic/screenshots/v1.1.0/Retro-Episode-IV.png)
 
-Classic bietet SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen. Der Preset-Browser ist in allen Looks derselbe. [Weitere Screenshots und technische Details](docs/classic/CLASSIC_GUI.md).
+### Classic Dunkel – schlichte Alternative
 
-### Retro mit Episode I und IV
+![SPATIAL LAB Classic Dunkel – schlichte Alternative](docs/classic/screenshots/v1.1.0/Classic-Dunkel.png)
 
-**Episode I – fabrikneu, mit Look-Auswahl**
+### Classic Hell – schlichte Alternative
 
-![Episode I: aktuelle Windows-Oberfläche mit Zahnrad](docs/classic/screenshots/Retro-Episode-I.png)
+![SPATIAL LAB Classic Hell – schlichte Alternative](docs/classic/screenshots/v1.1.0/Classic-Hell.png)
 
-**Episode IV – verwittert, Standardansicht**
+Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.1.0-Builds. Die Classic-Ansichten zeigen SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen und die überarbeitete Kopfzeile.
 
-Die Retro-Episode-IV-Grafik ist unverändert. Eine aktuelle Episode-IV-Aufnahme mit Zahnrad steht noch nicht als Repository-Screenshot bereit. [Historische v1.0-Ansicht](docs/release-v1/screenshots/Episode-IV.png).
-
-Die Bilder zeigen den Editor als echte Windows-Desktop-Aufnahmen. Der kosmetische Episode-Schalter verändert keine Audioeinstellungen. Beide Originalfrontplatten sind unverändert eingebettet.
+Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in Classic wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Episode I/IV wird weiterhin im Retro-Modus gewählt. Die Auswahl ist rein kosmetisch; alle Ansichten teilen dieselben Presets und Parameter. [GUI-Dokumentation und Bildherkunft](docs/classic/CLASSIC_GUI.md). Die historischen Screenshots bleiben im Repository erhalten.
 
 ## Installation
 
