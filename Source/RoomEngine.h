@@ -9,6 +9,8 @@
 
 namespace spatiallab
 {
+inline float finiteControl(float x) noexcept { return std::isfinite(x) ? std::clamp(x,0.0f,1.0f) : 0.5f; }
+
 struct Stereo { float left = 0.0f, right = 0.0f; };
 struct Reflections { Stereo early, late; };
 
@@ -201,6 +203,8 @@ class Engine
 public:
     void prepare(double rate, int room, float sizeValue, float tone)
     {
+        rate = std::isfinite(rate) && rate >= 8000 && rate <= 384000 ? rate : 48000;
+        room = std::clamp(room, 0, roomCount - 1); sizeValue = finiteControl(sizeValue); tone = finiteControl(tone);
         sampleRate = rate;
         const float decay = std::exp2(2.0f * (sizeValue - 0.5f));
         // Preallocate all presets so selecting a room can never allocate on the audio thread.
@@ -214,6 +218,7 @@ public:
     }
     void set(int room, float sizeValue, float tone, bool forceReset = false) noexcept
     {
+        room = std::clamp(room, 0, roomCount - 1); sizeValue = finiteControl(sizeValue); tone = finiteControl(tone);
         if (sizeValue != lastSize)
         {
             decayMultiplier = std::exp2(2.0f * (sizeValue - 0.5f));
@@ -232,6 +237,7 @@ public:
     void reset() noexcept { for (auto& room : reverbs) room.reset(); outdoor.reset(); }
     Stereo process(float left, float right) noexcept
     {
+        left = std::isfinite(left) ? left : 0.0f; right = std::isfinite(right) ? right : 0.0f;
         if(switching)
         {
             switchGain=std::max(0.0f,switchGain-fadeStep);
