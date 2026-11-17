@@ -110,6 +110,10 @@ ctest --test-dir build -C Release --output-on-failure
 
 Vollständige Windows-/GUI- und Linux-Sanitizer-Prüfungen laufen bei relevanten Pull-Request-Änderungen und gezielter manueller Abnahme. Kein doppelter Push-Trigger und keine automatische Veröffentlichung. Die bisherigen 19 Raumantworten werden gegen den eingefrorenen Vorgänger geprüft. Weitere Architektur- und Messdetails stehen in [der technischen Dokumentation](docs/phase3b/PHASE3B.md); ältere Phasenberichte sind historische Entwicklungsnachweise.
 
+## Beta-Test und Danke
+
+**SOUNDJOB / Markus Hildebrandt** – Beta-Testing
+
 ---
 
 ## Hinweis / Disclaimer
