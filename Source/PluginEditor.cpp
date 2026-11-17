@@ -58,13 +58,14 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     setEpisodeIV(guiSettings->getBoolValue("episodeIV", true), false);
     button(listUp, "Raum nach oben", [this] { selectRoom((selectedRoom() + 25) % 26); });
     button(listDown, "Raum nach unten", [this] { selectRoom((selectedRoom() + 1) % 26); });
-    button(lookGear,"Look",[this] {
+    const juce::Component::SafePointer<SpatialLabEditor> safeEditor(this);
+    button(lookGear,"Look",[this,safeEditor] {
         juce::PopupMenu menu;
         menu.addItem(1,"Retro",true,currentLook==0);
         menu.addItem(2,"Classic Dunkel",true,currentLook==1);
         menu.addItem(3,"Classic Hell",true,currentLook==2);
         menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&lookGear),
-            [safe=juce::Component::SafePointer<SpatialLabEditor>(this)](int id){if(safe && id>0)safe->setLook(id-1);});
+            [safeEditor](int id){if(safeEditor && id>0)safeEditor->setLook(id-1);});
     });
     lookGear.setTooltip(juce::String::fromUTF8("Darstellung wählen"));
     lookSelector.setName("Look-Auswahl");
