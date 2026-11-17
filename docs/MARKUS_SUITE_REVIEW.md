@@ -59,3 +59,9 @@ Vorhandene Radiophone-DSP-Tests und vier SpatialLab-Suites bestanden unveränder
 Die vollständigen lokalen Plugin-/Prozessortests und pluginval werden zusätzlich ausgeführt. Windows-Releases werden erst durch ihre erfolgreich abgeschlossenen Build-/Regression-/pluginval-Schritte freigegeben. Der endgültige Status und die Download-Links stehen in den jeweiligen GitHub-Releases und Pull Requests.
 
 Die Veröffentlichung der geprüften neuesten Versionen wurde vom Eigentümer ausdrücklich beauftragt. Alte Releases werden nicht gelöscht. Für Doppelganger ist 1.2 bereits aktuell; ein inhaltsgleiches neues Release ist nicht notwendig.
+
+## Ergänzung: Doppelganger 1.3 – Listen als Differenzsignal
+
+Nach dem ursprünglichen Suite-Audit hat der Eigentümer zusätzlich eine Änderung des Listen-Modus beauftragt. Version 1.3 hört deshalb die tatsächliche Differenz direkt vor/nach der De-Esser-Absenkung statt des Detektor-Hochpasses ab. Die Monitorumschaltung wird über 10 ms überblendet, beide Pfade erhalten dieselbe Grundverstärkung/Leveler-Verstärkung. Eine vollständig abgeklungene Absenkung endet bei exakter Neutralstellung. Ein Test bei fünf Sample-Rates prüft sampleweise: normaler Ausgang plus entfernter Anteil rekonstruiert das Signal vor dem De-Esser (im Test mit deaktiviertem Leveler). Zusätzlich wird Stille bei abgeschaltetem De-Esser geprüft.
+
+Der aktive Knopf zeigt **DIFF**; Hilfetext und Tooltip erklären die neue Funktion. Die Differenz kann auch Stimmanteile enthalten – gerade damit lässt sich eine zu starke Bearbeitung beurteilen. Dieser neue Auftrag macht für Doppelganger doch eine neue Veröffentlichung erforderlich; die obige Feststellung zu unverändertem 1.2 beschreibt den Stand vor dieser Ergänzung.
