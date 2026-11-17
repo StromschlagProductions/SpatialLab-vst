@@ -115,3 +115,5 @@ Wenn dieses kleine Werkzeug auch anderen die Hörspielarbeit erleichtert und meh
 ## Classic GUI – Entwicklungsbranch
 
 Auf `feature/classic-gui` ergänzt eine zusätzliche Look-Auswahl **Retro / Classic Dunkel / Classic Hell**. Browser, SIZE/TONE und Audio-Engine werden gemeinsam verwendet. Retro behält seinen Episode-Schalter; die Look-Wahl ist eine separate GUI-Präferenz. [Technische Umsetzung und Prüfstand](docs/classic/CLASSIC_GUI.md). Diese Erweiterung ist nicht Bestandteil des unveränderten offiziellen v1.0-Downloads und wird erst nach Freigabe übernommen.
+
+[Echte Windows-Screenshots aller drei Looks herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44039981196/artifacts/14309940204) · [Windows-/Linux-Prüflauf und Testartefakte](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44039981196). Für Actions-Artefakte ist eine GitHub-Anmeldung erforderlich; die Downloads unterliegen der Aufbewahrungsfrist von GitHub Actions.
