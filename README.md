@@ -13,9 +13,9 @@ Aus diesem Frust entstand die Idee zu **SPATIAL LAB**: Statt immer neue Hallbibl
 
 Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich perfekten Hall zu suchen. Ich möchte Geschichten erzählen – und mich auf die Stimmen, Geräusche und die Atmosphäre konzentrieren, die eine Szene lebendig machen.
 
-**[SPATIAL LAB v1.1 für Windows herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.1.0)**
+**SPATIAL LAB v1.1.0 – Quellcode auf `main`, offizieller Windows-Download in Vorbereitung.**
 
-[Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.1.0/SpatialLab-v1.1.0-Windows-x64-VST3.zip) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
+[Verfügbare Releases](https://github.com/StromschlagProductions/SpatialLab-vst/releases) · [Getestetes v1.1.0-Windows-Paket (GitHub-Anmeldung erforderlich)](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44047686119/artifacts/14313272251) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
 
 ## 26 Umgebungen, vier Kategorien
 
@@ -54,19 +54,19 @@ Classic bietet SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen. Der P
 
 ### Retro mit Episode I und IV
 
-**Episode I – fabrikneu**
+**Episode I – fabrikneu, mit Look-Auswahl**
 
-![Episode I: echte Windows-Oberfläche](docs/release-v1/screenshots/Episode-I.png)
+![Episode I: aktuelle Windows-Oberfläche mit Zahnrad](docs/classic/screenshots/Retro-Episode-I.png)
 
 **Episode IV – verwittert, Standardansicht**
 
-![Episode IV: echte Windows-Oberfläche](docs/release-v1/screenshots/Episode-IV.png)
+Die Retro-Episode-IV-Grafik ist unverändert. Eine aktuelle Episode-IV-Aufnahme mit Zahnrad steht noch nicht als Repository-Screenshot bereit. [Historische v1.0-Ansicht](docs/release-v1/screenshots/Episode-IV.png).
 
 Die Bilder zeigen den Editor als echte Windows-Desktop-Aufnahmen. Der kosmetische Episode-Schalter verändert keine Audioeinstellungen. Beide Originalfrontplatten sind unverändert eingebettet.
 
 ## Installation
 
-1. Die Datei **SpatialLab-v1.1.0-Windows-x64-VST3.zip** vom offiziellen Release herunterladen.
+1. Nach Veröffentlichung die Datei **SpatialLab-v1.1.0-Windows-x64-VST3.zip** vom offiziellen Release herunterladen. Bis dahin steht das getestete Windows-Paket oben als CI-Artefakt bereit.
 2. DAW schließen und das ZIP vollständig entpacken.
 3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
 4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.
