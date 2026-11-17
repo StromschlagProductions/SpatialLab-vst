@@ -39,3 +39,10 @@ gh pr edit 2 --repo StromschlagProductions/SpatialLab-vst --add-label ci:full
 Falls das Label noch fehlt, einmalig im Repository anlegen (`gh label create ci:full --repo StromschlagProductions/SpatialLab-vst --description 'Explicit complete Windows/Linux acceptance' --color 8A2BE2`). Danach nur dann zum PR hinzufügen, wenn eine vollständige Abnahme gewünscht ist. Ein liegengebliebenes Label startet **keinen** weiteren Windows-Lauf bei synchronize: Nur das neue labeled-Ereignis zählt. Andere Labels starten keinen Runner. Die vollständige Linux-Suite läuft beim Vollabnahme-Label mit; normale relevante PR-Updates führen nur die drei kurzen Tests aus. Concurrency derselben PR bricht überholte Abnahmen ab.
 
 Das Repository-Label wurde angelegt, aber keinem PR hinzugefügt. Der Labelweg wurde konfiguriert, aber nicht ausgelöst: Der bereits erfolgreiche Phase-3B-Lauf wird nicht wiederholt. Nach späterer Übernahme der Workflowdatei auf die Default-Branch steht zusätzlich der oben dokumentierte workflow_dispatch-Weg bereit.
+
+## Veröffentlichung (ab 1.1.2)
+
+1. Actions → **Build and test** → Run workflow auf `main` (full_windows an). Die Laufnummer notieren.
+2. Actions → **Publish verified SPATIAL LAB release** → Run workflow mit dem neuen Tag (z. B. `v1.1.3`) und der Laufnummer aus Schritt 1.
+
+Den Tag muss niemand vorher anlegen: Fehlt er, legt der Veröffentlichungs-Workflow ihn selbst auf genau dem Commit an, den die Abnahme getestet hat. Alle bisherigen Prüfungen (Paket-Prüfsumme, Build-Eingaben, Versionsnummer, pluginval, Tests) bleiben unverändert.
