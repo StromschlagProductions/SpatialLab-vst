@@ -18,7 +18,7 @@ class Preview final : public juce::JUCEApplication, private juce::Timer
 {
 public:
     const juce::String getApplicationName() override { return "SpatialLab GUI Preview"; }
-    const juce::String getApplicationVersion() override { return "1.0.0"; }
+    const juce::String getApplicationVersion() override { return "1.1.0"; }
     void initialise(const juce::String& args) override
     {
 #if JUCE_WINDOWS
@@ -26,12 +26,13 @@ public:
         SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
 #endif
         bool episodeIV = true;
-        int roomIndex = 0;
+        int roomIndex = 0, lookIndex=0;
         float knob = 0.5f;
         int width = 1504, height = 846;
         const auto tokens = juce::StringArray::fromTokens(args, true);
         for (const auto& token : tokens)
         {
+            if (token.startsWith("--look=")) lookIndex=juce::jlimit(0,2,token.fromFirstOccurrenceOf("=",false,false).getIntValue());
             if (token.startsWith("--knob=")) knob = token.fromFirstOccurrenceOf("=",false,false).getFloatValue();
             if (token == "--allow-render-only") allowRenderOnly = true;
             if (token == "--silent") silent = true;
@@ -75,6 +76,7 @@ public:
         auto* editor = output == juce::File() ? new SpatialLabEditor(*processor)
             : new SpatialLabEditor(*processor, output.getChildFile("preview.gui.settings"));
         if (output != juce::File()) editor->setEpisodeIV(episodeIV, false);
+        editor->setLook(lookIndex,false);
         editor->setSize(width,height);
         window->setContentOwned(editor, true);
         window->setTopLeftPosition(0, 0);

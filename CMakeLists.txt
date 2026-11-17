@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(SpatialLab VERSION 1.0.0 LANGUAGES CXX)
+project(SpatialLab VERSION 1.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -32,7 +32,7 @@ if(SPATIALLAB_BUILD_PLUGIN)
         GIT_PROGRESS TRUE)
     FetchContent_MakeAvailable(JUCE)
     juce_add_binary_data(SpatialLabArtwork HEADER_NAME SpatialLabArtwork.h NAMESPACE SpatialLabArtwork
-        SOURCES assets/SpatialLab_Episode_I.png assets/SpatialLab_Episode_IV.png)
+        SOURCES assets/SpatialLab_Episode_I.png assets/SpatialLab_Episode_IV.png assets/Stromschlag_Audio_Original_Logo.png)
     juce_add_plugin(SpatialLab
         COMPANY_NAME "Stromschlag Audio"
         BUNDLE_ID "com.stromschlagaudio.spatiallab"

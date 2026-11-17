@@ -1,6 +1,7 @@
 #pragma once
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "RoomCatalog.h"
+#include "ClassicTheme.h"
 
 // A message-thread-only view of the existing semantic room indices. No audio state.
 class PresetBrowser final : public juce::Component
@@ -13,6 +14,8 @@ public:
         rebuildRows();
     }
 
+    void setClassicPresentation(int look, float uiScale)
+    { classicLook=look; classicScale=uiScale; clampScroll(); repaint(); }
     std::function<void(int)> onRoomSelected;
     int getSelectedRoom() const noexcept { return selected; }
     float getScrollOffset() const noexcept { return scroll; }
@@ -49,9 +52,12 @@ public:
 
     void paint(juce::Graphics& g) override
     {
-        g.fillAll(juce::Colour(0xff090805));
+        const auto theme=ClassicTheme::forLight(classicLook==2);
+        const auto ink=classicLook?theme.text:amber;
+        const auto accent=classicLook?theme.accent:amber;
+        g.fillAll(classicLook?theme.panel:juce::Colour(0xff090805));
         g.addTransform(juce::AffineTransform::scale(factor()));
-        const float height = visibleHeight();
+        const float height = visibleHeight(), width=logicalWidth();
         for (int i = 0; i < rowCount; ++i)
         {
             const auto row = rows[i];
@@ -61,10 +67,10 @@ public:
             const bool active = !header && row.room == selected;
             if (active)
             {
-                g.setColour(amber);
-                g.fillRoundedRectangle(21, y + 1, 397, rowHeight - 2, 2);
+                g.setColour(accent);
+                g.fillRoundedRectangle(21, y + 1, width-38, rowHeight - 2, 2);
             }
-            g.setColour(active ? juce::Colour(0xff100b05) : amber.withAlpha(header ? .78f : 1.0f));
+            g.setColour(active ? (classicLook?juce::Colour(0xff182326):juce::Colour(0xff100b05)) : ink.withAlpha(header ? .78f : 1.0f));
             g.setFont(juce::FontOptions(header ? 16.0f : 18.0f, juce::Font::bold));
             if (header)
             {
@@ -75,22 +81,22 @@ public:
                 { arrow.startNewSubPath(7,y+7); arrow.lineTo(12,y+11); arrow.lineTo(7,y+15); }
                 arrow.closeSubPath(); g.fillPath(arrow);
                 g.drawText(juce::String::fromUTF8(groups[row.category].name),
-                           juce::Rectangle<float>(19,y,399,rowHeight),juce::Justification::centredLeft,false);
+                           juce::Rectangle<float>(19,y,width-35,rowHeight),juce::Justification::centredLeft,false);
             }
             else
                 g.drawText((active ? juce::String::fromUTF8("› ") : juce::String())
                            + juce::String::fromUTF8(spatiallab::roomNames[row.room]),
-                           juce::Rectangle<float>(28,y,386,rowHeight),juce::Justification::centredLeft,false);
+                           juce::Rectangle<float>(28,y,width-49,rowHeight),juce::Justification::centredLeft,false);
         }
         // Subtle phosphor lines; the front-panel bezel remains entirely in the artwork.
         g.setColour(juce::Colours::black.withAlpha(.10f));
-        for (int y = 0; y < height; y += 4) g.drawHorizontalLine(y,0,422);
+        if(!classicLook) for (int y = 0; y < height; y += 4) g.drawHorizontalLine(y,0,width-13);
         if (maxScroll() > 0)
         {
-            g.setColour(amber.withAlpha(.13f)); g.fillRoundedRectangle(426,0,5,height,2);
+            g.setColour(accent.withAlpha(.13f)); g.fillRoundedRectangle(width-9,0,5,height,2);
             const float thumbHeight = height * height / (rowCount * rowHeight);
             const float thumbY = scroll / maxScroll() * (height - thumbHeight);
-            g.setColour(amber.withAlpha(.7f)); g.fillRoundedRectangle(426,thumbY,5,thumbHeight,2);
+            g.setColour(accent.withAlpha(.7f)); g.fillRoundedRectangle(width-9,thumbY,5,thumbHeight,2);
         }
     }
 
@@ -98,7 +104,7 @@ public:
     {
         if (!e.mods.isLeftButtonDown()) return;
         const auto p = e.position / factor();
-        if (p.x >= 422 && maxScroll() > 0)
+        if (p.x >= logicalWidth()-13 && maxScroll() > 0)
         {
             draggingScroll = true;
             const float height = visibleHeight();
@@ -139,7 +145,10 @@ private:
     bool draggingScroll = false;
     static constexpr float rowHeight = 23;
     const juce::Colour amber {0xffffad19};
-    float factor() const { return std::max(.01f,getWidth()/435.0f); }
+    int classicLook=0;
+    float classicScale=1;
+    float factor() const { return classicLook?std::max(.01f,classicScale):std::max(.01f,getWidth()/435.0f); }
+    float logicalWidth() const { return getWidth()/factor(); }
     float visibleHeight() const { return getHeight()/factor(); }
     float maxScroll() const { return std::max(0.0f,rowCount*rowHeight-visibleHeight()); }
     void clampScroll() { scroll = juce::jlimit(0.0f,maxScroll(),scroll); }
@@ -166,7 +175,7 @@ private:
         for (int i = 0; i < rowCount; ++i)
             if ((room >= 0 && rows[i].room == room)
                 || (category >= 0 && rows[i].room < 0 && rows[i].category == category))
-                return {0,(i*rowHeight-scroll)*factor(),420*factor(),rowHeight*factor()};
+                return {0,(i*rowHeight-scroll)*factor(),(logicalWidth()-15)*factor(),rowHeight*factor()};
         return {};
     }
 };

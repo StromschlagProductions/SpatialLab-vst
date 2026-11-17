@@ -70,6 +70,51 @@ int main()
             { SpatialLabEditor editor(p,preferences.getFile()); editor.setSize(2174,1223); }
             { SpatialLabEditor editor(p,preferences.getFile()); require(editor.getWidth()==2174 && editor.getHeight()==1223,"New maximum size not restored"); }
         }
+        {
+            SpatialLabProcessor p, reference;
+            for(auto* processor:{&p,&reference}) {set(*processor,"room",13);set(*processor,"size",.37f);set(*processor,"tone",.64f);processor->prepareToPlay(48000,127);}
+            juce::TemporaryFile settings(".gui.settings");
+            {
+                SpatialLabEditor editor(p,settings.getFile());
+                PresetBrowser* browser=nullptr;
+                for(auto* child:editor.getChildren())if(auto* b=dynamic_cast<PresetBrowser*>(child))browser=b;
+                require(browser!=nullptr,"Shared browser missing");
+                for(int cycle=0;cycle<12;++cycle)for(int look:{0,1,2}) {
+                    juce::MemoryBlock before,after;p.getStateInformation(before);
+                    editor.setLook(look);editor.setEpisodeIV(cycle%2==0);
+                    p.getStateInformation(after);require(before==after,"Cosmetic look/episode altered audio state");
+                    require(editor.getLook()==look && p.getParameters().size()==3,"Look added parameters");
+                    juce::AudioBuffer<float> a(2,127),b(2,127);juce::MidiBuffer midi;
+                    for(int c=0;c<2;++c)for(int i=0;i<127;++i){float x=std::sin(float(cycle*127+i)*.07f)*.1f;a.setSample(c,i,x);b.setSample(c,i,x);}
+                    p.processBlock(a,midi);reference.processBlock(b,midi);
+                    for(int c=0;c<2;++c)for(int i=0;i<127;++i)require(a.getSample(c,i)==b.getSample(c,i),"Look changed audio samples");
+                }
+                for(int look:{0,1,2}) {
+                    editor.setLook(look);
+                    for(auto dimensions:{std::pair<int,int>{1003,565},{1504,846},{2174,1223}}) {
+                        editor.setSize(dimensions.first,dimensions.second);
+                        for(int room=0;room<26;++room) {
+                            browser->revealRoom(room);click(*browser,browser->roomBounds(room));
+                            require(browser->getSelectedRoom()==room && juce::roundToInt(p.parameter("room")->convertFrom0to1(p.parameter("room")->getValue()))==room,"Look browser mapping failed");requireVisible(*browser,room);
+                        }
+                    }
+                }
+                editor.setEpisodeIV(false);editor.setLook(2);
+            }
+            { SpatialLabEditor reopened(p,settings.getFile());require(reopened.getLook()==2 && !reopened.isEpisodeIV(),"Look/episode persistence is coupled");
+              juce::MemoryBlock before,after;p.getStateInformation(before);reopened.setLook(0);reopened.setLook(1);p.getStateInformation(after);require(before==after,"Reopening look altered session"); }
+        }
+        {
+            SpatialLabProcessor p;juce::TemporaryFile settings(".gui.settings");
+            for(int look:{0,1,2}) {
+                {SpatialLabEditor e(p,settings.getFile());e.setLook(look);e.setEpisodeIV(look%2==0);}
+                {SpatialLabEditor e(p,settings.getFile());require(e.getLook()==look && e.isEpisodeIV()==(look%2==0),"Each look must persist independently");
+                 for(auto* child:e.getChildren())if(auto* combo=dynamic_cast<juce::ComboBox*>(child)) {
+                     combo->setSelectedId((look+1)%3+1,juce::sendNotificationSync);
+                     require(e.getLook()==(look+1)%3,"Header look selector not wired");
+                 }}
+            }
+        }
         for (double rate : {44100.0, 48000.0})
         {
             SpatialLabProcessor reference, observed;

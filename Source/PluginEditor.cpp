@@ -19,6 +19,7 @@ void text(juce::Graphics& g, const juce::String& value, float x, float y, float 
 
 SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& settingsFile) : AudioProcessorEditor(p), processor(p)
 {
+    logo = juce::ImageCache::getFromMemory(SpatialLabArtwork::Stromschlag_Audio_Original_Logo_png,SpatialLabArtwork::Stromschlag_Audio_Original_Logo_pngSize);
     episodeI = juce::ImageCache::getFromMemory(SpatialLabArtwork::SpatialLab_Episode_I_png,
                                               SpatialLabArtwork::SpatialLab_Episode_I_pngSize);
     episodeIV = juce::ImageCache::getFromMemory(SpatialLabArtwork::SpatialLab_Episode_IV_png,
@@ -57,6 +58,20 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     setEpisodeIV(guiSettings->getBoolValue("episodeIV", true), false);
     button(listUp, "Raum nach oben", [this] { selectRoom((selectedRoom() + 25) % 26); });
     button(listDown, "Raum nach unten", [this] { selectRoom((selectedRoom() + 1) % 26); });
+    const juce::Component::SafePointer<SpatialLabEditor> safeEditor(this);
+    button(lookGear,"Look",[this,safeEditor] {
+        juce::PopupMenu menu;
+        menu.addItem(1,"Retro",true,currentLook==0);
+        menu.addItem(2,"Classic Dunkel",true,currentLook==1);
+        menu.addItem(3,"Classic Hell",true,currentLook==2);
+        menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&lookGear),
+            [safeEditor](int id){if(safeEditor && id>0)safeEditor->setLook(id-1);});
+    });
+    lookGear.setTooltip(juce::String::fromUTF8("Darstellung wählen"));
+    lookSelector.setName("Look-Auswahl");
+    lookSelector.addItem("Retro",1);lookSelector.addItem("Classic Dunkel",2);lookSelector.addItem("Classic Hell",3);
+    lookSelector.onChange=[this]{setLook(lookSelector.getSelectedId()-1);};
+    lookSelector.setLookAndFeel(this);addChildComponent(lookSelector);
     const auto knob = [this](juce::Slider& control, const juce::String& name, const juce::String& help)
     {
         control.setName(name); control.setTooltip(help);
@@ -72,6 +87,7 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     knob(tone, "Klang", juce::String::fromUTF8("Dunkler ↔ heller · Doppelklick: neutral"));
     sizeAttachment = std::make_unique<juce::SliderParameterAttachment>(*processor.parameter("size"), size);
     toneAttachment = std::make_unique<juce::SliderParameterAttachment>(*processor.parameter("tone"), tone);
+    size.onValueChange=[this]{if(currentLook)repaint();};tone.onValueChange=[this]{if(currentLook)repaint();};
     setResizable(true, true);
     setResizeLimits(1003, 565, 2174, 1223);
     getConstrainer()->setFixedAspectRatio(panelWidth / panelHeight);
@@ -80,6 +96,8 @@ SpatialLabEditor::SpatialLabEditor(SpatialLabProcessor& p, const juce::File& set
     const bool validSize = savedWidth >= 1003 && savedWidth <= 2174 && savedHeight >= 565 && savedHeight <= 1223
         && std::abs(savedWidth / static_cast<double>(savedHeight) - panelWidth / panelHeight) < 0.004;
     setSize(validSize ? savedWidth : 1504, validSize ? savedHeight : 846);
+    const int savedLook=guiSettings->getIntValue("look",0);
+    setLook(savedLook>=0 && savedLook<=2?savedLook:0,false);
     browser.syncSelection(selectedRoom());
     processor.gui.peak.store(0, std::memory_order_relaxed);
     processor.gui.observing.store(true, std::memory_order_relaxed);
@@ -95,8 +113,29 @@ SpatialLabEditor::~SpatialLabEditor()
     guiSettings->saveIfNeeded();
     processor.gui.observing.store(false, std::memory_order_relaxed);
     processor.parameter("room")->removeListener(this);
-    for (auto* button : {&episodeSwitch, &listUp, &listDown}) button->setLookAndFeel(nullptr);
+    for (auto* button : {&episodeSwitch, &listUp, &listDown, &lookGear}) button->setLookAndFeel(nullptr);
+    lookSelector.setLookAndFeel(nullptr);
     size.setLookAndFeel(nullptr); tone.setLookAndFeel(nullptr);
+}
+
+void SpatialLabEditor::setLook(int look, bool persist)
+{
+    currentLook=juce::jlimit(0,2,look);
+    lookSelector.setSelectedId(currentLook+1,juce::dontSendNotification);
+    lookSelector.setVisible(currentLook!=0);lookGear.setVisible(currentLook==0);
+    for(auto* b:{&episodeSwitch,&listUp,&listDown}) b->setVisible(currentLook==0);
+    const auto t=ClassicTheme::forLight(currentLook==2);
+    lookSelector.setColour(juce::ComboBox::backgroundColourId,t.panel);
+    lookSelector.setColour(juce::ComboBox::textColourId,t.text);
+    lookSelector.setColour(juce::ComboBox::outlineColourId,t.line);
+    lookSelector.setColour(juce::ComboBox::arrowColourId,t.accent);
+    for(auto* slider:{&size,&tone}) {
+        slider->setColour(juce::Slider::thumbColourId,t.accent);
+        slider->setColour(juce::Slider::rotarySliderFillColourId,t.accent);
+        slider->setColour(juce::Slider::rotarySliderOutlineColourId,t.line);
+    }
+    if(persist){guiSettings->setValue("look",currentLook);guiSettings->saveIfNeeded();}
+    resized();browser.revealRoom(selectedRoom());repaint();
 }
 
 void SpatialLabEditor::setEpisodeIV(bool selected, bool persist)
@@ -137,6 +176,15 @@ void SpatialLabEditor::resized()
     scale = std::min(getWidth() / panelWidth, getHeight() / panelHeight);
     offsetX = (getWidth() - panelWidth * scale) * 0.5f;
     offsetY = (getHeight() - panelHeight * scale) * 0.5f;
+    lookGear.setBounds(panelBounds(1625,10,32,32));
+    lookSelector.setBounds(panelBounds(1320,38,300,48));
+    browser.setClassicPresentation(currentLook,scale*1.6f);
+    if(currentLook) {
+        browser.setBounds(panelBounds(240,156,1192,440));
+        size.setBounds(panelBounds(500,645,230,230));
+        tone.setBounds(panelBounds(942,645,230,230));
+        return;
+    }
     browser.setBounds(panelBounds(542, 322, 435, 284));
     size.setBounds(panelBounds(201, 524, 114, 114));
     tone.setBounds(panelBounds(201, 717, 114, 114));
@@ -171,11 +219,13 @@ void SpatialLabEditor::timerCallback()
     }
     processor.gui.observing.store(true, std::memory_order_relaxed);
     if (getTimerInterval() != 33) startTimerHz(30);
+    const bool controlsChanged=size.getValue()!=processor.parameter("size")->getValue() || tone.getValue()!=processor.parameter("tone")->getValue();
     size.setValue(processor.parameter("size")->getValue(), juce::dontSendNotification);
     tone.setValue(processor.parameter("tone")->getValue(), juce::dontSendNotification);
+    if(currentLook && controlsChanged) repaint();
     const float peak = processor.gui.peak.exchange(0, std::memory_order_relaxed);
     signal = std::max(juce::jlimit(0.0f, 1.0f, std::sqrt(peak)), signal * 0.87f);
-    animationSeconds = juce::Time::getMillisecondCounterHiRes() * 0.001 - animationStarted;
+    if(!currentLook) animationSeconds = juce::Time::getMillisecondCounterHiRes() * 0.001 - animationStarted;
     phase = static_cast<float>(std::fmod(animationSeconds * 5.4, 6.28318530718));
     const float rate = processor.gui.sampleRate.load(std::memory_order_relaxed);
     ready = rate > 0;
@@ -195,6 +245,7 @@ void SpatialLabEditor::timerCallback()
     }
     else
     {
+        if(currentLook)return;
         repaint(panelBounds(145, 290, 233, 155));
         repaint(panelBounds(1205, 121, 270, 113));
         repaint(panelBounds(710,35,245,50));
@@ -205,6 +256,12 @@ void SpatialLabEditor::timerCallback()
 void SpatialLabEditor::drawButtonBackground(juce::Graphics& g, juce::Button& button,
                                             const juce::Colour&, bool hover, bool down)
 {
+    if (&button == &lookGear) {
+        const auto c=button.getLocalBounds().toFloat().getCentre();const float r=button.getWidth()*.25f;
+        g.setColour(juce::Colours::lightgrey.withAlpha(hover?.95f:.65f));
+        for(int i=0;i<8;++i){float a=i*juce::MathConstants<float>::twoPi/8;g.drawLine(c.x+std::sin(a)*r,c.y+std::cos(a)*r,c.x+std::sin(a)*r*1.5f,c.y+std::cos(a)*r*1.5f,2);}
+        g.drawEllipse(c.x-r,c.y-r,r*2,r*2,2);g.drawEllipse(c.x-r*.35f,c.y-r*.35f,r*.7f,r*.7f,1.5f);return;
+    }
     if (&button == &episodeSwitch) { drawEpisodeSwitch(g, button, hover); return; }
     if (hover || down || button.hasKeyboardFocus(true))
     {
@@ -216,8 +273,13 @@ void SpatialLabEditor::drawButtonBackground(juce::Graphics& g, juce::Button& but
 }
 
 void SpatialLabEditor::drawRotarySlider(juce::Graphics& g, int x, int y, int w, int h,
-                                        float position, float, float, juce::Slider& control)
+                                        float position, float startAngle, float endAngle, juce::Slider& control)
 {
+    if(currentLook) {
+        // RADIOPHONE uses JUCE V4's outline, orange value arc and round thumb.
+        juce::LookAndFeel_V4::drawRotarySlider(g,x,y,w,h,position,startAngle,endAngle,control);
+        return;
+    }
     const auto bounds = juce::Rectangle<float>(static_cast<float>(x), static_cast<float>(y),
                                               static_cast<float>(w), static_cast<float>(h));
     const float diameter = std::min(bounds.getWidth(), bounds.getHeight());
@@ -367,6 +429,7 @@ void SpatialLabEditor::drawRoomGeometry(juce::Graphics& g, int room)
 
 void SpatialLabEditor::paint(juce::Graphics& g)
 {
+    if(currentLook){drawClassic(g);return;}
     g.fillAll(juce::Colours::black);
     g.addTransform(juce::AffineTransform::scale(scale).translated(offsetX, offsetY));
     g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
@@ -590,4 +653,26 @@ void SpatialLabEditor::drawOutdoorGeometry(juce::Graphics& g,int room)
     if(room==4){for(int side=0;side<2;++side){float x=side?974.f:550.f,dir=side?-1.f:1.f;for(int i=0;i<5;++i){line(x,350+i*33.f,x+dir*(36+i*18.f),369+i*31.f);line(x+dir*(36+i*18.f),369+i*31.f,x,383+i*33.f);}}line(648,520,735,448);line(868,520,781,448);}
     if(room==5){for(int i=0;i<5;++i){float x=553+i*31.f,y=351+i*18.f;g.drawRoundedRectangle(x,y,421-i*62.f,170-i*32.f,45-i*8.f,1.5f);}}
     if(room==6){line(550,368,974,368);line(550,389,974,389);for(float x:{586.f,668.f,848.f,930.f}){g.drawRect(x,389.f,16.f,128.f,1.5f);}line(550,519,974,519);line(551,368,694,342);line(974,368,823,342);}
+}
+
+
+void SpatialLabEditor::drawClassic(juce::Graphics& g)
+{
+    const auto t=ClassicTheme::forLight(currentLook==2);
+    g.fillAll(t.background);g.addTransform(juce::AffineTransform::scale(scale).translated(offsetX,offsetY));
+    g.setColour(t.panel);g.fillRect(0,0,1672,120);g.setColour(t.accent);g.fillRect(0,0,7,120);
+    g.setColour(t.text);g.drawImage(logo,juce::Rectangle<float>(24,16,88,88),juce::RectanglePlacement::centred,true);
+    const juce::Font titleFont(juce::FontOptions(40.0f,juce::Font::bold));
+    juce::GlyphArrangement titleGlyphs;
+    titleGlyphs.addLineOfText(titleFont,"SPATIAL LAB",0,0);
+    const float titleWidth=titleGlyphs.getBoundingBox(0,-1,true).getWidth();
+    const float subtitleX=140+titleWidth+28;
+    text(g,"SPATIAL LAB",140,35,titleWidth+8,50,40,t.text);
+    text(g,"AUDIO DRAMA SPATIAL ENVIRONMENTS",subtitleX,35,1300-subtitleX,50,21,t.accent);
+    g.setColour(t.panel);g.fillRoundedRectangle(220,140,1232,472,12);
+    g.setColour(t.line);g.drawRoundedRectangle(220,140,1232,472,12,1.5f);
+    text(g,"SIZE",465,615,300,35,25,t.text,juce::Justification::centred);
+    text(g,"TONE",907,615,300,35,25,t.text,juce::Justification::centred);
+    text(g,juce::String(juce::roundToInt(size.getValue()*100))+" %",465,878,300,32,22,t.dim,juce::Justification::centred);
+    text(g,juce::String(juce::roundToInt(tone.getValue()*100))+" %",907,878,300,32,22,t.dim,juce::Justification::centred);
 }
