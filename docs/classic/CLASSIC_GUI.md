@@ -2,6 +2,30 @@
 
 Branch: feature/classic-gui. Kein zweites Plugin, kein Release und keine Zusammenführung nach main.
 
+## Oberflächen direkt vergleichen
+
+Unveränderte echte Windows-Screenshots aus dem [erfolgreichen CI-Lauf 44039981196](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44039981196), jeweils 1504 × 846 Pixel. Keine Neuberechnung, Bildbearbeitung oder Skalierung der gespeicherten PNGs.
+
+### Retro – Episode I mit Zahnrad
+
+![SPATIAL LAB Retro – Episode I mit Zahnrad oben rechts](screenshots/Retro-Episode-I.png)
+
+Quelle: Artefakt `SpatialLab-Phase3B-Screenshots`, `Episode-I/Room-0/Windows-Editor-Screenshot.png`. Das separate Look-Paket enthält als Retro-Beispiel Episode IV; hier wird ausdrücklich Episode I gezeigt.
+
+### Classic Dunkel
+
+![SPATIAL LAB Classic Dunkel](screenshots/Classic-Dunkel.png)
+
+Quelle: Artefakt `SpatialLab-Classic-Looks`, `Look-1/Windows-Editor-Screenshot.png`.
+
+### Classic Hell
+
+![SPATIAL LAB Classic Hell](screenshots/Classic-Hell.png)
+
+Quelle: Artefakt `SpatialLab-Classic-Looks`, `Look-2/Windows-Editor-Screenshot.png`.
+
+Die drei Dateien liegen dauerhaft in diesem Branch unter `docs/classic/screenshots/` und sind bytegleich zu den genannten CI-Aufnahmen. Die Einbettung dient der optischen Beurteilung; sie ersetzt keine persönliche Bedienprüfung in der DAW.
+
 ## Bestandsaufnahme und Wiederverwendung
 
 SpatialLabEditor besitzt bereits die beiden Slider samt SliderParameterAttachments, PresetBrowser, die unabhängige Episode-Präferenz und einen Editor-Timer. Diese Instanzen bleiben bestehen. Die Erweiterung ergänzt ausschließlich einen Look-Zustand und alternative Anordnung/Zeichnung im selben Editor. Kein eigener Classic-Prozessor, keine separaten Parameter, keine Änderungen an AudioProcessor, Raumkatalog, DSP oder Audio-State.
