@@ -13,9 +13,9 @@ Aus diesem Frust entstand die Idee zu **SPATIAL LAB**: Statt immer neue Hallbibl
 
 Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich perfekten Hall zu suchen. Ich möchte Geschichten erzählen – und mich auf die Stimmen, Geräusche und die Atmosphäre konzentrieren, die eine Szene lebendig machen.
 
-**SPATIAL LAB v1.1.0 – Quellcode auf `main`, offizieller Windows-Download in Vorbereitung.**
+**[SPATIAL LAB v1.1 für Windows herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.1.0)**
 
-[Verfügbare Releases](https://github.com/StromschlagProductions/SpatialLab-vst/releases) · [Getestetes v1.1.0-Windows-Paket (GitHub-Anmeldung erforderlich)](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44047686119/artifacts/14313272251) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
+[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.1.0/SpatialLab-v1.1.0-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
 
 ## 26 Umgebungen, vier Kategorien
 
@@ -64,7 +64,7 @@ Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.1.
 
 ## Installation
 
-1. Nach Veröffentlichung die Datei **SpatialLab-v1.1.0-Windows-x64-VST3.zip** vom offiziellen Release herunterladen. Bis dahin steht das getestete Windows-Paket oben als CI-Artefakt bereit.
+1. Die Datei **SpatialLab-v1.1.0-Windows-x64-VST3.zip** vom offiziellen Release herunterladen.
 2. DAW schließen und das ZIP vollständig entpacken.
 3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
 4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.
