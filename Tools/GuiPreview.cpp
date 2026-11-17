@@ -18,7 +18,7 @@ class Preview final : public juce::JUCEApplication, private juce::Timer
 {
 public:
     const juce::String getApplicationName() override { return "SpatialLab GUI Preview"; }
-    const juce::String getApplicationVersion() override { return "1.0.0"; }
+    const juce::String getApplicationVersion() override { return "1.1.0"; }
     void initialise(const juce::String& args) override
     {
 #if JUCE_WINDOWS

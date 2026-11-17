@@ -1,5 +1,19 @@
 # Changes
 
+## 1.1.0 — Classic GUI
+
+- Drei kosmetische Looks im selben Plugin: Retro, Classic Dunkel und Classic Hell. Retro behält Episode I/IV, Originalfrontplatten und Animationen.
+- Classic mit gemeinsamem Preset-Browser, SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen und Untertitel rechts neben dem Plugin-Namen.
+- Look-Auswahl über das Retro-Zahnrad oder die Classic-Kopfzeile, separat von Audio-State und Episode-Präferenz gespeichert.
+- Keine Änderungen an DSP, 26 Raumabstimmungen, Parametern, Session-Schema oder Plugin-Identität gegenüber v1.0.0.
+- Erweiterte GUI-Regression, unveränderte Dateien per SHA-256 geschützt und pluginval Level 8 in der vollständigen Windows-Abnahme.
+
+## 1.0.0 — erste stabile Veröffentlichung
+
+- 26 Umgebungen in vier Kategorien; algorithmische Indoor- und Outdoor-Reflexionen, ausschließlich 100 % Wet für Send-/FX-Kanäle.
+- Retro Episode I und IV mit skalierbarer Oberfläche und kategorisiertem Preset-Browser.
+- Session-Schema 5 mit linear kodierten Raumwerten; ältere Test-Sessions sind nicht kompatibel.
+
 ## Final three-control concept — development
 
 - Expose only Raum, Größe and Klang, with a custom three-control editor and neutral macro midpoints.

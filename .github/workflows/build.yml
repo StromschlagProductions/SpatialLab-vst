@@ -180,6 +180,27 @@ jobs:
           $bundle = "build/SpatialLab_artefacts/Release/VST3/SpatialLab.vst3"
           if (-not (Test-Path $bundle)) { throw "SpatialLab.vst3 fehlt" }
           Compress-Archive -Path $bundle -DestinationPath "SpatialLab-VST3-Windows.zip" -Force
+      - name: Record exact tested build inputs and package checksum
+        shell: python
+        run: |
+          import hashlib,json,pathlib,subprocess,os,re
+          inputs=['Source','Tests','Tools','assets','CMakeLists.txt','.github/workflows/build.yml']
+          tree=subprocess.check_output(['git','ls-tree','-r','HEAD','--',*inputs])
+          package=pathlib.Path('SpatialLab-VST3-Windows.zip')
+          version=re.search(r'project\(SpatialLab VERSION ([0-9.]+)',pathlib.Path('CMakeLists.txt').read_text())[1]
+          manifest={'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+            'run_id':os.environ['GITHUB_RUN_ID'],'version':version,
+            'build_inputs_sha256':hashlib.sha256(tree).hexdigest(),
+            'package_sha256':hashlib.sha256(package.read_bytes()).hexdigest()}
+          pathlib.Path('build/acceptance-provenance.json').write_text(json.dumps(manifest,indent=2))
+      - name: Upload acceptance provenance and test summaries
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: SpatialLab-Acceptance-Provenance
+          path: |
+            build/acceptance-provenance.json
+            build/ctest-results.txt
+          if-no-files-found: error
       - name: Sauberes Windows-VST3-Installationspaket hochladen
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

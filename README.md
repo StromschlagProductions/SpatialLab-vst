@@ -13,9 +13,9 @@ Aus diesem Frust entstand die Idee zu **SPATIAL LAB**: Statt immer neue Hallbibl
 
 Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich perfekten Hall zu suchen. Ich möchte Geschichten erzählen – und mich auf die Stimmen, Geräusche und die Atmosphäre konzentrieren, die eine Szene lebendig machen.
 
-**[SPATIAL LAB v1.0 für Windows herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.0.0)**
+**[SPATIAL LAB v1.1 für Windows herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.1.0)**
 
-[Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.0.0/SpatialLab-v1.0.0-Windows-x64-VST3.zip) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
+[Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.1.0/SpatialLab-v1.1.0-Windows-x64-VST3.zip) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
 
 ## 26 Umgebungen, vier Kategorien
 
@@ -38,7 +38,21 @@ Die separate **Outdoor-Engine** erzeugt diskrete Stereo-Reflexionen mit individu
 
 SPATIAL LAB liefert **immer 100 % Wet** und ist für FX-/Send-Kanäle ausgelegt. Es gibt keinen Dry/Wet- oder Ausgangspegel-Regler. Den Effektanteil stellst du mit dem Send-Pegel in der DAW ein.
 
-## Zwei Retro-Oberflächen
+## Drei Oberflächen im selben Plugin
+
+Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in der Classic-Kopfzeile wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Die Darstellung wird unabhängig von den Audioeinstellungen gespeichert. Alle Looks verwenden dieselben 26 Presets und SIZE/TONE-Parameter; Klang, Automation und gespeicherte Audioeinstellungen bleiben beim Wechsel erhalten.
+
+**Classic Dunkel**
+
+![Classic Dunkel: echte Windows-Oberfläche](docs/classic/screenshots/Classic-Dunkel.png)
+
+**Classic Hell**
+
+![Classic Hell: echte Windows-Oberfläche](docs/classic/screenshots/Classic-Hell.png)
+
+Classic bietet SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen. Der Preset-Browser ist in allen Looks derselbe. [Weitere Screenshots und technische Details](docs/classic/CLASSIC_GUI.md).
+
+### Retro mit Episode I und IV
 
 **Episode I – fabrikneu**
 
@@ -52,7 +66,7 @@ Die Bilder zeigen den Editor als echte Windows-Desktop-Aufnahmen. Der kosmetisch
 
 ## Installation
 
-1. Die Datei **SpatialLab-v1.0.0-Windows-x64-VST3.zip** vom offiziellen Release herunterladen.
+1. Die Datei **SpatialLab-v1.1.0-Windows-x64-VST3.zip** vom offiziellen Release herunterladen.
 2. DAW schließen und das ZIP vollständig entpacken.
 3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
 4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.
@@ -80,7 +94,7 @@ Host-Auswahl und Session-Recall machen den aktiven Eintrag im Browser sichtbar. 
 
 ## Kompatibilität und bekannte Grenzen
 
-Version 1.0 verwendet 26 linear kodierte Raumwerte und Session-Schema 5. Ältere Test-Sessions und deren Raumautomation sind ausdrücklich nicht kompatibel; neue Sessions anlegen oder Einstellungen neu setzen. Hersteller-/Plugin-Kennungen und SIZE/TONE-IDs bleiben erhalten.
+Version 1.1 behält gegenüber v1.0 unverändert 26 linear kodierte Raumwerte und Session-Schema 5 bei. Ältere Test-Sessions und deren Raumautomation sind ausdrücklich nicht kompatibel; neue Sessions anlegen oder Einstellungen neu setzen. Hersteller-/Plugin-Kennungen und SIZE/TONE-IDs bleiben erhalten.
 
 Raumwechsel blenden das Wet-Signal kurz aus und wieder ein, um harte Abrisse zu vermeiden. Raumpegel werden nicht künstlich angeglichen. Durchschnitts-CPU-Messungen sind keine Garantie für jede Hardware oder extrem kleine Audioblöcke.
 
@@ -111,9 +125,3 @@ Das Projekt wird laufend weiterentwickelt. Trotz sorgfältiger Tests können Feh
 **Feedback, Fehlermeldungen und Verbesserungsvorschläge sind herzlich willkommen!**
 
 Wenn dieses kleine Werkzeug auch anderen die Hörspielarbeit erleichtert und mehr Raum für Geschichten und menschliche Kreativität schafft, freut mich das ganz besonders.
-
-## Classic GUI – Entwicklungsbranch
-
-Auf `feature/classic-gui` ergänzt eine zusätzliche Look-Auswahl **Retro / Classic Dunkel / Classic Hell**. Browser, SIZE/TONE und Audio-Engine werden gemeinsam verwendet. Retro behält seinen Episode-Schalter; die Look-Wahl ist eine separate GUI-Präferenz. [Technische Umsetzung und Prüfstand](docs/classic/CLASSIC_GUI.md). Diese Erweiterung ist nicht Bestandteil des unveränderten offiziellen v1.0-Downloads und wird erst nach Freigabe übernommen.
-
-[Echte Windows-Screenshots aller drei Looks herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44039981196/artifacts/14309940204) · [Windows-/Linux-Prüflauf und Testartefakte](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44039981196). Für Actions-Artefakte ist eine GitHub-Anmeldung erforderlich; die Downloads unterliegen der Aufbewahrungsfrist von GitHub Actions.

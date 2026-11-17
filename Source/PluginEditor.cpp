@@ -129,6 +129,11 @@ void SpatialLabEditor::setLook(int look, bool persist)
     lookSelector.setColour(juce::ComboBox::textColourId,t.text);
     lookSelector.setColour(juce::ComboBox::outlineColourId,t.line);
     lookSelector.setColour(juce::ComboBox::arrowColourId,t.accent);
+    for(auto* slider:{&size,&tone}) {
+        slider->setColour(juce::Slider::thumbColourId,t.accent);
+        slider->setColour(juce::Slider::rotarySliderFillColourId,t.accent);
+        slider->setColour(juce::Slider::rotarySliderOutlineColourId,t.line);
+    }
     if(persist){guiSettings->setValue("look",currentLook);guiSettings->saveIfNeeded();}
     resized();browser.revealRoom(selectedRoom());repaint();
 }
@@ -268,16 +273,11 @@ void SpatialLabEditor::drawButtonBackground(juce::Graphics& g, juce::Button& but
 }
 
 void SpatialLabEditor::drawRotarySlider(juce::Graphics& g, int x, int y, int w, int h,
-                                        float position, float, float, juce::Slider& control)
+                                        float position, float startAngle, float endAngle, juce::Slider& control)
 {
     if(currentLook) {
-        const auto t=ClassicTheme::forLight(currentLook==2);
-        auto area=juce::Rectangle<float>(float(x),float(y),float(w),float(h)).reduced(14);
-        g.setColour(t.line);g.fillEllipse(area);
-        g.setColour(t.panel);g.fillEllipse(area.reduced(4));
-        const float a=juce::MathConstants<float>::pi*(1.25f+position*1.5f);
-        auto c=area.getCentre();float r=area.getWidth()*.35f;
-        g.setColour(t.accent);g.drawLine(c.x,c.y,c.x+std::sin(a)*r,c.y-std::cos(a)*r,4);
+        // RADIOPHONE uses JUCE V4's outline, orange value arc and round thumb.
+        juce::LookAndFeel_V4::drawRotarySlider(g,x,y,w,h,position,startAngle,endAngle,control);
         return;
     }
     const auto bounds = juce::Rectangle<float>(static_cast<float>(x), static_cast<float>(y),
@@ -662,8 +662,13 @@ void SpatialLabEditor::drawClassic(juce::Graphics& g)
     g.fillAll(t.background);g.addTransform(juce::AffineTransform::scale(scale).translated(offsetX,offsetY));
     g.setColour(t.panel);g.fillRect(0,0,1672,120);g.setColour(t.accent);g.fillRect(0,0,7,120);
     g.setColour(t.text);g.drawImage(logo,juce::Rectangle<float>(24,16,88,88),juce::RectanglePlacement::centred,true);
-    text(g,"SPATIAL LAB",140,18,760,50,40,t.text);
-    text(g,"AUDIO DRAMA SPATIAL ENVIRONMENTS",142,70,1000,30,21,t.accent);
+    const juce::Font titleFont(juce::FontOptions(40.0f,juce::Font::bold));
+    juce::GlyphArrangement titleGlyphs;
+    titleGlyphs.addLineOfText(titleFont,"SPATIAL LAB",0,0);
+    const float titleWidth=titleGlyphs.getBoundingBox(0,-1,true).getWidth();
+    const float subtitleX=140+titleWidth+28;
+    text(g,"SPATIAL LAB",140,35,titleWidth+8,50,40,t.text);
+    text(g,"AUDIO DRAMA SPATIAL ENVIRONMENTS",subtitleX,35,1300-subtitleX,50,21,t.accent);
     g.setColour(t.panel);g.fillRoundedRectangle(220,140,1232,472,12);
     g.setColour(t.line);g.drawRoundedRectangle(220,140,1232,472,12,1.5f);
     text(g,"SIZE",465,615,300,35,25,t.text,juce::Justification::centred);
