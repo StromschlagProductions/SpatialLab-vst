@@ -12,7 +12,7 @@ Die Quelle dauert 11,22 s; RMS −15,61 dBFS, Sample-Peak −3,98 dBFS. Der Rend
 - IR-Energie: Summe der quadrierten Samples, über beide Kanäle gemittelt; dB bezogen auf die Energie des Einheitsimpulses. **Kein Sprach-RMS und kein künstlich gleich lang normalisiertes IR-RMS.**
 - EDC: rückwärts integrierte Energie, relativ zur Gesamtenergie. T20-Schätzung durch Regression zwischen −5/−25 dB, auf −60 dB extrapoliert. Nur bei R² ≥ 0,9 und mindestens 20 ms Fitspanne als Wert ausgegeben. Ein leerer Wert bedeutet ungeeignete/stufige Kurve, nicht fehlenden Hall. Nicht mit einem gemessenen Raum-RT60 gleichsetzen.
 - Frühe Ankunft: erstes Sample über −80 dB relativ zum jeweiligen IR-Peak. Stärkste lokale Reflexionsmaxima und vollständige EDC werden als JSON exportiert.
-- Stereo: L/R-Korrelation ohne Zeitversatz; Monoverlust = Energie von `(L+R)/2` relativ zur mittleren Stereo-Kanalenergie. Linksseitige Anregung wird separat gemessen. FFT-Bandenergien sind zusätzliche Diagnostik.
+- Stereo: L/R-Korrelation ohne Zeitversatz; Monoverlust = Energie von `(L+R)/2` relativ zur mittleren Stereo-Kanalenergie. Linksseitige Anregung wird separat gemessen. FFT-Bandenergien sind zusätzliche Diagnostik. −300 dB ist der logarithmische Rechenboden bei Nullenergie, kein physikalischer Messdynamikbereich.
 
 Alle Ergebnisse für alle 26 Presets: [before_metrics.csv](before_metrics.csv). Große IR-/Sprachdateien gehören in Build-/Actions-Artefakte, nicht in Git.
 

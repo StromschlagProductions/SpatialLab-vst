@@ -156,4 +156,4 @@ Wenn dieses kleine Werkzeug auch anderen die Hörspielarbeit erleichtert und meh
 
 ## DSP-Audit – Issue #6 (unveröffentlichter Entwicklungszweig)
 
-Auf `fix/issue-6-acoustic-calibration` werden alle 26 Umgebungen für Sprachräume neu kalibriert. [Analyse, Messvergleich und Studio-One-Hörtest](docs/issue6/IMPLEMENTATION.md). Die offiziellen Release-Dateien bleiben unverändert. Der Entwurf ändert den Klang bestehender Sessions bei erhaltenen Parameter-/Preset-IDs; keine Veröffentlichung oder Zusammenführung ohne Hörfreigabe.
+Auf `fix/issue-6-acoustic-calibration` werden alle 26 Umgebungen für Sprachräume neu kalibriert. [Analyse, Messvergleich und Studio-One-Hörtest](docs/issue6/IMPLEMENTATION.md). [Draft-PR #7, geprüfte Hördateien und Windows-Testpaket](docs/issue6/ACCEPTANCE.md). Die offiziellen Release-Dateien bleiben unverändert. Der Entwurf ändert den Klang bestehender Sessions bei erhaltenen Parameter-/Preset-IDs; keine Veröffentlichung oder Zusammenführung ohne Hörfreigabe.
