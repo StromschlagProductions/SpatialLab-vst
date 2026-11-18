@@ -68,3 +68,14 @@ Getesteter CI-Merge-Commit: `f0b33de371b6b1dfd95a3645a3e89ab512aebeba`. Build-Ei
 Das Installations-ZIP wurde heruntergeladen: CRC fehlerfrei, genau ein Wurzelordner SpatialLab.vst3, vollständiges Windows-x64-PE-Modul und moduleinfo.json, Version 1.4.0, Hersteller Stromschlag Audio, alle drei bisherigen CIDs unverändert. Paket-SHA-256: `f8c943eefbe3d046ff3baf3fc6dcbf1eef792281a698f0f63ca0638aa34108c8`.
 
 Der erste Windows-Lauf scheiterte an einem fehlenden expliziten string-Include im neuen Offline-Messwerkzeug. Der Fehler ist behoben; die finale vollständige Abnahme oben ist erfolgreich. Eine Studio-One-/Hörabnahme durch den Anwender wird weiterhin nicht behauptet. Plugin-Identität, Preset-Reihenfolge, alle drei Parameter und Session-Schema bleiben unverändert.
+
+
+## Tatsächlich veröffentlicht
+
+[SPATIAL LAB v1.4](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.4) ist öffentlich und als neueste stabile Version veröffentlicht (`draft=false`, `prerelease=false`). [Veröffentlichungsworkflow 44336652694](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44336652694): erfolgreich. [PR #9](https://github.com/StromschlagProductions/SpatialLab-vst/pull/9) ist nach main übernommen; Tag v1.4 enthält den akzeptierten Code und die aktuellen Versionsbilder.
+
+[Windows-VST3-ZIP direkt herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.4/SpatialLab-v1.4-Windows-x64-VST3.zip). Öffentlichen Download nach Veröffentlichung erneut geprüft: 18.885.437 Byte, ZIP-CRC fehlerfrei und SHA-256 identisch zum akzeptierten Build (`f8c943eefbe3d046ff3baf3fc6dcbf1eef792281a698f0f63ca0638aa34108c8`). SHA256SUMS.txt und screenshots.json sind reale zusätzliche Release-Assets.
+
+[Homepage](https://stromschlagproductions.github.io/) aktualisiert und in echtem Chromium live geprüft: korrekter Untertitel, dynamisch aus dem tatsächlichen Release gelesene Version v1.4, geladener v1.4-Retro-Screenshot (1504 × 846) und Download-Button exakt auf dem veröffentlichten Windows-VST3-ZIP. Andere Plugin-Karten wurden durch diese Aktualisierung nicht geändert.
+
+Dies bestätigt die technische Veröffentlichung, keine vorgetäuschte subjektive Hörfreigabe im Studio-One-Projekt des Anwenders. Die oben verlinkten unnormalisierten Dry/Wet-A/B-Dateien stehen für diese Beurteilung bereit.
