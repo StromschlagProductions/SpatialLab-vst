@@ -15,3 +15,10 @@ SpatialLab-v1.4-Windows-x64-VST3.zip vollständig entpacken und den gesamten Ord
 SIZE/TONE 50 %, Send −6 dB, FX 0 dB bilden die Referenz. Die Verstärkung ist linear, ohne Limiter: sehr laute trockene Quellen können bei Dry+Wet-Summierung zusätzliche DAW-Headroom-Reserve benötigen. Die Messdokumentation zeigt sowohl eine Referenz mit offengelegtem festem Eingangstrim als auch die ungetrimmten Summenpeaks.
 
 [26-Preset-Messungen, reproduzierbare A/Bs und Grenzen](https://github.com/StromschlagProductions/SpatialLab-vst/blob/main/docs/v1.4/WET_LEVELS.md). Eine subjektive Hörfreigabe durch den Anwender in Studio One wird nicht vorgetäuscht.
+
+
+## Technische Abnahme und A/B-Dateien
+
+Windows CTest **9/9**, Linux ASan/UBSan **7/7**, pluginval **Level 8 SUCCESS**. Alle 26 Presets bei 44,1/48 kHz vor/nachher gemessen: +6/+18/0 dB exakt, Reflexionsbeginn und normierte Nachhallverteilung unverändert. Fahrzeuge/Spezialräume/Cockpits einschließlich der vollständigen Vergleichs-WAVs bitidentisch.
+
+[Unnormalisierte Dry-/Wet-/Mix-Hörvergleiche aller 26 Presets](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44322843587/artifacts/14434544155) als zeitlich befristetes Actions-Artefakt (ca. 498 MiB, GitHub-Anmeldung). Die subjektive Wirkung in der eigenen Szene und Studio One bleibt durch den Anwender zu beurteilen; Messungen sind keine vorgetäuschte Hörfreigabe.

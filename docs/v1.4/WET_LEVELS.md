@@ -44,4 +44,27 @@ Die technischen Messungen zeigen die tatsächliche Änderung im Dry/Wet-Mix, ers
 
 ## Build und Veröffentlichung
 
-Lokale Pegelmessungen und Regressionstests liegen vor. Vollständige Windows-/Linux-Abnahme, pluginval Level 8, Versions-Screenshots und Veröffentlichung folgen erst nach erfolgreicher Prüfung. Plugin-Identität, Preset-Reihenfolge, alle drei Parameter und Session-Schema bleiben unverändert.
+[Finale Abnahme 44322843587](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44322843587): **alle drei Jobs erfolgreich**.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Windows x64 Release-VST3 | gebaut, Metadaten 1.4.0 und unveränderte Hersteller-/Plugin-IDs bestätigt |
+| Windows CTest | 9/9 bestanden, einschließlich WetLevels, Processor und RetroGUI |
+| Linux ASan/UBSan | 7/7 bestanden, keine gemeldeten Sanitizer-Fehler |
+| pluginval 1.0.4 | Strictness Level 8, SUCCESS |
+| Pegel-/Mix-Audit | alle 52 Paare bei 44,1/48 kHz bestanden, CSV/Quellenbericht aus finalem CI-Artefakt übernommen |
+| Geschützte Presets | sämtliche Wet- und Mix-WAVs im finalen Artefakt bytegleich zu v1.3 |
+| GUI und Animationen | bestehende Licht-/Lifecycle-Tests, 52 Raumansichten und große Fenster erfolgreich |
+| Originalgrafiken und GUI-Code | unverändert; ausschließlich die automatisch erzeugte Versionsanzeige lautet jetzt 1.4 |
+
+[Hörvergleich herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44322843587/artifacts/14434544155) (**ca. 498 MiB**, GitHub-Anmeldung erforderlich, 14 Tage Aufbewahrung): Dry, alle Wet-/Mix-A/B-WAVs, Quellen und vollständige Messwerte. Nach dem Entpacken die passenden Dateien unter v1.3 und v1.4 direkt mit unveränderter Player-Lautstärke vergleichen. Keine neue HTML-Demo.
+
+[pluginval-Protokoll](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44322843587/artifacts/14435584496) · [Test-/Build-Provenienz](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44322843587/artifacts/14435943670) · [Vier echte Windows-Ansichten](../classic/CLASSIC_GUI.md).
+
+Die Screenshots wurden ausschließlich wegen der sichtbaren neuen Versionsnummer erneuert, ohne GUI-Code oder Originalgrafiken zu verändern. Native Windows-Aufnahmen aus SpatialLab-Classic-Looks, jeweils 1504 × 846, bytegleich übernommen und visuell geprüft; Herkunft und SHA-256 stehen in docs/screenshots.json.
+
+Getesteter CI-Merge-Commit: `f0b33de371b6b1dfd95a3645a3e89ab512aebeba`. Build-Eingaben SHA-256: `ebfa0d5510a1be79db82d7bb89fafe77608fc116faa1bd5ebd70f0fdbb7c4951`. Reine anschließende Screenshot-/Dokumentationsnachträge verändern den akzeptierten Code nicht.
+
+Das Installations-ZIP wurde heruntergeladen: CRC fehlerfrei, genau ein Wurzelordner SpatialLab.vst3, vollständiges Windows-x64-PE-Modul und moduleinfo.json, Version 1.4.0, Hersteller Stromschlag Audio, alle drei bisherigen CIDs unverändert. Paket-SHA-256: `f8c943eefbe3d046ff3baf3fc6dcbf1eef792281a698f0f63ca0638aa34108c8`.
+
+Der erste Windows-Lauf scheiterte an einem fehlenden expliziten string-Include im neuen Offline-Messwerkzeug. Der Fehler ist behoben; die finale vollständige Abnahme oben ist erfolgreich. Eine Studio-One-/Hörabnahme durch den Anwender wird weiterhin nicht behauptet. Plugin-Identität, Preset-Reihenfolge, alle drei Parameter und Session-Schema bleiben unverändert.
