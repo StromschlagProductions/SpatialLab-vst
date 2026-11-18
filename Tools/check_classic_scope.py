@@ -1,4 +1,4 @@
-"""v1.3 changes GUI branding only: approved v1.2 DSP/state/catalog/artwork stay immutable."""
+"""v1.4 permits only a post-DSP preset gain; v1.3 acoustics/state/artwork stay immutable."""
 from pathlib import Path
 import hashlib
 root=Path(__file__).resolve().parents[1]
@@ -16,7 +16,13 @@ expected['Source/PluginEditor.h']='efee3664f49476217afffb704b81d72bde4d4ef6e69c1
 for name,digest in expected.items():
     data=(root/name).read_bytes()
     if not name.endswith('.png'):data=data.replace(b"\r\n",b"\n")
-    assert hashlib.sha256(data).hexdigest()==digest,name+": approved release bytes changed"
+    if name=='Source/RoomEngine.h':
+        # Reverse only the reviewed output-gain wiring; all acoustic coefficients and
+        # state/transition code must still match the released engine byte-for-byte.
+        data=data.replace(b'#include "WetVoicing.h"\n',b'')
+        data=data.replace(b'        // Gain follows the active preset; selection changes only at zero switchGain.\n        const float outputGain=switchGain*wetPresetGains[static_cast<std::size_t>(activeRoom)];\n',b'')
+        data=data.replace(b'outputGain',b'switchGain')
+    assert hashlib.sha256(data).hexdigest()==digest,name+": approved release bytes changed beyond authorized output gain"
     print("OK unchanged release:",name)
 
 # Retain independent hashes of the pre-audit production engines. Never bless changed
@@ -28,3 +34,12 @@ for name,digest in manifest['original_sha256'].items():
     restored=(baseline/name).read_bytes().replace(b"\r\n",b"\n").replace(b'namespace spatiallab_issue6_baseline',b'namespace spatiallab')
     assert hashlib.sha256(restored).hexdigest()==digest,'Frozen audit baseline changed: '+name
 print('OK frozen issue-6 before-DSP and protected public contract')
+
+# Independent complete v1.3 production baseline for exact before/after regression.
+baseline=root/'Tests/Reference/V1_3'
+manifest=json.loads((baseline/'BASELINE.json').read_text())
+assert hashlib.sha256((baseline/'BASELINE.json').read_bytes().replace(b'\r\n',b'\n')).hexdigest()=="b4d626137c3495d9b501ed33f75f3cda66b4f8149b2e78d69f69491b88839e78"
+for name,digest in manifest['original_sha256'].items():
+    raw=(baseline/name).read_bytes().replace(b'\r\n',b'\n').replace(b'namespace spatiallab_v13',b'namespace spatiallab')
+    assert hashlib.sha256(raw).hexdigest()==digest,'Frozen v1.3 baseline changed: '+name
+print('OK frozen v1.3 release DSP and output-only v1.4 voicing')
