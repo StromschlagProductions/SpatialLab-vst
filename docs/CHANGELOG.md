@@ -1,5 +1,13 @@
 # Changes
 
+## 1.3 — Audio Drama Spatial Environments
+
+- Einheitlicher Produktuntertitel in Plugin, Dokumentation, Release und Homepage.
+- Classic-Herstellerzeile mit automatisch erzeugter öffentlicher Projektversion; Titel und Untertitel nebeneinander. Retro I/IV zeigen dieselbe Versions-/Produktkennung, Originalgrafiken bleiben unverändert.
+- Öffentliches Zwei-Ziffern-Schema: Tag v1.3 und ZIP SpatialLab-v1.3-Windows-x64-VST3.zip; intern 1.3.0.
+- Neue echte Windows-Aufnahmen aller Looks und ein aus den Aufnahmen erzeugtes, beim Release geprüftes Screenshot-Manifest.
+- Keine Änderungen am v1.2.0-DSP, an Raumabstimmungen, Parametern, State oder Plugin-Identität.
+
 ## 1.2.0 — Raumakustik für Sprache neu abgestimmt
 
 - Alle 26 bestehenden Umgebungen mit dokumentierten neutralen Geometrien, Wegdifferenzen, Absorptions-/Streuannahmen und frequenzabhängiger Dämpfung neu abgestimmt.

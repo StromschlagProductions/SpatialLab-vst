@@ -1,0 +1,8 @@
+#pragma once
+// Generated from CMake's project version. Never duplicate a GUI version literal.
+namespace spatiallab::branding {
+inline constexpr const char* version = "@PROJECT_VERSION@";
+inline constexpr const char* publicVersion = "@SPATIALLAB_PUBLIC_VERSION@";
+inline constexpr const char* subtitle = "Audio Drama Spatial Environments";
+inline constexpr const char* manufacturerLine = "STROMSCHLAG AUDIO · v@SPATIALLAB_PUBLIC_VERSION@";
+}

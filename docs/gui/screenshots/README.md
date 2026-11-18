@@ -1,10 +1,20 @@
-# Aktueller Stand: Phase 2.1
+# SPATIAL LAB – Audio Drama Spatial Environments
+
+[Aktuelle vier Oberflächen und Bildherkunft](../../classic/CLASSIC_GUI.md) · [Versionsbericht 1.3](../../v1.3/UPDATE.md)
+
+![Aktueller echter Windows-Screenshot – Retro Episode IV](../../oberflaeche-retro.png)
+
+Die folgenden Nachweise dokumentieren ältere Entwicklungsstände; historische Bilddateien bleiben unverändert erhalten.
+
+---
+
+# Historischer Stand: Phase 2.1
 
 [Vier große echte Windows-Screenshots, individuelle Röhrenglut bei Stille/Audio, Build und Installationspaket](../../phase2.1/PRUEFBILDER.md). Die folgenden Bilder dokumentieren frühere Stände.
 
 ---
 
-# Aktueller Stand: Entwicklungsphase 2
+# Historischer Stand: Entwicklungsphase 2
 
 [Sechs aktuelle echte Windows-Screenshots mit drei Raumzeichnungen, Build und Installationspaket](../../phase2/screenshots/README.md). Die folgenden Nachweise sind historische Stände vor Phase 2.
 
@@ -55,6 +65,6 @@ Im selben Lauf bestanden unverändert die bisherigen DSP- und Prozessor-Tests, d
 
 SHA-256 des echten Screenshots: `8a00e35d799d3ae7bb25fa3cf382644ffacc12ef17e13021c59c72f96203fe4c`.
 
-![Echter Windows-Screenshot des Produktionseditors](Windows-Editor-Screenshot.png)
+[Historischer Windows-Screenshot](Windows-Editor-Screenshot.png)
 
 Der neue echte Screenshot wurde mit dem Screenshot aus `32f4d8a` verglichen: Alle Pixel außerhalb des Logo-Bereichs und der bereits vorhandenen animierten CRT-Signalspur sind identisch. Die Signalspur zeigt aufgrund unterschiedlicher Aufnahmezeitpunkte eine andere Animationsphase; deren Code wurde nicht geändert. Audiocode, Parameter, Messwertpfad, Bedienflächen und sonstige GUI-Logik sind gegenüber `32f4d8a` unverändert.

@@ -1,61 +1,46 @@
-# Oberflächen von SPATIAL LAB
+# SPATIAL LAB – Audio Drama Spatial Environments
 
-Version 1.1.0 bietet Retro sowie Classic Dunkel und Classic Hell im selben Plugin. PR #4 wurde nach erfolgreicher Abnahme nach `main` übernommen. [SPATIAL LAB v1.1 ist offiziell veröffentlicht](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.1.0).
+## Oberflächen in Version 1.3
 
-## Oberflächen direkt vergleichen
-
-Die Retro-Skins sind das ursprüngliche, charakteristische Gerätedesign: zuerst Episode I, dann Episode IV. Danach folgen Classic Dunkel und Classic Hell als schlichte Alternativen. Alle Aufnahmen stammen aus dem [vollständig erfolgreichen v1.1.0-Prüflauf 44047686119](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44047686119) und haben nativ 1504 × 846 Pixel.
+Retro ist das ursprüngliche Gerätedesign. Episode IV bleibt die Standardansicht. Classic Dunkel und Classic Hell sind schlichte Alternativen mit denselben Presets und Parametern. Alle vier aktuellen Bilder sind unveränderte native Windows-Aufnahmen des Produktionseditors, jeweils 1504 × 846 Pixel. Herkunft und Prüfsummen stehen im [Screenshot-Manifest](../screenshots.json), die vollständige Abnahme im [Versionsbericht](../v1.3/UPDATE.md).
 
 ### Retro Episode I – fabrikneu
 
-![SPATIAL LAB Retro Episode I – fabrikneu](screenshots/v1.1.0/Retro-Episode-I.png)
+![Retro Episode I](../oberflaeche-retro-neu.png)
 
 ### Retro Episode IV – verwittert
 
-![SPATIAL LAB Retro Episode IV – verwittert](screenshots/v1.1.0/Retro-Episode-IV.png)
+![Retro Episode IV](../oberflaeche-retro.png)
 
 ### Classic Dunkel – schlichte Alternative
 
-![SPATIAL LAB Classic Dunkel – schlichte Alternative](screenshots/v1.1.0/Classic-Dunkel.png)
+![Classic Dunkel](../oberflaeche-dunkel.png)
 
 ### Classic Hell – schlichte Alternative
 
-![SPATIAL LAB Classic Hell – schlichte Alternative](screenshots/v1.1.0/Classic-Hell.png)
+![Classic Hell](../oberflaeche-hell.png)
 
-Die Classic-Aufnahmen zeigen die finalen RADIOPHONE-artigen Drehregler mit orangefarbenem Wertebogen und den Untertitel rechts neben SPATIAL LAB. Die Retro-Aufnahmen zeigen beide Skins mit dem Look-Zahnrad oben rechts.
+## Produktkennung
 
-### Bildherkunft
+Classic zeigt SPATIAL LAB und AUDIO DRAMA SPATIAL ENVIRONMENTS nebeneinander, darunter STROMSCHLAG AUDIO · v1.3. Retro ergänzt dieselben Produktangaben im Metadatenbereich unterhalb der tatsächlichen Bus-/Sampleratenanzeige. Die Versionsanzeige wird automatisch aus CMake erzeugt; intern lautet die VST3-Version 1.3.0, öffentlich 1.3. Originalfrontplatten und Logo bleiben unverändert.
 
-| Ansicht | CI-Artefakt | Originalpfad im Artefakt |
-|---|---|---|
-| Retro Episode I | SpatialLab-Phase3B-Screenshots | Episode-I/Room-0/Windows-Editor-Screenshot.png |
-| Retro Episode IV | SpatialLab-Phase3B-Screenshots | Episode-IV/Room-0/Windows-Editor-Screenshot.png |
-| Classic Dunkel | SpatialLab-Classic-Looks | Look-1/Windows-Editor-Screenshot.png |
-| Classic Hell | SpatialLab-Classic-Looks | Look-2/Windows-Editor-Screenshot.png |
+## Bedienung und Speicherung
 
-Die vier PNGs unter `docs/classic/screenshots/v1.1.0/` wurden bytegleich aus diesen Artefakten übernommen und visuell geprüft. Keine Neuzeichnung, Simulation, Bildbearbeitung, Skalierung oder neuer Plugin-Build. Die historischen Dateien unter `docs/classic/screenshots/` und `docs/release-v1/screenshots/` bleiben unverändert erhalten.
+Das Zahnrad rechts oben in Retro beziehungsweise die Look-Auswahl in Classic öffnet Retro / Classic Dunkel / Classic Hell. Der Episode-I/IV-Schalter bleibt im Retro-Modus. Look und Episode werden als getrennte GUI-Präferenzen gespeichert und verändern weder Audio-State noch Host-Automation.
 
-## Bestandsaufnahme und Wiederverwendung
+Alle Ansichten verwenden denselben PresetBrowser mit 26 Umgebungen in vier Kategorien, denselben SIZE-/TONE-Reglern und denselben Parameter-Attachments. Die Classic-Regler behalten den RADIOPHONE-artigen orangefarbenen Wertebogen und die runde Positionsmarkierung. Neutrale Reglerstellung: 50 % / 50 %. Ausschließlich 100 % Wet, kein zusätzlicher Audioregler.
 
-SpatialLabEditor besitzt bereits die beiden Slider samt SliderParameterAttachments, PresetBrowser, die unabhängige Episode-Präferenz und einen Editor-Timer. Diese Instanzen bleiben bestehen. Die Erweiterung ergänzt ausschließlich einen Look-Zustand und alternative Anordnung/Zeichnung im selben Editor. Kein eigener Classic-Prozessor, keine separaten Parameter, keine Änderungen an AudioProcessor, Raumkatalog, DSP oder Audio-State.
+Standardgröße 1504 × 846, Minimum 1003 × 565, Maximum 2174 × 1223, proportional skalierbar. Retro behält CRT, Röhren und beide zusätzlichen Glimmstellen. Classic zeichnet nur bei Änderungen; keine zusätzlichen Timer oder Hintergrundberechnungen.
 
-Gestalterische Referenz: [Locations-vst PluginEditor.cpp](https://github.com/StromschlagProductions/Locations-vst/blob/d6a1a565842c23b313878d111e57c0aff2b1b630/Source/PluginEditor.cpp), insbesondere die Dunkel-/Hell-Paletten und Kopfzeile mit Original-Logo als Tintenmaske. Die finalen Classic-Regler folgen [RADIOPHONE](https://github.com/StromschlagProductions/Radiophone-vst/blob/f38f04eab69446891fd99b9f2b4284abadacaa53/Source/PluginEditor.cpp): JUCE V4, orangefarbener Wertebogen und runde Positionsmarkierung. Der Untertitel steht rechts neben dem Titel; seine Position folgt der tatsächlichen Titelbreite. Farben zentral in ClassicTheme.h; keine separate Hell-/Dunkel-Implementierung.
+## Prüfung und Bildherkunft
 
-## Bedienung
+Der Windows-Prüfhost erfasst den tatsächlich gebauten JUCE-Editor über native Desktop-Aufnahmen. Das Artefakt SpatialLab-Classic-Looks enthält Retro-Episode-I sowie Look-0 (Retro IV), Look-1 (Dunkel), Look-2 (Hell). Tools/package_branding_screenshots.py kopiert diese PNGs bytegleich und erstellt das Manifest. Keine Nachzeichnung, Montage, Skalierung oder nachträglich eingefügte Beschriftung. Historische Screenshots bleiben erhalten.
 
-Retro bleibt Standard für bestehende Einstellungen. Ein kleines Zahnrad rechts oben im freien Hintergrund öffnet Retro / Classic Dunkel / Classic Hell. Der vorhandene Episode-I/IV-Schalter bleibt ausschließlich im Retro-Modus und unverändert an seiner bisherigen Position.
+Die automatisierten GUI-Tests prüfen Look-/Episode-Wechsel, unveränderten Audio-State, samplegleiches Audio, alle 26 Presets, drei Größen und getrennte Persistenz. Hash-Prüfungen schützen den v1.2-DSP, AudioProcessor, Parameter-/Preset-Definitionen, Originalfrontplatten und Logo. Vollständige Windows-/Linux-Abnahme und pluginval Level 8 bleiben Voraussetzung der Veröffentlichung. [Aktueller Nachweis](../v1.3/UPDATE.md).
 
-Classic zeigt dieselbe Look-Auswahl in der Kopfzeile, das originale Stromschlag-Audio-Logo, SPATIAL LAB und einen Untertitel. Darunter arbeitet derselbe PresetBrowser mit allen 26 Räumen in vier Kategorien, Wheel, Schieber, Direktwahl und Host-Synchronisierung. Die beiden vorhandenen Drehregler stehen unter dem Browser. Ihre Werte und Attachments bleiben unverändert; kein neuer Audioparameter.
+## Historische Abnahmen
 
-Der Look wird als reiner GUI-Schlüssel `look` (0 Retro, 1 Dunkel, 2 Hell) in der bisherigen PropertiesFile gespeichert. Die separate Episode-Einstellung bleibt erhalten. Fenstergröße und proportionale Skalierung bleiben für alle Looks gleich (1003×565 bis 2174×1223, Standard 1504×846). Eine kompaktere unabhängige Classic-Fenstergröße wird bewusst nicht eingeführt; damit bleibt die vorhandene Größen-/Hostlogik bestehen.
-
-Röhren, Glut und Raumzeichnungen werden nur im Retro-Modus gezeichnet. Classic benötigt keine Animation und zeichnet nur bei Änderungen neu. Der vorhandene Timer wird für Parameter-/Host-Synchronisierung weiterverwendet; keine neuen Timer oder Hintergrundberechnungen.
-
-## Abgrenzung und Prüfung
-
-Tools/check_classic_scope.py sichert zwölf unveränderte Release-Dateien per SHA-256: Prozessor/State/Identität, beide Engines, Katalog, RetroMotion, GuiTelemetry, GuiPreferences sowie Originalfrontplatten und Logo. Nur Git-Zeilenenden der Quelltexte werden kanonisiert; PNGs bleiben binär unverändert. CMake ergänzt lediglich die vorhandene Logo-PNG als eingebettete GUI-Ressource, ohne Plugin-IDs zu ändern. Die offizielle Versionsnummer ist 1.1.0.
-
-Erweiterte GUI-Tests prüfen wiederholte Look-/Episode-Wechsel, bytegleichen Audio-State und samplegleiches Audio gegenüber einer Instanz ohne Lookwechsel, 26 Direktwahlen je Look bei drei Größen, unabhängige Persistenz und unverändert drei Audio-Parameter. Bestehende Audio-/GUI-/Lichttests bleiben aktiv. Windows-CI ergänzt pluginval v1.0.4 mit festem Paket-Hash und strictness level 8 sowie echte Desktop-Aufnahmen der drei Looks.
+Die folgenden Nachweise und historischen Dateien bleiben als Entwicklungshistorie erhalten; aktuelle Downloads und Screenshots stehen oben.
 
 ## Finale Prüfnachweise für v1.1.0
 
@@ -83,4 +68,4 @@ Die abschließende Bedienprüfung in der eigenen DAW bleibt sinnvoll; eine Freig
 
 ## Offizielle Veröffentlichung
 
-[SPATIAL LAB v1.1.0](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.1.0) ist als neueste stabile Version veröffentlicht. [Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.1.0/SpatialLab-v1.1.0-Windows-x64-VST3.zip). Der [erfolgreiche Veröffentlichungsworkflow](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44053161338) hat erfolgreiche Windows-/Linux-Abnahme, CTest und pluginval Level 8, Version, main-Zugehörigkeit, bytegleiche Build-Eingaben, ZIP-Integrität und VST3-IDs geprüft. Die veröffentlichte Asset-Prüfsumme entspricht dem oben dokumentierten geprüften Paket. Für diesen reinen Dokumentations- und Screenshot-Nachtrag war kein neuer Plugin-Build erforderlich.
+[SPATIAL LAB v1.1.0](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.1.0) wurde als stabile Version veröffentlicht. [Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.1.0/SpatialLab-v1.1.0-Windows-x64-VST3.zip). Der [erfolgreiche Veröffentlichungsworkflow](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44053161338) hat erfolgreiche Windows-/Linux-Abnahme, CTest und pluginval Level 8, Version, main-Zugehörigkeit, bytegleiche Build-Eingaben, ZIP-Integrität und VST3-IDs geprüft. Die veröffentlichte Asset-Prüfsumme entspricht dem oben dokumentierten geprüften Paket. Für diesen reinen Dokumentations- und Screenshot-Nachtrag war kein neuer Plugin-Build erforderlich.

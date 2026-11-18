@@ -1,4 +1,4 @@
-# SPATIAL LAB – Spatial Environments for Audio Drama
+# SPATIAL LAB – Audio Drama Spatial Environments
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dunkel.png">
@@ -19,9 +19,15 @@ Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich per
 
 **[SPATIAL LAB für Windows herunterladen (neueste Version)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)**
 
-[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.2.0/SpatialLab-v1.2.0-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
+[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.3/SpatialLab-v1.3-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung, Oberflächen und Version](docs/classic/CLASSIC_GUI.md)
 
-## Neu in v1.2.0 – überarbeitete Raumakustik
+## Version 1.3 – einheitliche Produktkennung
+
+**Audio Drama Spatial Environments** ist der gemeinsame Untertitel von Plugin, Dokumentation und Homepage. Classic Dunkel/Hell zeigen `STROMSCHLAG AUDIO · v1.3` unter Titel und Untertitel; Retro zeigt dieselbe Produkt-/Versionskennung im vorhandenen Metadatenbereich. Die Version stammt automatisch aus dem CMake-Projekt. [Release-Hinweise](docs/RELEASE_v1.3.md) · [Prüfbericht und Screenshot-Herkunft](docs/v1.3/UPDATE.md).
+
+**Der zuletzt freigegebene DSP und alle 26 Raumabstimmungen aus v1.2.0 bleiben unverändert.**
+
+## Raumakustik seit v1.2.0
 
 Alle 26 Umgebungen sind für Sprachräume neu abgestimmt: geometrisch begründete frühe Reflexionen, deutlichere Kabinenrückwürfe, ein dichterer Tunnel-/Unterführungscharakter und unregelmäßige Canyon-Reflexionen statt Pingpong. Die offene Landschaft bleibt bewusst nahezu trocken. Keine pauschale Ausgangsanhebung, kein Loudness-Matching und keine zusätzlichen Regler.
 
@@ -54,21 +60,21 @@ SPATIAL LAB liefert **immer 100 % Wet** und ist für FX-/Send-Kanäle ausgelegt.
 
 ### Retro Episode I – fabrikneu
 
-![SPATIAL LAB Retro Episode I – fabrikneu](docs/classic/screenshots/v1.1.0/Retro-Episode-I.png)
+![SPATIAL LAB Retro Episode I – fabrikneu](docs/oberflaeche-retro-neu.png)
 
 ### Retro Episode IV – verwittert
 
-![SPATIAL LAB Retro Episode IV – verwittert](docs/classic/screenshots/v1.1.0/Retro-Episode-IV.png)
+![SPATIAL LAB Retro Episode IV – verwittert](docs/oberflaeche-retro.png)
 
 ### Classic Dunkel – schlichte Alternative
 
-![SPATIAL LAB Classic Dunkel – schlichte Alternative](docs/classic/screenshots/v1.1.0/Classic-Dunkel.png)
+![SPATIAL LAB Classic Dunkel – schlichte Alternative](docs/oberflaeche-dunkel.png)
 
 ### Classic Hell – schlichte Alternative
 
-![SPATIAL LAB Classic Hell – schlichte Alternative](docs/classic/screenshots/v1.1.0/Classic-Hell.png)
+![SPATIAL LAB Classic Hell – schlichte Alternative](docs/oberflaeche-hell.png)
 
-Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.1.0-Builds. Die Classic-Ansichten zeigen SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen und die überarbeitete Kopfzeile.
+Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.3-Builds. Die Classic-Ansichten zeigen SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen und die überarbeitete Kopfzeile.
 
 Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in Classic wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Episode I/IV wird weiterhin im Retro-Modus gewählt. Die Auswahl ist rein kosmetisch; alle Ansichten teilen dieselben Presets und Parameter. [GUI-Dokumentation und Bildherkunft](docs/classic/CLASSIC_GUI.md). Die historischen Screenshots bleiben im Repository erhalten.
 
@@ -78,11 +84,11 @@ Classic Dunkel und Classic Hell: Die Drehregler SIZE und TONE haben jetzt diesel
 
 ## Technische Aktualisierung 1.1.1
 
-Weniger redundante Outdoor-Berechnungen, Schutz vor ungültigen Eingangs-/Steuerwerten und zusätzliche Grenzfalltests. [Release-Hinweise](docs/RELEASE_v1.1.1.md). Die unten dokumentierten Windows-Screenshots stammen weiterhin unverändert aus 1.1.0.
+Weniger redundante Outdoor-Berechnungen, Schutz vor ungültigen Eingangs-/Steuerwerten und zusätzliche Grenzfalltests. [Release-Hinweise](docs/RELEASE_v1.1.1.md).
 
 ## Installation
 
-1. Die Datei **SpatialLab-v1.2.0-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
+1. Die Datei **SpatialLab-v1.3-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
 2. DAW schließen und das ZIP vollständig entpacken.
 3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
 4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.
@@ -110,7 +116,7 @@ Host-Auswahl und Session-Recall machen den aktiven Eintrag im Browser sichtbar. 
 
 ## Kompatibilität und bekannte Grenzen
 
-Version 1.2 behält 26 linear kodierte Raumwerte, Preset-Keys, drei Parameter und Session-Schema 5 bei. Hersteller-/Plugin-Kennungen und Parameter-IDs bleiben unverändert. Die Raumabstimmungen wurden gezielt überarbeitet; ein Legacy-Klangmodus oder zusätzliche Session-Migrationen werden nicht eingeführt.
+Version 1.3 behält 26 linear kodierte Raumwerte, Preset-Keys, drei Parameter und Session-Schema 5 bei. Hersteller-/Plugin-Kennungen und Parameter-IDs bleiben unverändert. Die Raumabstimmungen wurden gezielt überarbeitet; ein Legacy-Klangmodus oder zusätzliche Session-Migrationen werden nicht eingeführt.
 
 Raumwechsel blenden das Wet-Signal kurz aus und wieder ein, um harte Abrisse zu vermeiden. Raumpegel werden nicht künstlich angeglichen. Durchschnitts-CPU-Messungen sind keine Garantie für jede Hardware oder extrem kleine Audioblöcke.
 

@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include "SpatialLabBranding.h"
 #if JUCE_WINDOWS
  #ifndef NOMINMAX
   #define NOMINMAX
@@ -9,7 +10,7 @@
 class PreviewWindow final : public juce::DocumentWindow
 {
 public:
-    PreviewWindow() : DocumentWindow(juce::String::fromUTF8("SPATIAL LAB – Retro GUI"), juce::Colours::black, closeButton) {}
+    PreviewWindow() : DocumentWindow(juce::String::fromUTF8("SPATIAL LAB – Audio Drama Spatial Environments"), juce::Colours::black, closeButton) {}
     void closeButtonPressed() override { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
 };
 
@@ -18,7 +19,7 @@ class Preview final : public juce::JUCEApplication, private juce::Timer
 {
 public:
     const juce::String getApplicationName() override { return "SpatialLab GUI Preview"; }
-    const juce::String getApplicationVersion() override { return "1.1.0"; }
+    const juce::String getApplicationVersion() override { return spatiallab::branding::publicVersion; }
     void initialise(const juce::String& args) override
     {
 #if JUCE_WINDOWS
@@ -77,6 +78,15 @@ public:
             : new SpatialLabEditor(*processor, output.getChildFile("preview.gui.settings"));
         if (output != juce::File()) editor->setEpisodeIV(episodeIV, false);
         editor->setLook(lookIndex,false);
+        if(output!=juce::File()) {
+            juce::DynamicObject::Ptr data=new juce::DynamicObject();
+            data->setProperty("version",spatiallab::branding::version);
+            data->setProperty("public_version",spatiallab::branding::publicVersion);
+            data->setProperty("subtitle",spatiallab::branding::subtitle);
+            data->setProperty("manufacturer_line",juce::String::fromUTF8(spatiallab::branding::manufacturerLine));
+            data->setProperty("look",lookIndex);data->setProperty("episode",episodeIV?"IV":"I");
+            output.createDirectory();output.getChildFile("Branding.json").replaceWithText(juce::JSON::toString(juce::var(data.get())));
+        }
         editor->setSize(width,height);
         window->setContentOwned(editor, true);
         window->setTopLeftPosition(0, 0);
