@@ -22,7 +22,7 @@ Der bestehende Windows-Prüfhost öffnet den tatsächlich kompilierten Produktio
 
 `Tools/package_branding_screenshots.py` kopiert ausschließlich die nativen `Windows-Editor-Screenshot.png` aus dem erfolgreichen CI-Lauf, bytegleich und ohne Bildbearbeitung. Es erzeugt `docs/screenshots.json` mit tatsächlicher Capture-Version, Quelllauf, Bildpfaden und SHA-256. Der Release-Workflow prüft das Manifest und hängt es als Asset an. Historische Bilder bleiben erhalten.
 
-Aktuelle Bilder: `docs/oberflaeche-retro-neu.png`, `docs/oberflaeche-retro.png`, `docs/oberflaeche-dunkel.png`, `docs/oberflaeche-hell.png`. README und aktuelle GUI-Dokumentation werden damit aktualisiert; historische Release Notes bleiben unverändert.
+Aktuelle Bilder: `docs/oberflaeche-retro-neu.png`, `docs/oberflaeche-retro.png`, `docs/oberflaeche-dunkel.png`, `docs/oberflaeche-hell.png`. README und aktuelle GUI-Dokumentation sind damit aktualisiert; historische Release Notes bleiben unverändert.
 
 ## Homepage
 
@@ -56,4 +56,12 @@ Die Prüfung ersetzt keinen subjektiven Hörtest oder eine Bedienprüfung in jed
 
 Alle vier Bilder aus [CI-Lauf 44278481794](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44278481794), Artefakt [SpatialLab-Classic-Looks](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44278481794/artifacts/14415883025), sind bytegleich übernommen und visuell geprüft: vollständige Titel-/Untertitelzeile ohne Überschneidung, Herstellerkennung v1.3, unveränderte Classic-Regler; in Retro beide Episoden, Produktkennung im Metadatenbereich, Logo, Browser und Samplerate sichtbar. Vier PNGs jeweils 1504 × 846 Pixel. [Manifest mit SHA-256](../screenshots.json).
 
-Die Homepage-Auflösung wurde in einem echten Chromium mit kontrollierten Release-Antworten geprüft: v1.3 und historisches v1.2.0 setzen Versionsanzeige, passendes Tag-Bild und tatsächliches Windows-VST3-ZIP korrekt. Bei API-Ausfall bleibt die Versionsanzeige leer/ausgeblendet und der Link führt zu /releases/latest. Die Live-Prüfung folgt nach Veröffentlichung.
+Die Homepage-Auflösung wurde in einem echten Chromium mit kontrollierten Release-Antworten geprüft: v1.3 und historisches v1.2.0 setzen Versionsanzeige, passendes Tag-Bild und tatsächliches Windows-VST3-ZIP korrekt. Bei API-Ausfall bleibt die Versionsanzeige leer/ausgeblendet und der Link führt zu /releases/latest. Die abschließende Live-Prüfung ist ebenfalls bestanden, siehe Veröffentlichung unten.
+
+## Tatsächlich veröffentlicht
+
+[SPATIAL LAB v1.3](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.3) ist öffentlich veröffentlicht und als neueste stabile Version gekennzeichnet (`draft=false`, `prerelease=false`). [Veröffentlichungsworkflow 44301446471](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44301446471): erfolgreich. [PR #8](https://github.com/StromschlagProductions/SpatialLab-vst/pull/8) ist nach `main` übernommen; Tag v1.3 verweist auf diesen geprüften Stand einschließlich der aktuellen Screenshots.
+
+[Windows-x64-VST3 direkt herunterladen](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.3/SpatialLab-v1.3-Windows-x64-VST3.zip). Die öffentliche ZIP-Datei wurde nach Veröffentlichung erneut heruntergeladen: 18.885.330 Byte, CRC fehlerfrei, SHA-256 identisch zum akzeptierten Build (`e171493f0e37f78d65bff84b57fc199953b58a3d5115e20c2f98fad8e16f9831`). SHA256SUMS.txt und screenshots.json sind ebenfalls reale Release-Assets. Historische Releases bleiben unverändert.
+
+[Homepage](https://stromschlagproductions.github.io/): aktualisiert und [GitHub-Pages-Bereitstellung erfolgreich](https://github.com/StromschlagProductions/StromschlagProductions.github.io/actions/runs/44303637567). Ein echter Chromium hat die öffentlich geladene Seite geprüft: Untertitel Audio Drama Spatial Environments, dynamisch aus dem tatsächlichen Release gelesene Version v1.3, geladene native Retro-Aufnahme 1504 × 846 aus dem Tag v1.3 und Download-Button exakt auf dem oben genannten öffentlichen ZIP. Die fünf anderen Plugin-Karten sind bytegleich unverändert.
