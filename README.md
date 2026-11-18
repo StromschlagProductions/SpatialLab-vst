@@ -153,3 +153,7 @@ Das Projekt wird laufend weiterentwickelt. Trotz sorgfältiger Tests können Feh
 **Feedback, Fehlermeldungen und Verbesserungsvorschläge sind herzlich willkommen!**
 
 Wenn dieses kleine Werkzeug auch anderen die Hörspielarbeit erleichtert und mehr Raum für Geschichten und menschliche Kreativität schafft, freut mich das ganz besonders.
+
+## DSP-Audit – Issue #6 (unveröffentlichter Entwicklungszweig)
+
+Auf `fix/issue-6-acoustic-calibration` werden alle 26 Umgebungen für Sprachräume neu kalibriert. [Analyse, Messvergleich und Studio-One-Hörtest](docs/issue6/IMPLEMENTATION.md). Die offiziellen Release-Dateien bleiben unverändert. Der Entwurf ändert den Klang bestehender Sessions bei erhaltenen Parameter-/Preset-IDs; keine Veröffentlichung oder Zusammenführung ohne Hörfreigabe.

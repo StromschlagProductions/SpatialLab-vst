@@ -31,7 +31,7 @@ int main()
             layout.inputBuses.set(0, juce::AudioChannelSet::canonicalChannelSet(channels.first));
             layout.outputBuses.set(0, juce::AudioChannelSet::canonicalChannelSet(channels.second));
             require(processor.setBusesLayout(layout), "Supported layout rejected");
-            for (double rate : {44100.0, 48000.0})
+            for (double rate : {44100.0, 48000.0, 96000.0})
                 for (int preset = 0; preset < 26; ++preset)
                 {
                     parameter(processor, "room", static_cast<float>(preset));
@@ -135,7 +135,7 @@ int main()
         // Editor smoke test: build and lay out the exact three-control surface.
         std::unique_ptr<juce::AudioProcessorEditor> editor(restored.createEditor());
         editor->setSize(420, 250);
-        std::cout << "PASS three controls, preset reset, wet buses/blocks, 44.1/48 kHz, bypass, schema 1/2/3, editor\n";
+        std::cout << "PASS three controls, preset reset, wet buses/blocks, 44.1/48/96 kHz, bypass, schema 5, editor\n";
     }
     catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

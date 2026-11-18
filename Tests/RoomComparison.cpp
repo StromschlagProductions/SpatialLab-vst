@@ -1,4 +1,6 @@
-#include "RoomEngine.h"
+#include "Reference/Issue6/RoomEngine.h"
+// Historical Phase-1/Phase-2 voicing proof. Issue-6 production voicing is
+// measured separately; its early times intentionally differ from this contract.
 #include "Reference/RoomEnginePhase1.h"
 #include <cstdint>
 #include <cstring>
@@ -63,14 +65,14 @@ int main(int argc, char** argv)
         std::cout << "rate,room,old_nominal_rt60,new_nominal_rt60,old_T20_RT60,new_T20_RT60,old_energy_after_500ms,new_energy_after_500ms,early_20_80ms_ratio\n";
         for (double rate : {44100.0,48000.0}) for (int room = 0; room < 3; ++room)
         {
-            const auto old = impulse<spatiallab_phase1::Engine>(rate,room), proposed = impulse<spatiallab::Engine>(rate,room);
+            const auto old = impulse<spatiallab_phase1::Engine>(rate,room), proposed = impulse<spatiallab_issue6_baseline::Engine>(rate,room);
             const auto a = metrics(old,rate), b = metrics(proposed,rate);
             require(b.rt60 > 0.08 && b.rt60 < 0.65, "New neutral room decay outside compact-room range");
             require(b.late500 < 0.002, "Excessive long tail in neutral proposed room");
             if (room > 0) require(b.rt60 < a.rt60 * 0.8 && b.late500 < a.late500 * 0.2, "Kitchen/bath tail not sufficiently shortened");
             if (room == 0) require(b.early20to80 > a.early20to80 * 1.1, "Living-room spatial early field not strengthened");
             std::cout << rate << ',' << room << ',' << spatiallab_phase1::rooms[static_cast<std::size_t>(room)].rt60 << ','
-                      << spatiallab::rooms[static_cast<std::size_t>(room)].rt60 << ',' << a.rt60 << ',' << b.rt60 << ','
+                      << spatiallab_issue6_baseline::rooms[static_cast<std::size_t>(room)].rt60 << ',' << a.rt60 << ',' << b.rt60 << ','
                       << a.late500 << ',' << b.late500 << ',' << b.early20to80 / a.early20to80 << '\n';
             if (argc > 1)
             {

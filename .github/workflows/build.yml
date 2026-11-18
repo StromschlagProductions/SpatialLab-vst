@@ -32,7 +32,7 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check --target .ci-tools cmake==3.31.6
           "$pwd/.ci-tools/cmake/data/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: Originalgrafiken und Phase-2-Audio bytegenau unverändert prüfen
+      - name: Originalgrafiken, öffentliche Verträge und eingefrorene DSP-Referenzen prüfen
         run: |
           python Tools/check_episode_artwork.py
           python Tools/check_protected_audio.py
@@ -157,7 +157,7 @@ jobs:
           name: SpatialLab-GUI-Capture-Diagnostics
           path: build/gui-preview/
           if-no-files-found: ignore
-      - name: Alte und neue Raum-Impulsantworten bei beiden Zielraten vergleichen
+      - name: Historische Phase-1/Phase-2-Raumabstimmung am eingefrorenen Vorgänger prüfen
         shell: pwsh
         run: |
           ./build/Release/SpatialLabRoomComparison.exe build/room-comparison | Tee-Object -FilePath build/room-comparison.csv
@@ -242,3 +242,52 @@ jobs:
       - run: cmake --build build --parallel 2
       - name: Complete sanitizer suite for explicit acceptance
         run: ctest --test-dir build --output-on-failure
+
+  acoustic-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Prepare pinned offline measurement tools
+        run: |
+          python3 -m venv .audit-venv
+          .audit-venv/bin/pip install cmake==3.31.6 numpy==2.3.5
+          if ! ffmpeg -hide_banner -filters > /tmp/flite-filters.txt 2>/dev/null; then true; fi
+          if ! grep -q flite /tmp/flite-filters.txt; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+      - name: Compile both real DSP versions with identical Release settings
+        run: |
+          .audit-venv/bin/cmake -S . -B build-audit -DSPATIALLAB_BUILD_PLUGIN=OFF -DCMAKE_BUILD_TYPE=Release
+          .audit-venv/bin/cmake --build build-audit --target SpatialLabAcousticAudit SpatialLabAcousticBaseline SpatialLabDspBenchmark SpatialLabBaselineBenchmark --parallel 2
+      - name: Generate one original unnormalized source and render 26 environments
+        run: |
+          .audit-venv/bin/python Tools/issue6_source.py build-audit/source
+          git rev-parse HEAD > build-audit/tested-commit.txt
+          build-audit/SpatialLabAcousticBaseline build-audit/before build-audit/source/speech.f32
+          build-audit/SpatialLabAcousticAudit build-audit/after build-audit/source/speech.f32
+          .audit-venv/bin/python Tools/acoustic_audit.py build-audit/before --source build-audit/source/speech.f32 --wav
+          .audit-venv/bin/python Tools/acoustic_audit.py build-audit/after --source build-audit/source/speech.f32 --wav
+          .audit-venv/bin/python Tools/compare_acoustic_audit.py build-audit
+      - name: Measure before and after CPU serially (informational)
+        run: |
+          build-audit/SpatialLabBaselineBenchmark > build-audit/cpu-before.csv
+          build-audit/SpatialLabDspBenchmark > build-audit/cpu-after.csv
+      - name: Upload measurements and actual-DSP listening files
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: SpatialLab-Issue6-Acoustic-Audit
+          retention-days: 14
+          path: |
+            build-audit/source/
+            build-audit/before/*.csv
+            build-audit/before/*.json
+            build-audit/before/*.wav
+            build-audit/after/*.csv
+            build-audit/after/*.json
+            build-audit/after/*.wav
+            build-audit/COMPARISON.md
+            build-audit/tested-commit.txt
+            build-audit/cpu-before.csv
+            build-audit/cpu-after.csv
+          if-no-files-found: error

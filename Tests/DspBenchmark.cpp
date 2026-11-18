@@ -1,4 +1,11 @@
+#include "../Tools/AuditFpMode.h"
+#if defined(SPATIALLAB_AUDIT_BASELINE)
+#include "Reference/Issue6/RoomEngine.h"
+namespace benchmark=spatiallab_issue6_baseline;
+#else
 #include "RoomEngine.h"
+namespace benchmark=spatiallab;
+#endif
 #include <chrono>
 #include <iostream>
 
@@ -6,13 +13,14 @@
 // Includes 64-frame target refresh, one active preallocated preset, no host/GUI.
 int main()
 {
+    AuditFpMode floatingPointMode;
     std::cout << "rate,room,layout,controls,ns_per_frame,single_core_percent,checksum\n";
     for (double rate : {44100.0, 48000.0})
         for (int preset=0;preset<26;++preset)
         for (bool mono : {true, false})
             for (int mode : {0, 1, 2})
             {
-                spatiallab::Engine engine;
+                benchmark::Engine engine;
                 engine.prepare(rate, preset, 0.5f, 0.5f);
                 const int samples = static_cast<int>(rate * 4);
                 float checksum = 0;

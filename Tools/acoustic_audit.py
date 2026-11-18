@@ -26,16 +26,19 @@ def measure(folder,source=None,wavs=False):
         corr=float(np.sum(x[:,0]*x[:,1])/max(np.sqrt(np.sum(x[:,0]**2)*np.sum(x[:,1]**2)),1e-30))
         mid=x.mean(axis=1);left=np.fromfile(folder/(key+'-ir-left.f32'),dtype='<f4').reshape(-1,2).astype(float)
         row=dict(key=key,ir_peak_dbfs=db(peak*peak),ir_energy_db=db(total),onset_ms=float(nz[0]/48),edc_t20_rt60_s=t20,edc_t20_fit_r2=r2,ir_lr_correlation=corr,mono_loss_db=db(np.sum(mid*mid)/total),left_input_energy_db=db(np.mean(left*left,axis=1).sum()),tail_last_second_db=db(e[-RATE:].sum()/total),c50_wet_db=db(e[:2400].sum()/max(e[2400:].sum(),1e-30)))
+        f=np.fft.rfftfreq(len(x),1/RATE);h=np.fft.rfft(x,axis=0)
         for lo,hi in [(30,120),(120,500),(500,2000),(2000,8000)]:
             # Parseval energy over two-sided FFT with the corresponding positive/negative band.
-            f=np.fft.rfftfreq(len(x),1/RATE);h=np.fft.rfft(x,axis=0);mask=(f>=lo)&(f<hi)
+            mask=(f>=lo)&(f<hi)
             row[f'band_{lo}_{hi}_db']=db(2*np.mean(np.abs(h[mask])**2,axis=1).sum()/len(x))
         if source is not None:
             wet=np.fromfile(folder/(key+'-speech-send-6.f32'),dtype='<f4').reshape(-1,2).astype(float);n=len(source)
             assert len(wet)==n+RATE*12 and np.isfinite(wet).all()
             mix=wet.copy();mix[:n]+=source[:,None]
             row.update(source_rms_dbfs=db(np.mean(source*source)),wet_rms_source_window_dbfs=db(np.mean(wet[:n]**2)),wet_rms_full_window_dbfs=db(np.mean(wet**2)),wet_to_source_db=db(np.mean(wet[:n]**2)/np.mean(source*source)),wet_peak_dbfs=db(np.max(np.abs(wet))**2),dry_plus_send6_peak_dbfs=db(np.max(np.abs(mix))**2),speech_mono_loss_db=db(np.mean(wet.mean(axis=1)**2)/np.mean(wet**2)))
-            if wavs:wave(folder/(key+'-wet-send-6.wav'),wet);wave(folder/(key+'-dry-plus-send-6.wav'),mix)
+            wet0=wet/0.5011872336;mix0=wet0.copy();mix0[:n]+=source[:,None]
+            row.update(wet_send0_peak_dbfs=db(np.max(np.abs(wet0))**2),dry_plus_send0_peak_dbfs=db(np.max(np.abs(mix0))**2))
+            if wavs:wave(folder/(key+'-wet-send-6.wav'),wet)
         rows.append(row);edcs[key]=[[float(t[i]),float(edb[i])] for i in range(0,len(x),480)]
         # Local maxima, strongest first, at most one per 1-ms neighbourhood.
         magnitude=np.max(np.abs(x),axis=1);candidates=np.flatnonzero((magnitude[1:-1]>magnitude[:-2])&(magnitude[1:-1]>=magnitude[2:]))+1
@@ -46,11 +49,12 @@ def measure(folder,source=None,wavs=False):
         arrivals[key]=[dict(ms=i/48,peak_dbfs=db(magnitude[i]**2)) for i in sorted(chosen)]
         if wavs:wave(folder/(key+'-impulse.wav'),x)
     assert len(rows)==26
-    with (folder/'metrics.csv').open('w') as f:w=csv.DictWriter(f,fieldnames=rows[0]);w.writeheader();w.writerows(rows)
+    with (folder/'metrics.csv').open('w') as f:w=csv.DictWriter(f,fieldnames=rows[0],lineterminator='\n');w.writeheader();w.writerows(rows)
     (folder/'edc.json').write_text(json.dumps(edcs));(folder/'arrivals.json').write_text(json.dumps(arrivals,indent=2))
     return rows
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('folder',type=pathlib.Path);p.add_argument('--source',type=pathlib.Path);p.add_argument('--wav',action='store_true');a=p.parse_args()
     source=np.fromfile(a.source,dtype='<f4').astype(float) if a.source else None
     rows=measure(a.folder,source,a.wav)
+    if a.wav and source is not None:wave(a.folder/"speech-dry.wav",source)
     for r in rows:print(r['key'],round(r['ir_energy_db'],2),round(r['onset_ms'],2),r.get('wet_to_source_db'))

@@ -4,7 +4,7 @@ Ausgangspunkt: `1792e18`, Version 1.1.2. Branch `fix/issue-6-acoustic-calibratio
 
 ## Messkonzept und Reproduktion
 
-`Tools/AcousticAudit.cpp` ruft den tatsächlich verwendeten `Engine` auf, ohne Ersatzhall. 26 Presets, 48 kHz, SIZE/TONE jeweils 0,5, 100 % Wet. Je Preset: Einheitsimpuls mit identischer Anregung beider Eingänge (wie Mono→Stereo im Prozessor), linksseitiger Impuls und identische Mono-Sprache. IR-Fenster 16 s. Sprache: originale, lokal durch FFmpeg/CMU Flite (`slt`) synthetisierte Erzählung; keine fremde Aufnahme. Quelle, Softwareversion, unveränderte Quelldatei-Prüfsumme und Pegel: [source.json](source.json). Kein Normalisieren, Limiting, automatisches Gain-Matching oder Oversampling.
+Der ursprüngliche Offline-Ausgangslauf wurde abschließend mit derselben x64-Denormal-Einstellung wie JUCE reproduziert; dies betrifft ausschließlich unhörbare numerische Restwerte. `Tools/AcousticAudit.cpp` ruft den tatsächlich verwendeten `Engine` auf, ohne Ersatzhall. 26 Presets, 48 kHz, SIZE/TONE jeweils 0,5, 100 % Wet. Je Preset: Einheitsimpuls mit identischer Anregung beider Eingänge (wie Mono→Stereo im Prozessor), linksseitiger Impuls und identische Mono-Sprache. IR-Fenster 16 s. Sprache: originale, lokal durch FFmpeg/CMU Flite (`slt`) synthetisierte Erzählung; keine fremde Aufnahme. Quelle, Softwareversion, unveränderte Quelldatei-Prüfsumme und Pegel: [source.json](source.json). Kein Normalisieren, Limiting, automatisches Gain-Matching oder Oversampling.
 
 Die Quelle dauert 11,22 s; RMS −15,61 dBFS, Sample-Peak −3,98 dBFS. Der Renderer multipliziert den Plugin-Eingang für den Sprachtest ausschließlich mit `10^(-6/20)`; FX-Rückweg 0 dB. Auswertung:
 
