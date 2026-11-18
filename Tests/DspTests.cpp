@@ -57,8 +57,8 @@ int main()
                     const float x = i == 0 ? 1.0f : 0;
                     const auto fields = preset.process(x, 0);
                     const auto wet = engine.process(x, 0);
-                    require(std::abs(wet.left - fields.early.left - fields.late.left) < 1e-6f
-                         && std::abs(wet.right - fields.early.right - fields.late.right) < 1e-6f,
+                    require(std::abs(wet.left - spatiallab::wetPresetGains[static_cast<std::size_t>(room)]*(fields.early.left + fields.late.left)) < 1e-6f
+                         && std::abs(wet.right - spatiallab::wetPresetGains[static_cast<std::size_t>(room)]*(fields.early.right + fields.late.right)) < 1e-6f,
                          "Neutral macro changed the preset voicing");
                     earlyField += fields.early.left * fields.early.left;
                     lateField += fields.late.left * fields.late.left;

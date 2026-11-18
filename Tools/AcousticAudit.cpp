@@ -3,6 +3,9 @@
 #if defined(SPATIALLAB_AUDIT_BASELINE)
 #include "Reference/Issue6/RoomEngine.h"
 namespace audit=spatiallab_issue6_baseline;
+#elif defined(SPATIALLAB_AUDIT_V13)
+#include "Reference/V1_3/RoomEngine.h"
+namespace audit=spatiallab_v13;
 #else
 #include "RoomEngine.h"
 namespace audit=spatiallab;

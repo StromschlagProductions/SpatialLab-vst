@@ -1,0 +1,36 @@
+{
+  "original": {
+    "text": "Behind the heavy door the house was quiet. I put the keys on the table and listened. A glass touched the sink. Then a voice came from the next room. Leave the light on. We will be back before morning.",
+    "origin": "Original text synthesized locally by CMU Flite (slt), not a third-party recording",
+    "rate": 48000,
+    "channels": 1,
+    "format": "float32 little endian",
+    "source_peak_dbfs": -3.9840757846832275,
+    "source_rms_dbfs": -15.613509178161621,
+    "samples": 538560,
+    "sha256": "39f0a865bd8c54ced630340b32cc3ca42c3333d3f916a478612ef1e0a36ae0bc",
+    "ffmpeg": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "normalization": "none; ffmpeg resampling only; same bytes for before and after"
+  },
+  "fixture_input_trim_db": -6,
+  "send_db": -6,
+  "fx_db": 0,
+  "size": 0.5,
+  "tone": 0.5,
+  "normalization": "none; one fixed -6 dB input trim before all A/Bs, resampling only",
+  "channels": "mono speech identically routed to both inputs of stereo FX; wet stereo retained",
+  "sources": {
+    "44100": {
+      "sha256": "78843e54975a45996fe2e3add771b564388b955353c241c4732d03617c95f114",
+      "peak_dbfs": -9.985503196716309,
+      "rms_dbfs": -21.61354170863845,
+      "samples": 494802
+    },
+    "48000": {
+      "sha256": "ab2ebb4d56f2f620dacb380bebb047a8028073dd751756269b279481075f194a",
+      "peak_dbfs": -9.984076499938965,
+      "rms_dbfs": -21.613508459189337,
+      "samples": 538560
+    }
+  }
+}

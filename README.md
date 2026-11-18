@@ -19,13 +19,19 @@ Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich per
 
 **[SPATIAL LAB für Windows herunterladen (neueste Version)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)**
 
-[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.3/SpatialLab-v1.3-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung, Oberflächen und Version](docs/classic/CLASSIC_GUI.md)
+[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.4/SpatialLab-v1.4-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung, Oberflächen und Version](docs/classic/CLASSIC_GUI.md)
 
-## Version 1.3 – einheitliche Produktkennung
+## Version 1.4 – nutzbare Wet-Pegel für Hörspiel-Sends
 
-**Audio Drama Spatial Environments** ist der gemeinsame Untertitel von Plugin, Dokumentation und Homepage. Classic Dunkel/Hell zeigen `STROMSCHLAG AUDIO · v1.3` unter Titel und Untertitel; Retro zeigt dieselbe Produkt-/Versionskennung im vorhandenen Metadatenbereich. Die Version stammt automatisch aus dem CMake-Projekt. [Release-Hinweise](docs/RELEASE_v1.3.md) · [Prüfbericht und Screenshot-Herkunft](docs/v1.3/UPDATE.md).
+Neun normale Innenräume und sechs Außenräume: **+6 dB Wet** gegenüber v1.3. Offene Landschaft: **+18 dB insgesamt**, weiterhin trocken und ohne neue Echos. Wald behält seinen kurzen diffusen Anteil. Fahrzeuge, Kapelle/Kathedrale/Höhle und Cockpits bleiben unverändert. Feste Preset-Verstärkung, keine zusätzlichen Regler oder Änderungen an der Raumakustik.
 
-**Der zuletzt freigegebene DSP und alle 26 Raumabstimmungen aus v1.2.0 bleiben unverändert.**
+[Messungen aller 26 Presets, Hördateien und Headroom](docs/v1.4/WET_LEVELS.md) · [Release Notes v1.4](docs/RELEASE_v1.4.md). Referenz: Send −6 dB, FX 0 dB, SIZE/TONE 50 %. Sehr laute Dry+Wet-Summen benötigen DAW-Headroom; es gibt keinen versteckten Limiter.
+
+## Produktkennung seit Version 1.3
+
+**Audio Drama Spatial Environments** ist der gemeinsame Untertitel von Plugin, Dokumentation und Homepage. Classic Dunkel/Hell zeigen eine automatisch erzeugte Hersteller-/Versionszeile unter Titel und Untertitel; Retro zeigt dieselbe Produkt-/Versionskennung im vorhandenen Metadatenbereich. Die Version stammt automatisch aus dem CMake-Projekt. [Release-Hinweise](docs/RELEASE_v1.3.md) · [Prüfbericht und Screenshot-Herkunft](docs/v1.3/UPDATE.md).
+
+Die in v1.3 freigegebenen akustischen Koeffizienten bleiben unverändert; v1.4 ergänzt ausschließlich die oben beschriebene feste Wet-Verstärkung.
 
 ## Raumakustik seit v1.2.0
 
@@ -88,7 +94,7 @@ Weniger redundante Outdoor-Berechnungen, Schutz vor ungültigen Eingangs-/Steuer
 
 ## Installation
 
-1. Die Datei **SpatialLab-v1.3-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
+1. Die Datei **SpatialLab-v1.4-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
 2. DAW schließen und das ZIP vollständig entpacken.
 3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
 4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.

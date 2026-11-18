@@ -1,5 +1,13 @@
 # Changes
 
+## 1.4 — Pegelkorrektur und Outdoor-Hörbarkeit
+
+- Normale Innenräume und sechs Outdoor-Presets +6 dB; offene Landschaft insgesamt +18 dB, ohne neue Reflexionen oder Nachhall.
+- Fahrzeuge, Spezialräume und Cockpits samplegenau unverändert.
+- Feste Gain-Werte nach der akustischen Engine, bisherige weiche Presetwechsel erhalten.
+- Vollständige v1.3/v1.4-Messungen bei 44,1/48 kHz, A/B-WAVs und zusätzlicher Regressionstest.
+- Keine Änderungen an Parametern, Preset-Reihenfolge oder Plugin-Identität; Headroom und Grenzen dokumentiert.
+
 ## 1.3 — Audio Drama Spatial Environments
 
 - Einheitlicher Produktuntertitel in Plugin, Dokumentation, Release und Homepage.

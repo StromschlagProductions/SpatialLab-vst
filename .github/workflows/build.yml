@@ -268,16 +268,28 @@ jobs:
       - name: Compile both real DSP versions with identical Release settings
         run: |
           .audit-venv/bin/cmake -S . -B build-audit -DSPATIALLAB_BUILD_PLUGIN=OFF -DCMAKE_BUILD_TYPE=Release
-          .audit-venv/bin/cmake --build build-audit --target SpatialLabAcousticAudit SpatialLabAcousticBaseline SpatialLabDspBenchmark SpatialLabBaselineBenchmark --parallel 2
-      - name: Generate one original unnormalized source and render 26 environments
+          .audit-venv/bin/cmake --build build-audit --target SpatialLabWetLevelAudit SpatialLabAcousticV13 SpatialLabAcousticAudit SpatialLabAcousticBaseline SpatialLabDspBenchmark SpatialLabBaselineBenchmark --parallel 2
+      - name: Preserve historical Issue-6 comparison against frozen v1.3 acoustics
         run: |
           .audit-venv/bin/python Tools/issue6_source.py build-audit/source
           git rev-parse HEAD > build-audit/tested-commit.txt
           build-audit/SpatialLabAcousticBaseline build-audit/before build-audit/source/speech.f32
-          build-audit/SpatialLabAcousticAudit build-audit/after build-audit/source/speech.f32
+          build-audit/SpatialLabAcousticV13 build-audit/after build-audit/source/speech.f32
           .audit-venv/bin/python Tools/acoustic_audit.py build-audit/before --source build-audit/source/speech.f32 --wav
           .audit-venv/bin/python Tools/acoustic_audit.py build-audit/after --source build-audit/source/speech.f32 --wav
           .audit-venv/bin/python Tools/compare_acoustic_audit.py build-audit
+      - name: Measure v1.4 gains and render unnormalized speech mixes at both target rates
+        run: |
+          .audit-venv/bin/python Tools/wet_level_source.py build-audit/wet-levels/source
+          build-audit/SpatialLabWetLevelAudit build-audit/wet-levels build-audit/wet-levels/source
+          .audit-venv/bin/python Tools/compare_wet_levels.py build-audit/wet-levels
+      - name: Upload v1.3 versus v1.4 measurements and listening WAVs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: SpatialLab-v1.4-Wet-Level-Comparison
+          retention-days: 14
+          path: build-audit/wet-levels/
+          if-no-files-found: error
       - name: Measure before and after CPU serially (informational)
         run: |
           build-audit/SpatialLabBaselineBenchmark > build-audit/cpu-before.csv

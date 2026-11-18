@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <vector>
 #include "RoomCatalog.h"
+#include "WetVoicing.h"
 #include "OutdoorEngine.h"
 #include "AcousticGeometry.h"
 
@@ -261,14 +262,16 @@ public:
             }
         }
         else switchGain=std::min(1.0f,switchGain+fadeStep);
-        if(isOutdoor(activeRoom)) {const auto y=outdoor.process(left,right);return {switchGain*y[0],switchGain*y[1]};}
+        // Gain follows the active preset; selection changes only at zero switchGain.
+        const float outputGain=switchGain*wetPresetGains[static_cast<std::size_t>(activeRoom)];
+        if(isOutdoor(activeRoom)) {const auto y=outdoor.process(left,right);return {outputGain*y[0],outputGain*y[1]};}
         const auto value = reverbs[static_cast<std::size_t>(indoorIndex(activeRoom))].process(left, right);
         const float s = size.next();
         // A size impression from decay and preset-internal early/late voicing, with no
         // variable-delay motion, distance model, cross-room blend or user gain controls.
         const float earlyGain = 1.2f - 0.4f * s, lateGain = 0.65f + 0.7f * s;
-        return {switchGain*(earlyGain * value.early.left + lateGain * value.late.left),
-                switchGain*(earlyGain * value.early.right + lateGain * value.late.right)};
+        return {outputGain*(earlyGain * value.early.left + lateGain * value.late.left),
+                outputGain*(earlyGain * value.early.right + lateGain * value.late.right)};
     }
 private:
     OutdoorEngine outdoor;

@@ -1,0 +1,12 @@
+{
+  "tag": "v1.3",
+  "commit": "dff358f3c86171bd0c33436754d0f80f206ed45a",
+  "original_sha256": {
+    "RoomEngine.h": "0068324cce19e6ed48bee311a2138ef9b1dd027bf6ad8481316d16002f69f726",
+    "RoomCatalog.h": "c9890713bd0f81b5e80ed9ac1e789708dfa5d85f5cddd97325e4978cb8cb7261",
+    "OutdoorEngine.h": "c130e4835dfdf30e87ed4bb5f940bac69a84be270e27962eee7f12eb1b10060d",
+    "OutdoorPlan.h": "982667754e1fc56acc919939c1fc699e466464e91dd1ee167657542d3c0bb973",
+    "OutdoorDiffuse.h": "3e2e1fdcfcefb59af2ed3df3d607afdc93f5a34f4fd60e03eea8b67cd1e0698a",
+    "AcousticGeometry.h": "2ab914b08bd3ebdb7f99b7cacde9f8cfbd4b65e9b7541390c7819816fbb129fc"
+  }
+}
