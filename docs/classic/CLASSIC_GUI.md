@@ -1,8 +1,8 @@
 # SPATIAL LAB – Audio Drama Spatial Environments
 
-## Oberflächen in Version 1.3
+## Oberflächen in Version 1.4
 
-Retro ist das ursprüngliche Gerätedesign. Episode IV bleibt die Standardansicht. Classic Dunkel und Classic Hell sind schlichte Alternativen mit denselben Presets und Parametern. Alle vier aktuellen Bilder sind unveränderte native Windows-Aufnahmen des Produktionseditors, jeweils 1504 × 846 Pixel. Herkunft und Prüfsummen stehen im [Screenshot-Manifest](../screenshots.json), die vollständige Abnahme im [Versionsbericht](../v1.3/UPDATE.md).
+Retro ist das ursprüngliche Gerätedesign. Episode IV bleibt die Standardansicht. Classic Dunkel und Classic Hell sind schlichte Alternativen mit denselben Presets und Parametern. Alle vier aktuellen Bilder sind unveränderte native Windows-Aufnahmen des Produktionseditors, jeweils 1504 × 846 Pixel. Herkunft und Prüfsummen stehen im [Screenshot-Manifest](../screenshots.json), die vollständige Abnahme im [Versionsbericht](../v1.4/WET_LEVELS.md).
 
 ### Retro Episode I – fabrikneu
 
@@ -22,7 +22,7 @@ Retro ist das ursprüngliche Gerätedesign. Episode IV bleibt die Standardansich
 
 ## Produktkennung
 
-Classic zeigt SPATIAL LAB und AUDIO DRAMA SPATIAL ENVIRONMENTS nebeneinander, darunter STROMSCHLAG AUDIO · v1.3. Retro ergänzt dieselben Produktangaben im Metadatenbereich unterhalb der tatsächlichen Bus-/Sampleratenanzeige. Die Versionsanzeige wird automatisch aus CMake erzeugt; intern lautet die VST3-Version 1.3.0, öffentlich 1.3. Originalfrontplatten und Logo bleiben unverändert.
+Classic zeigt SPATIAL LAB und AUDIO DRAMA SPATIAL ENVIRONMENTS nebeneinander, darunter STROMSCHLAG AUDIO · v1.4. Retro ergänzt dieselben Produktangaben im Metadatenbereich unterhalb der tatsächlichen Bus-/Sampleratenanzeige. Die Versionsanzeige wird automatisch aus CMake erzeugt; intern lautet die VST3-Version 1.4.0, öffentlich 1.4. Originalfrontplatten und Logo bleiben unverändert.
 
 ## Bedienung und Speicherung
 
@@ -36,7 +36,7 @@ Standardgröße 1504 × 846, Minimum 1003 × 565, Maximum 2174 × 1223, proporti
 
 Der Windows-Prüfhost erfasst den tatsächlich gebauten JUCE-Editor über native Desktop-Aufnahmen. Das Artefakt SpatialLab-Classic-Looks enthält Retro-Episode-I sowie Look-0 (Retro IV), Look-1 (Dunkel), Look-2 (Hell). Tools/package_branding_screenshots.py kopiert diese PNGs bytegleich und erstellt das Manifest. Keine Nachzeichnung, Montage, Skalierung oder nachträglich eingefügte Beschriftung. Historische Screenshots bleiben erhalten.
 
-Die automatisierten GUI-Tests prüfen Look-/Episode-Wechsel, unveränderten Audio-State, samplegleiches Audio, alle 26 Presets, drei Größen und getrennte Persistenz. Hash-Prüfungen schützen den v1.2-DSP, AudioProcessor, Parameter-/Preset-Definitionen, Originalfrontplatten und Logo. Vollständige Windows-/Linux-Abnahme und pluginval Level 8 bleiben Voraussetzung der Veröffentlichung. [Aktueller Nachweis](../v1.3/UPDATE.md).
+Die automatisierten GUI-Tests prüfen Look-/Episode-Wechsel, unveränderten Audio-State, samplegleiches Audio, alle 26 Presets, drei Größen und getrennte Persistenz. Hash-Prüfungen schützen die akustischen Koeffizienten, AudioProcessor, Parameter-/Preset-Definitionen, Originalfrontplatten und Logo; ausschließlich die dokumentierte feste Wet-Verstärkung ist in v1.4 zusätzlich erlaubt. Vollständige Windows-/Linux-Abnahme und pluginval Level 8 bleiben Voraussetzung der Veröffentlichung. [Aktueller Nachweis](../v1.4/WET_LEVELS.md).
 
 ## Historische Abnahmen
 

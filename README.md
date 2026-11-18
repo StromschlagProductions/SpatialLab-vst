@@ -80,7 +80,7 @@ SPATIAL LAB liefert **immer 100 % Wet** und ist für FX-/Send-Kanäle ausgelegt.
 
 ![SPATIAL LAB Classic Hell – schlichte Alternative](docs/oberflaeche-hell.png)
 
-Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.3-Builds. Die Classic-Ansichten zeigen SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen und die überarbeitete Kopfzeile.
+Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.4-Builds. Die Classic-Ansichten zeigen SIZE/TONE im RADIOPHONE-Stil mit orangefarbenem Wertebogen und die überarbeitete Kopfzeile.
 
 Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in Classic wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Episode I/IV wird weiterhin im Retro-Modus gewählt. Die Auswahl ist rein kosmetisch; alle Ansichten teilen dieselben Presets und Parameter. [GUI-Dokumentation und Bildherkunft](docs/classic/CLASSIC_GUI.md). Die historischen Screenshots bleiben im Repository erhalten.
 
@@ -122,7 +122,7 @@ Host-Auswahl und Session-Recall machen den aktiven Eintrag im Browser sichtbar. 
 
 ## Kompatibilität und bekannte Grenzen
 
-Version 1.3 behält 26 linear kodierte Raumwerte, Preset-Keys, drei Parameter und Session-Schema 5 bei. Hersteller-/Plugin-Kennungen und Parameter-IDs bleiben unverändert. Die Raumabstimmungen wurden gezielt überarbeitet; ein Legacy-Klangmodus oder zusätzliche Session-Migrationen werden nicht eingeführt.
+Version 1.4 behält 26 linear kodierte Raumwerte, Preset-Keys, drei Parameter und Session-Schema 5 bei. Hersteller-/Plugin-Kennungen und Parameter-IDs bleiben unverändert. Die Raumabstimmungen wurden gezielt überarbeitet; ein Legacy-Klangmodus oder zusätzliche Session-Migrationen werden nicht eingeführt.
 
 Raumwechsel blenden das Wet-Signal kurz aus und wieder ein, um harte Abrisse zu vermeiden. Raumpegel werden nicht künstlich angeglichen. Durchschnitts-CPU-Messungen sind keine Garantie für jede Hardware oder extrem kleine Audioblöcke.
 
