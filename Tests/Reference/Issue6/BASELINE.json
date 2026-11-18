@@ -1,0 +1,9 @@
+{
+  "commit": "1792e18",
+  "original_sha256": {
+    "RoomEngine.h": "8056e3eb59cc343165d4cd2c9323155ae26d3fc42b5206f960dfe938aebf4cd3",
+    "OutdoorEngine.h": "59cdd31679cb084c36d0244611c2c53ba9ca4d4ec3e403d410b3bd312c6e6dd6",
+    "OutdoorPlan.h": "614fa88553457e76c639d309279aa57906f37cb4b6d024e2bf5e47f8da07f111",
+    "RoomCatalog.h": "c9890713bd0f81b5e80ed9ac1e789708dfa5d85f5cddd97325e4978cb8cb7261"
+  }
+}
