@@ -18,4 +18,4 @@ Windows x64 und ein kompatibler 64-Bit-VST3-Host erforderlich; Microsoft Visual 
 
 [Aktuelle echte Windows-Screenshots](https://github.com/StromschlagProductions/SpatialLab-vst/blob/main/docs/classic/CLASSIC_GUI.md) · [Versionsquelle, Prüfbericht und Bildherkunft](https://github.com/StromschlagProductions/SpatialLab-vst/blob/main/docs/v1.3/UPDATE.md).
 
-Die Veröffentlichung erfolgt erst nach vollständigem Windows-Release-Build, Windows-/Linux-Tests, pluginval Strictness Level 8 und Prüfung der nativen Windows-Aufnahmen beider Retro-Skins und beider Classic-Themes. Der Veröffentlichungsworkflow prüft außerdem Paket-Herkunft, Versionsmetadaten, Identität, Screenshot-Manifest und ZIP-Prüfsumme.
+Vollständiger Windows-Release-Build, Windows-CTest (8/8), Linux ASan/UBSan (6/6), pluginval Strictness Level 8 und Prüfung der nativen Windows-Aufnahmen beider Retro-Skins und beider Classic-Themes sind erfolgreich abgeschlossen. Der Veröffentlichungsworkflow prüft außerdem Paket-Herkunft, Versionsmetadaten, Identität, Screenshot-Manifest und ZIP-Prüfsumme.

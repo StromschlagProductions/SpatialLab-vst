@@ -30,7 +30,27 @@ Die SPATIAL-LAB-Karte erhält den verbindlichen Untertitel und eine neue Retro-A
 
 ## Abnahme
 
-Lokale reine DSP-Tests: 6/6 bestanden; JUCE-GUI-/Prüfhost-Quellen syntaktisch geprüft. Native Windows-Aufnahmen, vollständige Windows-/Linux-Abnahme, pluginval Level 8 und die öffentliche Homepage werden vor Abschluss überprüft. Die endgültigen CI-/Release-/Bildnachweise werden nach erfolgreicher Prüfung hier ergänzt.
+[Vollständige Abnahme 44278481794](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44278481794): **alle drei Jobs erfolgreich**.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Windows x64 Release-VST3 | erfolgreich gebaut; Version 1.3.0, Stromschlag Audio, alle bisherigen CIDs bestätigt |
+| Windows CTest | 8/8 bestanden: Calibration, Boundaries, Environments, DSP, RetroMotion, RoomVoicing, Processor, RetroGUI |
+| Linux ASan/UBSan | 6/6 bestanden, keine gemeldeten Sanitizer-Fehler |
+| pluginval 1.0.4, Level 8 | SUCCESS; Audio, State/Restore, Automation, Editor, Parameter-Thread-Safety und Bus-Prüfungen |
+| Vier aktuelle Windows-Aufnahmen | 1504 × 846, Metadaten v1.3 aus generiertem Header, visuell geprüft |
+| Bestehende GUI-/Lichtnachweise | bestanden; 52 Umgebungsaufnahmen beider Retro-Episoden, große Editorgrößen, Animationen bei Stille/Audio |
+| Akustik-Audit / Impulsantworten | erfolgreich, bestehende Mess-/Hördateien erneut vom tatsächlichen DSP erzeugt |
+| Schutzprüfungen | v1.2-DSP, 26 Presets, Processor/State/Parameter, Grafikdateien unverändert |
+| Lokale Tests | 6/6 bestanden, GUI-/Prüfhost-Syntax mit JUCE 8.0.6 geprüft |
+
+[pluginval-Protokoll](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44278481794/artifacts/14415554073) · [Test-/Build-Provenienz](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44278481794/artifacts/14417136999) · [26-Umgebungs-Messungen](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44278481794/artifacts/14416880943).
+
+Getesteter CI-Merge-Commit: `80a981cb3dc06b5a5d2e3a48ded6050cee6ed0f9`. SHA-256 sämtlicher Build-Eingaben: `833986146eb98cd5ee8108a8acaec291031445ed6550b0729589eebc1f58fe36`. Die anschließenden Screenshot-/Dokumentationsnachträge verändern diese Eingaben nicht.
+
+Installations-ZIP vollständig heruntergeladen und geprüft: CRC fehlerfrei, genau ein Wurzelordner `SpatialLab.vst3`, `Contents/Resources/moduleinfo.json` und `Contents/x86_64-win/SpatialLab.vst3` vorhanden; Modul als Windows-x64-PE identifiziert. SHA-256: `e171493f0e37f78d65bff84b57fc199953b58a3d5115e20c2f98fad8e16f9831`.
+
+Die Prüfung ersetzt keinen subjektiven Hörtest oder eine Bedienprüfung in jeder DAW. pluginval wurde nicht mit einem separaten Steinberg-VST3-Validator konfiguriert; dieser Teil wird im Protokoll explizit als übersprungen ausgewiesen. Die Standardansichten sind native Desktop-Aufnahmen; Maximalgrößen auf dem kleineren CI-Desktop bleiben Komponentenrender, wie bisher dokumentiert.
 
 ## Geprüfte native Aufnahmen
 
