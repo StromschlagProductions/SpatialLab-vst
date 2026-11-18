@@ -2,6 +2,7 @@
 #include "RoomCatalog.h"
 #include "OutdoorPlan.h"
 #include "Reference/RoomEnginePhase3A.h"
+#include "Reference/Issue6/RoomEngine.h"
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -23,7 +24,7 @@ int main(int argc,char** argv)
   std::cout<<"rate,index,key,backend,energy,T20_RT60,peak,stereo_difference,hash\n";
   for(int rate:{44100,48000})
   {
-   for(int old=0;old<19;++old){int room=old<9?old:old+7;spatiallab::Engine now;spatiallab_phase3a::Engine before;now.prepare(rate,room,.5f,.5f);before.prepare(rate,old,.5f,.5f);for(int i=0;i<rate;++i){float x=i==0?1.f:0.f;auto a=now.process(x,x);auto b=before.process(x,x);need(a.left==b.left&&a.right==b.right,"Approved legacy room changed bits");}}
+   for(int old=0;old<19;++old){int room=old<9?old:old+7;spatiallab_issue6_baseline::Engine now;spatiallab_phase3a::Engine before;now.prepare(rate,room,.5f,.5f);before.prepare(rate,old,.5f,.5f);for(int i=0;i<rate;++i){float x=i==0?1.f:0.f;auto a=now.process(x,x);auto b=before.process(x,x);need(a.left==b.left&&a.right==b.right,"Frozen issue-6 baseline no longer matches approved legacy rooms");}}
    std::set<std::uint64_t> signatures;
    for(int room=0;room<26;++room)
    {

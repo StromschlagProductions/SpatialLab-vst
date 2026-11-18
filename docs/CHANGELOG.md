@@ -1,5 +1,16 @@
 # Changes
 
+## 1.2.0 — Raumakustik für Sprache neu abgestimmt
+
+- Alle 26 bestehenden Umgebungen mit dokumentierten neutralen Geometrien, Wegdifferenzen, Absorptions-/Streuannahmen und frequenzabhängiger Dämpfung neu abgestimmt.
+- 19 Indoor-/Fahrzeug-/Cockpitprofile mit getrennten geometrischen Erstreflexionen für links/rechts und wahrnehmbaren kurzen Kabinenrückwürfen.
+- Dichte schwache Waldstreuung, frühe Fassadenrückwürfe und ein kontrollierter dichter Nachhallanteil für Tunnel und Unterführung.
+- Canyon mit nahen unregelmäßigen Felsreflexionen statt einer regelmäßigen späten Pingpong-Folge. Offene Landschaft bleibt nahezu trocken.
+- Keine pauschale Ausgangsverstärkung, Normalisierung oder zusätzlichen Audioparameter; weiterhin 100 % Wet, kein Oversampling.
+- GUI, Originalfrontplatten, 26 Preset-Indizes/-Keys, Plugin-/Herstellerkennung, Parameter-IDs und Schema 5 unverändert. Keine zusätzlichen Legacy-/Migrationspfade.
+- Produktions-DSP vor/nach Änderung eingefroren und bei 48 kHz mit identischer Original-Sprachquelle gemessen. Neue Tests für alle 26 Presets bei 44,1/48/96 kHz, Reglerextreme, deterministische Blockverarbeitung, Presetwechsel und Nullallokationen. Windows-/Linux-Abnahme und pluginval Level 8 erfolgreich.
+
+
 ## 1.1.2 — Classic-Drehregler
 
 - Classic Dunkel/Hell: SIZE und TONE im selben Look wie LOCATIONS, RADIOPHONE und die übrigen Stromschlag-Plugins; Strichstärke und Punkt wachsen mit der Reglergröße statt bei 8 px zu enden.

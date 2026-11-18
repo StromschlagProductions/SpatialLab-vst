@@ -1,0 +1,13 @@
+{
+  "text": "Behind the heavy door the house was quiet. I put the keys on the table and listened. A glass touched the sink. Then a voice came from the next room. Leave the light on. We will be back before morning.",
+  "origin": "Original text synthesized locally by CMU Flite (slt), not a third-party recording",
+  "rate": 48000,
+  "channels": 1,
+  "format": "float32 little endian",
+  "source_peak_dbfs": -3.9840757846832275,
+  "source_rms_dbfs": -15.613509178161621,
+  "samples": 538560,
+  "sha256": "39f0a865bd8c54ced630340b32cc3ca42c3333d3f916a478612ef1e0a36ae0bc",
+  "ffmpeg": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "normalization": "none; ffmpeg resampling only; same bytes for before and after"
+}
