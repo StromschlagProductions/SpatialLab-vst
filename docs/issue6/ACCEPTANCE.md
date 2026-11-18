@@ -2,7 +2,7 @@
 
 **Veröffentlichung ausdrücklich freigegeben am 18. November 2026.** Der Auftraggeber bestätigt, dass keine bestehenden Sessions berücksichtigt werden müssen. Es werden keine zusätzlichen Legacy-/Migrationspfade eingebaut. Die Freigabe ist eine Veröffentlichungsfreigabe; sie wird nicht als durchgeführter subjektiver Hörtest ausgegeben.
 
-- Umsetzung: [PR #7](https://github.com/StromschlagProductions/SpatialLab-vst/pull/7), Branch `fix/issue-6-acoustic-calibration`.
+- Umsetzung: [PR #7](https://github.com/StromschlagProductions/SpatialLab-vst/pull/7) ist nach main übernommen; Merge-Commit `2dda5b8f3bf692057252c968c45e0ee6520b8d80`.
 - [Vollständiger erfolgreicher Prüflauf 44252697195](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44252697195): `windows-vst3`, `dsp-sanitizers` und `acoustic-audit` alle erfolgreich.
 - Getesteter PR-Head: `2a18382590d4712150fcc0960de7b6ac43292654`; tatsächlicher CI-Merge-Preview-Build: `b52c54fd1922f10fa32450bbe6bf725988d68a72`. Das ist **kein** Merge nach main.
 - Die bereits auf main vorbereitete Versionsnummer 1.2.0 wird für die freigegebene Veröffentlichung verwendet.
@@ -37,3 +37,9 @@ ZIP und Herkunft wurden nach Download geprüft. SHA-256 des inneren Installation
 [Herkunftsnachweis und CTest-Zusammenfassung](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44252697195/artifacts/14404884191). Der Fingerabdruck sämtlicher Build-Eingaben stimmt mit dem Branch überein; spätere reine Dokumentations-Commits ändern diese Eingaben nicht. GUI, AudioProcessor/Serialisierung, Preset-Katalog, IDs und Originalgrafiken sind per Hash unverändert.
 
 Die Plugin-Identität bleibt gleich; v1.2.0 ersetzt eine vorhandene Installation. Technische Abnahme und ausdrückliche Veröffentlichungsfreigabe liegen vor. Eine subjektive Abnahme in jeder DAW wird nicht behauptet.
+
+## Veröffentlichungsnachweis
+
+[SPATIAL LAB v1.2.0](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.2.0) ist tatsächlich veröffentlicht und als neueste stabile Version gekennzeichnet. [Direkter Windows-x64-VST3-Download](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.2.0/SpatialLab-v1.2.0-Windows-x64-VST3.zip).
+
+Der [erfolgreiche Veröffentlichungsworkflow 44260748916](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44260748916) hat Abnahme, main-Zugehörigkeit, Version, unveränderte Build-Eingaben, Plugin-Identität, ZIP-Struktur und Paket-Prüfsumme erneut geprüft. GitHub meldet `draft=false`, `prerelease=false`; `/releases/latest` zeigt auf `v1.2.0`. Der veröffentlichte ZIP-Digest ist identisch zum oben genannten `d30129e0…a46d36`. Das vollständige Installationspaket und `SHA256SUMS.txt` sind reale Release-Assets. Es wurde kein zusätzlicher DSP-Code nach der Abnahme geändert.

@@ -162,4 +162,4 @@ Wenn dieses kleine Werkzeug auch anderen die Hörspielarbeit erleichtert und meh
 
 ## DSP-Audit und Messdaten – Issue #6
 
-Die Umsetzung von Issue #6 enthält die [Analyse vor Änderung, Modellbeschreibung und Studio-One-Hörtestanleitung](docs/issue6/IMPLEMENTATION.md). [Prüflauf, Herkunftsnachweis und unveränderte Vorher-/Nachher-Hördateien](docs/issue6/ACCEPTANCE.md) dokumentieren alle 26 Umgebungen. Die Veröffentlichung als v1.2.0 ist ausdrücklich freigegeben.
+Die Umsetzung von Issue #6 enthält die [Analyse vor Änderung, Modellbeschreibung und Studio-One-Hörtestanleitung](docs/issue6/IMPLEMENTATION.md). [Prüflauf, Herkunftsnachweis und unveränderte Vorher-/Nachher-Hördateien](docs/issue6/ACCEPTANCE.md) dokumentieren alle 26 Umgebungen. [SPATIAL LAB v1.2.0 ist offiziell veröffentlicht](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.2.0).

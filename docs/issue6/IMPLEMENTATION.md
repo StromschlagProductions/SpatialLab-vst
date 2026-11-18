@@ -1,6 +1,6 @@
 # Issue #6 – Raumakustik v1.2.0 und Prüfstand
 
-**Veröffentlichung als SPATIAL LAB v1.2.0 ausdrücklich freigegeben.** Der Auftraggeber hat bestätigt, dass keine bestehenden Sessions berücksichtigt werden müssen. Die technische Abnahme ist vollständig erfolgreich; ein subjektiver Hörtest wird damit nicht behauptet.
+**[SPATIAL LAB v1.2.0 ist offiziell veröffentlicht](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.2.0).** Der Auftraggeber hat bestätigt, dass keine bestehenden Sessions berücksichtigt werden müssen. Die technische Abnahme ist vollständig erfolgreich; ein subjektiver Hörtest wird damit nicht behauptet.
 
 [Analyse vor Änderung](ANALYSIS.md) · [Messliteratur und Grenzen](REFERENCES.md) · [Vorher/Nachher](COMPARISON.md) · [vollständige Modellpfade](model_paths.csv).
 
