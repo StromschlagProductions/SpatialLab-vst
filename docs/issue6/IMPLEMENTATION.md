@@ -1,6 +1,6 @@
-# Issue #6 – Entwurf und Prüfstand
+# Issue #6 – Raumakustik v1.2.0 und Prüfstand
 
-**Unveröffentlichter DSP-Entwurf, Hörfreigabe ausstehend. Kein Merge und kein Release.**
+**Veröffentlichung als SPATIAL LAB v1.2.0 ausdrücklich freigegeben.** Der Auftraggeber hat bestätigt, dass keine bestehenden Sessions berücksichtigt werden müssen. Die technische Abnahme ist vollständig erfolgreich; ein subjektiver Hörtest wird damit nicht behauptet.
 
 [Analyse vor Änderung](ANALYSIS.md) · [Messliteratur und Grenzen](REFERENCES.md) · [Vorher/Nachher](COMPARISON.md) · [vollständige Modellpfade](model_paths.csv).
 
@@ -42,7 +42,7 @@ Offline-Renderer und CPU-Benchmark verwenden auf x64 dieselbe Flush-to-zero/Deno
 
 GUI, Originalfrontplatten, Raumkatalog einschließlich Reihenfolge/Keys, Hersteller-/VST3-IDs, drei Parameter samt IDs/Normalisierung und Session-Schema 5 bleiben unverändert. Ein Datei-Hash-Schutz prüft diese Verträge. Der Produktions-AudioProcessor und dessen Serialisierung sind unverändert; die bestehenden Prozessortests vergleichen alle 26 Engine-Ausgaben mit den drei tatsächlichen Mono-/Stereo-Buslayouts und wurden auf 96 kHz erweitert.
 
-**Bestehende Sessions bleiben technisch ladbar, klingen mit diesem Entwurf aber absichtlich anders.** Es gibt keinen versteckten Legacy-Modus, kein automatisches Gain-Matching und keine Sound-Migration. Für Rückkehr zum alten Klang die bisherige offizielle Version und Projektkopien aufbewahren. Der Branch übernimmt die auf main bereits vorbereitete Versionsnummer 1.2.0. Dieser Draft ist damit noch keine offizielle Veröffentlichung und aufgrund gleicher Plugin-Identität nicht als unabhängiges zweites Plugin installierbar.
+Die drei Parameter, Preset-Keys und Schema 5 bleiben bestehen; die Raumakustik wurde bewusst neu abgestimmt. Zusätzliche Session-Migrationen oder ein Legacy-Klangmodus sind nicht erforderlich und wurden nicht eingeführt. Die Versionsnummer ist 1.2.0. Aufgrund gleicher Plugin-Identität ersetzt die Installation eine vorhandene Plugin-Version.
 
 ## Tests und Messdateien
 
@@ -59,4 +59,4 @@ Lokale Release-DSP-Prüfungen: 6/6 bestanden. JUCE-Quellen/Prozessortests syntak
 3. Zuerst Wohnzimmer/Küche/Bad vergleichen, dann Kleinwagen/großen PKW/Transporter/LKW, danach Tunnel/Unterführung, Wald, Straße/Innenhof und Canyon. Dieselbe Quelle und dieselben Faderstände beibehalten. Wet solo abhören, danach wieder mit Dry. Auch die FX-Summe mono prüfen. Keine automatische Normalisierung und keine Anpassung auf identische Raumlautheit. Panorama und Send-Pan mittig einstellen und die DAW-Pan-Law notieren; das Offline-Modell legt −6 dB direkt am Plugin-Eingang an und ist keine Vermessung der Studio-One-internen Pegelführung.
 4. Für Vorher/Nachher ohne Installationswechsel Dry plus die jeweilige Datei `before/<key>-wet-send-6.wav` oder `after/<key>-wet-send-6.wav` auf parallelen Spuren bei 0 dB abspielen, exakt ab Projektstart ausrichten. **Hier nicht nochmals senden**: Die Wet-Dateien enthalten den −6-dB-Send bereits. Nur jeweils eine Wet-Version aktiv lassen. Alternativ die alte/neue Plugin-Datei nacheinander in einer Projektkopie testen; identische VST3-IDs erlauben keine zuverlässige parallele Installation beider Builds.
 5. Anschließend den Send gezielt auf **0 dB** stellen und die Pegel beobachten. Einige Dry+Wet-Summen können mit dieser Quelle über 0 dBFS steigen; das ist zusätzliche Summenenergie, keine automatische Begrenzung. Für diesen Zusatztest erforderlichen Master-Headroom offen dokumentieren und beide Versionen gleich behandeln. Keine Pegelanhebung als Raumkorrektur verstecken.
-6. Auf Sprachverständlichkeit, Kabinenfärbung, Boden-/Wandrückwürfe, Natürlichkeit des Canyon-Echos, Monofaltung, metallisches Klingeln und Presetwechsel achten. Auch SIZE/TONE-Ecken ausprobieren. Die offene Landschaft darf sehr unauffällig bleiben. Subjektive Hörfreigabe und eventuelle weitere Korrekturen sind ausdrücklich offen; Messwerte alleine ersetzen sie nicht.
+6. Auf Sprachverständlichkeit, Kabinenfärbung, Boden-/Wandrückwürfe, Natürlichkeit des Canyon-Echos, Monofaltung, metallisches Klingeln und Presetwechsel achten. Auch SIZE/TONE-Ecken ausprobieren. Die offene Landschaft darf sehr unauffällig bleiben. Die Veröffentlichung ist ausdrücklich freigegeben; ergänzende subjektive Hörprüfungen und gegebenenfalls weitere Klangkorrekturen bleiben sinnvoll. Messwerte sind kein allgemeiner Hörqualitätsnachweis.

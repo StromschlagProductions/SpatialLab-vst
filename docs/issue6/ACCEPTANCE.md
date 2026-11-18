@@ -1,11 +1,11 @@
-# Issue #6 – Technische Abnahme des Drafts
+# Issue #6 – Technische Abnahme v1.2.0
 
-**Kein Merge, kein Release. Subjektive Hörfreigabe ausstehend.**
+**Veröffentlichung ausdrücklich freigegeben am 18. November 2026.** Der Auftraggeber bestätigt, dass keine bestehenden Sessions berücksichtigt werden müssen. Es werden keine zusätzlichen Legacy-/Migrationspfade eingebaut. Die Freigabe ist eine Veröffentlichungsfreigabe; sie wird nicht als durchgeführter subjektiver Hörtest ausgegeben.
 
-- Draft: [PR #7](https://github.com/StromschlagProductions/SpatialLab-vst/pull/7), Branch `fix/issue-6-acoustic-calibration`.
+- Umsetzung: [PR #7](https://github.com/StromschlagProductions/SpatialLab-vst/pull/7), Branch `fix/issue-6-acoustic-calibration`.
 - [Vollständiger erfolgreicher Prüflauf 44252697195](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44252697195): `windows-vst3`, `dsp-sanitizers` und `acoustic-audit` alle erfolgreich.
 - Getesteter PR-Head: `2a18382590d4712150fcc0960de7b6ac43292654`; tatsächlicher CI-Merge-Preview-Build: `b52c54fd1922f10fa32450bbe6bf725988d68a72`. Das ist **kein** Merge nach main.
-- Die bereits auf main vorbereitete Versionsmetadatenbasis ist 1.2.0; es wurde keine neue Version veröffentlicht oder getaggt.
+- Die bereits auf main vorbereitete Versionsnummer 1.2.0 wird für die freigegebene Veröffentlichung verwendet.
 
 ## Prüfungen
 
@@ -36,4 +36,4 @@ ZIP und Herkunft wurden nach Download geprüft. SHA-256 des inneren Installation
 
 [Herkunftsnachweis und CTest-Zusammenfassung](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44252697195/artifacts/14404884191). Der Fingerabdruck sämtlicher Build-Eingaben stimmt mit dem Branch überein; spätere reine Dokumentations-Commits ändern diese Eingaben nicht. GUI, AudioProcessor/Serialisierung, Preset-Katalog, IDs und Originalgrafiken sind per Hash unverändert.
 
-**Achtung beim Test:** Gleiche Plugin-Identität; dieser Build ersetzt eine vorhandene Installation. Die bisherigen Audioeinstellungen bleiben ladbar, der Klang verändert sich absichtlich. Originalinstallation und Projektkopien für A/B und Rückkehr aufbewahren. Das Bestehen der Tests ist keine Freigabe zur Veröffentlichung und keine subjektive Abnahme in jeder DAW.
+Die Plugin-Identität bleibt gleich; v1.2.0 ersetzt eine vorhandene Installation. Technische Abnahme und ausdrückliche Veröffentlichungsfreigabe liegen vor. Eine subjektive Abnahme in jeder DAW wird nicht behauptet.

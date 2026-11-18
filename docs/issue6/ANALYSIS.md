@@ -1,6 +1,6 @@
 # Issue #6 – Analyse vor der Neukalibrierung
 
-Ausgangspunkt: `1792e18`, Version 1.1.2. Branch `fix/issue-6-acoustic-calibration`. Kein Merge, kein Release. Die folgenden Messungen wurden **vor** Änderungen am Produktions-DSP erstellt. Der unveränderte Ausgangs-DSP einschließlich Katalog liegt unter `Tests/Reference/Issue6/`; `BASELINE.json` nennt Herkunft und SHA-256 der ursprünglichen Dateien.
+Ausgangspunkt: `1792e18`, Version 1.1.2. Branch `fix/issue-6-acoustic-calibration`. Zum Zeitpunkt dieser historischen Analyse waren Merge und Release nicht freigegeben; die spätere Veröffentlichungsfreigabe ist in [ACCEPTANCE.md](ACCEPTANCE.md) dokumentiert. Die folgenden Messungen wurden **vor** Änderungen am Produktions-DSP erstellt. Der unveränderte Ausgangs-DSP einschließlich Katalog liegt unter `Tests/Reference/Issue6/`; `BASELINE.json` nennt Herkunft und SHA-256 der ursprünglichen Dateien.
 
 ## Messkonzept und Reproduktion
 

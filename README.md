@@ -19,7 +19,13 @@ Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich per
 
 **[SPATIAL LAB für Windows herunterladen (neueste Version)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)**
 
-[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.1.2/SpatialLab-v1.1.2-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
+[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.2.0/SpatialLab-v1.2.0-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung und technische Details](docs/phase3b/PHASE3B.md)
+
+## Neu in v1.2.0 – überarbeitete Raumakustik
+
+Alle 26 Umgebungen sind für Sprachräume neu abgestimmt: geometrisch begründete frühe Reflexionen, deutlichere Kabinenrückwürfe, ein dichterer Tunnel-/Unterführungscharakter und unregelmäßige Canyon-Reflexionen statt Pingpong. Die offene Landschaft bleibt bewusst nahezu trocken. Keine pauschale Ausgangsanhebung, kein Loudness-Matching und keine zusätzlichen Regler.
+
+[Release-Hinweise v1.2.0](docs/RELEASE_v1.2.0.md) · [Vorher-/Nachher-Messungen](docs/issue6/COMPARISON.md) · [Erfolgreiche Windows-/Linux-Abnahme und Hördateien](docs/issue6/ACCEPTANCE.md)
 
 ## 26 Umgebungen, vier Kategorien
 
@@ -36,9 +42,9 @@ Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich per
 
 ## Algorithmische Akustik
 
-Die **Indoor-Engine** kombiniert frühe Reflexionen mit einem Feedback-Delay-Netzwerk für frequenzabhängig gedämpften Nachhall. Die 19 Innenraum-, Fahrzeug- und Spezialprofile besitzen individuelle Laufzeiten, Reflexionsverteilungen, Diffusion und Dämpfung.
+Die **Indoor-Engine** leitet frühe Reflexionen aus dokumentierten neutralen Quell-/Empfänger-Geometrien ab und ergänzt ein Feedback-Delay-Netzwerk für frequenzabhängig gedämpften Nachhall. Die 19 Innenraum-, Fahrzeug- und Spezialprofile besitzen individuelle Begrenzungsflächen, Absorptions-/Streuannahmen, Laufzeiten, Diffusion und Dämpfung. Es sind eigenständige vereinfachte Modelle, keine Rekonstruktionen exakt vermessener Räume.
 
-Die separate **Outdoor-Engine** erzeugt diskrete Stereo-Reflexionen mit individuellen Verzögerungen, Pegeln, Panorama und Tiefpässen. Wo sinnvoll, ergänzt begrenztes Feedback wiederkehrende Echos. Die offene Landschaft liefert bewusst nur sehr schwache Rückwürfe; der Canyon deutlich getrennte entfernte Echos. Keine Faltung, keine externen Preset-Dateien und kein Oversampling.
+Die separate **Outdoor-Engine** erzeugt diskrete Stereo-Reflexionen aus Schallwegdifferenzen, Wegdämpfung, Absorption, Streuung und Panorama. Für Wald, Straße, Innenhof, Canyon, Tunnel und Unterführung ergänzt ein kontrollierter dichter Anteil die Rückwürfe. Die offene Landschaft besitzt keinen diffusen Nachhall. Der Canyon kombiniert nahe unregelmäßige Felsreflexionen mit schwächeren entfernten Konturen. Keine Faltung, keine externen Preset-Dateien und kein Oversampling.
 
 SPATIAL LAB liefert **immer 100 % Wet** und ist für FX-/Send-Kanäle ausgelegt. Es gibt keinen Dry/Wet- oder Ausgangspegel-Regler. Den Effektanteil stellst du mit dem Send-Pegel in der DAW ein.
 
@@ -66,7 +72,7 @@ Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.1.
 
 Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in Classic wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Episode I/IV wird weiterhin im Retro-Modus gewählt. Die Auswahl ist rein kosmetisch; alle Ansichten teilen dieselben Presets und Parameter. [GUI-Dokumentation und Bildherkunft](docs/classic/CLASSIC_GUI.md). Die historischen Screenshots bleiben im Repository erhalten.
 
-## Version 1.1.2
+## Frühere GUI-Aktualisierung 1.1.2
 
 Classic Dunkel und Classic Hell: Die Drehregler SIZE und TONE haben jetzt dieselben Proportionen wie in den anderen Stromschlag-Plugins (kräftiger Ring, dicker Wertebogen, großer Punkt). Klang, Räume, Parameter und Retro-Look sind unverändert. [Release-Hinweise](docs/RELEASE_v1.1.2.md)
 
@@ -76,7 +82,7 @@ Weniger redundante Outdoor-Berechnungen, Schutz vor ungültigen Eingangs-/Steuer
 
 ## Installation
 
-1. Die Datei **SpatialLab-v1.1.x-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
+1. Die Datei **SpatialLab-v1.2.0-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
 2. DAW schließen und das ZIP vollständig entpacken.
 3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
 4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.
@@ -104,7 +110,7 @@ Host-Auswahl und Session-Recall machen den aktiven Eintrag im Browser sichtbar. 
 
 ## Kompatibilität und bekannte Grenzen
 
-Version 1.1 behält gegenüber v1.0 unverändert 26 linear kodierte Raumwerte und Session-Schema 5 bei. Ältere Test-Sessions und deren Raumautomation sind ausdrücklich nicht kompatibel; neue Sessions anlegen oder Einstellungen neu setzen. Hersteller-/Plugin-Kennungen und SIZE/TONE-IDs bleiben erhalten.
+Version 1.2 behält 26 linear kodierte Raumwerte, Preset-Keys, drei Parameter und Session-Schema 5 bei. Hersteller-/Plugin-Kennungen und Parameter-IDs bleiben unverändert. Die Raumabstimmungen wurden gezielt überarbeitet; ein Legacy-Klangmodus oder zusätzliche Session-Migrationen werden nicht eingeführt.
 
 Raumwechsel blenden das Wet-Signal kurz aus und wieder ein, um harte Abrisse zu vermeiden. Raumpegel werden nicht künstlich angeglichen. Durchschnitts-CPU-Messungen sind keine Garantie für jede Hardware oder extrem kleine Audioblöcke.
 
@@ -154,6 +160,6 @@ Das Projekt wird laufend weiterentwickelt. Trotz sorgfältiger Tests können Feh
 
 Wenn dieses kleine Werkzeug auch anderen die Hörspielarbeit erleichtert und mehr Raum für Geschichten und menschliche Kreativität schafft, freut mich das ganz besonders.
 
-## DSP-Audit – Issue #6 (unveröffentlichter Entwicklungszweig)
+## DSP-Audit und Messdaten – Issue #6
 
-Auf `fix/issue-6-acoustic-calibration` werden alle 26 Umgebungen für Sprachräume neu kalibriert. [Analyse, Messvergleich und Studio-One-Hörtest](docs/issue6/IMPLEMENTATION.md). [Draft-PR #7, geprüfte Hördateien und Windows-Testpaket](docs/issue6/ACCEPTANCE.md). Die offiziellen Release-Dateien bleiben unverändert. Der Entwurf ändert den Klang bestehender Sessions bei erhaltenen Parameter-/Preset-IDs; keine Veröffentlichung oder Zusammenführung ohne Hörfreigabe.
+Die Umsetzung von Issue #6 enthält die [Analyse vor Änderung, Modellbeschreibung und Studio-One-Hörtestanleitung](docs/issue6/IMPLEMENTATION.md). [Prüflauf, Herkunftsnachweis und unveränderte Vorher-/Nachher-Hördateien](docs/issue6/ACCEPTANCE.md) dokumentieren alle 26 Umgebungen. Die Veröffentlichung als v1.2.0 ist ausdrücklich freigegeben.
