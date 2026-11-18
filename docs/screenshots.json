@@ -1,0 +1,38 @@
+{
+  "version": "1.3",
+  "internal_version": "1.3.0",
+  "subtitle": "Audio Drama Spatial Environments",
+  "manufacturer_line": "STROMSCHLAG AUDIO · v1.3",
+  "source_run": "44278481794",
+  "capture": "actual JUCE editor, native Windows desktop",
+  "screenshots": [
+    {
+      "look": "retro-i",
+      "path": "docs/oberflaeche-retro-neu.png",
+      "sha256": "118b1eac4d9beb5221b69116d7e8fb3893915f25bf6af534acf1597c444f4d92",
+      "width": 1504,
+      "height": 846
+    },
+    {
+      "look": "retro-iv",
+      "path": "docs/oberflaeche-retro.png",
+      "sha256": "009908c869621b8e4dd65ac0fa991087a475fa70154abaf0c61d2aeb488e7a98",
+      "width": 1504,
+      "height": 846
+    },
+    {
+      "look": "classic-dark",
+      "path": "docs/oberflaeche-dunkel.png",
+      "sha256": "b4677b214fe4d6e50b7149ecba4f7badf10dd2af48ac5925b15f76f8fdcfcac2",
+      "width": 1504,
+      "height": 846
+    },
+    {
+      "look": "classic-light",
+      "path": "docs/oberflaeche-hell.png",
+      "sha256": "429a5e60a948f030195fc5735b6c1291942cc0cea0f4a6588c16e12ab9e0c442",
+      "width": 1504,
+      "height": 846
+    }
+  ]
+}

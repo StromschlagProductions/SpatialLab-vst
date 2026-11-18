@@ -31,3 +31,9 @@ Die SPATIAL-LAB-Karte erhält den verbindlichen Untertitel und eine neue Retro-A
 ## Abnahme
 
 Lokale reine DSP-Tests: 6/6 bestanden; JUCE-GUI-/Prüfhost-Quellen syntaktisch geprüft. Native Windows-Aufnahmen, vollständige Windows-/Linux-Abnahme, pluginval Level 8 und die öffentliche Homepage werden vor Abschluss überprüft. Die endgültigen CI-/Release-/Bildnachweise werden nach erfolgreicher Prüfung hier ergänzt.
+
+## Geprüfte native Aufnahmen
+
+Alle vier Bilder aus [CI-Lauf 44278481794](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44278481794), Artefakt [SpatialLab-Classic-Looks](https://github.com/StromschlagProductions/SpatialLab-vst/actions/runs/44278481794/artifacts/14415883025), sind bytegleich übernommen und visuell geprüft: vollständige Titel-/Untertitelzeile ohne Überschneidung, Herstellerkennung v1.3, unveränderte Classic-Regler; in Retro beide Episoden, Produktkennung im Metadatenbereich, Logo, Browser und Samplerate sichtbar. Vier PNGs jeweils 1504 × 846 Pixel. [Manifest mit SHA-256](../screenshots.json).
+
+Die Homepage-Auflösung wurde in einem echten Chromium mit kontrollierten Release-Antworten geprüft: v1.3 und historisches v1.2.0 setzen Versionsanzeige, passendes Tag-Bild und tatsächliches Windows-VST3-ZIP korrekt. Bei API-Ausfall bleibt die Versionsanzeige leer/ausgeblendet und der Link führt zu /releases/latest. Die Live-Prüfung folgt nach Veröffentlichung.
