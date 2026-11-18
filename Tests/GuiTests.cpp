@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "GuiPreferences.h"
+#include "SpatialLabBranding.h"
 #include <iostream>
 #include <stdexcept>
 #include <chrono>
@@ -42,6 +43,12 @@ int main()
     juce::ScopedJuceInitialiser_GUI initialise;
     try
     {
+        require(juce::String(JucePlugin_VersionString)==spatiallab::branding::version,"GUI version differs from the compiled VST3 version");
+        const auto parts=juce::StringArray::fromTokens(spatiallab::branding::version,".","");
+        const auto expectedPublic=parts.size()==3 && parts[2]=="0"?parts[0]+"."+parts[1]:juce::String(spatiallab::branding::version);
+        require(expectedPublic==spatiallab::branding::publicVersion,"Public GUI version not derived from project version");
+        require(juce::String::fromUTF8(spatiallab::branding::manufacturerLine)==juce::String::fromUTF8("STROMSCHLAG AUDIO · v")+expectedPublic,"Manufacturer/version branding differs");
+        require(juce::String(spatiallab::branding::subtitle)=="Audio Drama Spatial Environments","Product subtitle changed");
         {
             juce::TemporaryFile oldFile(".gui.settings"), newFile(".gui.settings");
             juce::PropertiesFile legacy(oldFile.getFile(), spatiallab::gui::preferenceOptions());

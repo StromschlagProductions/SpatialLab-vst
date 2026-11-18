@@ -2,11 +2,14 @@
 #include "SpatialLabArtwork.h"
 #include "GuiPreferences.h"
 #include "RetroMotion.h"
+#include "SpatialLabBranding.h"
 
 namespace
 {
 constexpr float panelWidth = 1672, panelHeight = 941;
 const juce::Colour amber(0xffffad19), dark(0xff100b05);
+const auto productSubtitle=juce::String::fromUTF8(spatiallab::branding::subtitle);
+const auto manufacturerLine=juce::String::fromUTF8(spatiallab::branding::manufacturerLine);
 const auto names=[] {std::array<juce::String,26> result;for(int i=0;i<26;++i)result[static_cast<std::size_t>(i)]=juce::String::fromUTF8(spatiallab::roomNames[static_cast<std::size_t>(i)]);return result;}();
 void text(juce::Graphics& g, const juce::String& value, float x, float y, float w, float h,
           float height, juce::Colour colour, int justification = juce::Justification::centredLeft)
@@ -461,6 +464,9 @@ void SpatialLabEditor::paint(juce::Graphics& g)
                                          panel.getPixelAt(2780, 1300), 1390, 651, false));
     g.fillRect(1138, 621, 252, 30);
     text(g, configuration, 1144, 623, 244, 26, 19, juce::Colour(0xff1b1b16));
+    // Product metadata in the existing blank metal area; original device art stays intact.
+    text(g, productSubtitle, 1144, 650, 292, 19, 13.5f, juce::Colour(0xff1b1b16));
+    text(g, manufacturerLine, 1144, 682, 292, 18, 13.5f, juce::Colour(0xff1b1b16));
     drawCrt(g);
     drawLighting(g);
 }
@@ -688,8 +694,9 @@ void SpatialLabEditor::drawClassic(juce::Graphics& g)
     titleGlyphs.addLineOfText(titleFont,"SPATIAL LAB",0,0);
     const float titleWidth=titleGlyphs.getBoundingBox(0,-1,true).getWidth();
     const float subtitleX=140+titleWidth+28;
-    text(g,"SPATIAL LAB",140,35,titleWidth+8,50,40,t.text);
-    text(g,"AUDIO DRAMA SPATIAL ENVIRONMENTS",subtitleX,35,1300-subtitleX,50,21,t.accent);
+    text(g,"SPATIAL LAB",140,18,titleWidth+8,50,40,t.text);
+    text(g,productSubtitle.toUpperCase(),subtitleX,18,1300-subtitleX,50,21,t.accent);
+    text(g,manufacturerLine,140,73,1160,25,17,t.dim);
     g.setColour(t.panel);g.fillRoundedRectangle(220,140,1232,472,12);
     g.setColour(t.line);g.drawRoundedRectangle(220,140,1232,472,12,1.5f);
     text(g,"SIZE",465,615,300,35,25,t.text,juce::Justification::centred);

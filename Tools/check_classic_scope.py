@@ -1,4 +1,4 @@
-"""Issue 6 deliberately changes DSP. GUI/state/identity/catalog/artwork remain immutable."""
+"""v1.3 changes GUI branding only: approved v1.2 DSP/state/catalog/artwork stay immutable."""
 from pathlib import Path
 import hashlib
 root=Path(__file__).resolve().parents[1]
@@ -11,7 +11,8 @@ expected={'Source/GuiPreferences.h': '1b210c6a5332c8045661b3de4668ab1eb2c9d530e3
  'assets/SpatialLab_Episode_I.png': 'b91940feaa4e112db83308a4c62d612022220569a950b4c974c4fb4af6366570',
  'assets/SpatialLab_Episode_IV.png': '0a37f19784c6ee8b696e9a3aa865dceaed91774ee5fc5fcc42b941d43433307a',
  'assets/Stromschlag_Audio_Original_Logo.png': 'b199e6c323d08ba042bbceb3b827e293c5c7a51faf90308c849f15b0b433c9a6'}
-expected.update({'Source/PluginEditor.cpp': 'a053cf619269d33adce6693a3002e37fc487e9341386ee4a702c77051dbaf7dd', 'Source/PluginEditor.h': 'efee3664f49476217afffb704b81d72bde4d4ef6e69c1093c622a1de33127049', 'Source/PresetBrowser.h': '189e03cba4fc4589db8bfed60e291b46c99a51396d3b42e73b66c0265709ece7', 'Source/ClassicTheme.h': '17243227d5b27ae1c6d1bd5d64188da7d737c79238c470b64195c39286b49a63'})
+expected.update({'Source/PresetBrowser.h': '189e03cba4fc4589db8bfed60e291b46c99a51396d3b42e73b66c0265709ece7', 'Source/ClassicTheme.h': '17243227d5b27ae1c6d1bd5d64188da7d737c79238c470b64195c39286b49a63', 'Source/RoomEngine.h': '0068324cce19e6ed48bee311a2138ef9b1dd027bf6ad8481316d16002f69f726', 'Source/OutdoorEngine.h': 'c130e4835dfdf30e87ed4bb5f940bac69a84be270e27962eee7f12eb1b10060d', 'Source/OutdoorPlan.h': '982667754e1fc56acc919939c1fc699e466464e91dd1ee167657542d3c0bb973', 'Source/AcousticGeometry.h': '2ab914b08bd3ebdb7f99b7cacde9f8cfbd4b65e9b7541390c7819816fbb129fc', 'Source/OutdoorDiffuse.h': '3e2e1fdcfcefb59af2ed3df3d607afdc93f5a34f4fd60e03eea8b67cd1e0698a'})
+expected['Source/PluginEditor.h']='efee3664f49476217afffb704b81d72bde4d4ef6e69c1093c622a1de33127049'
 for name,digest in expected.items():
     data=(root/name).read_bytes()
     if not name.endswith('.png'):data=data.replace(b"\r\n",b"\n")

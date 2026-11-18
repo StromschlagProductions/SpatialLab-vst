@@ -8,6 +8,7 @@ on:
       - 'Tools/**'
       - 'assets/**'
       - 'CMakeLists.txt'
+      - 'cmake/**'
       - '.github/workflows/build.yml'
   workflow_dispatch:
     inputs:
@@ -75,6 +76,14 @@ jobs:
             python Tools/validate_gui_capture.py $folder 1504x846
             if ($LASTEXITCODE -ne 0) { throw "Look capture validation failed" }
           }
+          $folder = "build/classic-screens/Retro-Episode-I"
+          $preview = Start-Process -FilePath "build/SpatialLabGuiPreview_artefacts/Release/SpatialLab GUI Preview.exe" -ArgumentList "--output=$folder", "--look=0", "--episode=I", "--silent" -PassThru
+          if (-not $preview.WaitForExit(120000)) { $preview.Kill(); throw "Episode I capture timed out" }
+          if ($preview.ExitCode -ne 0) { throw "Episode I capture failed" }
+          python Tools/validate_gui_capture.py $folder 1504x846
+          if ($LASTEXITCODE -ne 0) { throw "Episode I validation failed" }
+          python Tools/check_branding_capture.py build/classic-screens
+          if ($LASTEXITCODE -ne 0) { throw "Capture branding mismatch" }
       - name: Upload Classic and Retro look screenshots
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -184,12 +193,12 @@ jobs:
         shell: python
         run: |
           import hashlib,json,pathlib,subprocess,os,re
-          inputs=['Source','Tests','Tools','assets','CMakeLists.txt','.github/workflows/build.yml']
+          inputs=['Source','Tests','Tools','assets','cmake','CMakeLists.txt','.github/workflows/build.yml']
           tree=subprocess.check_output(['git','ls-tree','-r','HEAD','--',*inputs])
           package=pathlib.Path('SpatialLab-VST3-Windows.zip')
           version=re.search(r'project\(SpatialLab VERSION ([0-9.]+)',pathlib.Path('CMakeLists.txt').read_text())[1]
           manifest={'commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
-            'run_id':os.environ['GITHUB_RUN_ID'],'version':version,
+            'run_id':os.environ['GITHUB_RUN_ID'],'version':version,'public_version':('.'.join(version.split('.')[:2]) if version.endswith('.0') else version),
             'build_inputs_sha256':hashlib.sha256(tree).hexdigest(),
             'package_sha256':hashlib.sha256(package.read_bytes()).hexdigest()}
           pathlib.Path('build/acceptance-provenance.json').write_text(json.dumps(manifest,indent=2))

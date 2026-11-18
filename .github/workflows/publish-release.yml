@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag, e.g. v1.1.2 (created automatically on the tested commit if missing)'
+        description: 'Public release tag, e.g. v1.3 (internal project version may be 1.3.0)'
         required: true
         type: string
       acceptance_run:
@@ -28,6 +28,12 @@ jobs:
       - name: Create release tag on the tested commit if it does not exist yet
         shell: bash
         run: |
+          python3 - <<'PY'
+          import os,re
+          tag=os.environ['RELEASE_TAG']
+          assert re.fullmatch(r'v[0-9]+\.[0-9]+(?:\.[0-9]+)?',tag),'Invalid release tag'
+          assert not (tag.count('.')==2 and tag.endswith('.0')),'Use the public major.minor tag without an unnecessary .0'
+          PY
           if gh api "repos/$GH_REPO/git/ref/tags/$RELEASE_TAG" >/dev/null 2>&1; then
             echo "Tag $RELEASE_TAG exists"
           else
@@ -54,12 +60,13 @@ jobs:
           assert run['conclusion']=='success' and run['path']=='.github/workflows/build.yml'
           jobs={j['name']:j for j in json.load(open('jobs.json'))['jobs']}
           assert all(jobs[n]['conclusion']=='success' for n in ['windows-vst3','dsp-sanitizers'])
-          tag=os.environ['RELEASE_TAG'];assert re.fullmatch(r'v\d+\.\d+\.\d+',tag)
-          version=tag[1:]
+          tag=os.environ['RELEASE_TAG'];assert re.fullmatch(r'v\d+\.\d+(?:\.\d+)?',tag)
+          public=tag[1:]
+          version=public+'.0' if public.count('.')==1 else public
           manifest=json.load(open('provenance/acceptance-provenance.json'))
-          assert manifest['run_id']==os.environ['ACCEPTANCE_RUN'] and manifest['version']==version
+          assert manifest['run_id']==os.environ['ACCEPTANCE_RUN'] and manifest['version']==version and manifest['public_version']==public
           assert re.search(r'project\(SpatialLab VERSION ([0-9.]+)',pathlib.Path('CMakeLists.txt').read_text())[1]==version
-          inputs=['Source','Tests','Tools','assets','CMakeLists.txt','.github/workflows/build.yml']
+          inputs=['Source','Tests','Tools','assets','cmake','CMakeLists.txt','.github/workflows/build.yml']
           tree=subprocess.check_output(['git','ls-tree','-r','HEAD','--',*inputs])
           assert hashlib.sha256(tree).hexdigest()==manifest['build_inputs_sha256'],'Release build inputs differ from tested build'
           ctest=pathlib.Path('provenance/ctest-results.txt').read_text(encoding='utf-8-sig')
@@ -77,6 +84,12 @@ jobs:
             info=json.loads(re.sub(r',\s*(?=[}\]])','',text))
             assert info['Version']==version and info['Factory Info']['Vendor']=='Stromschlag Audio'
             assert {c['CID'] for c in info['Classes']}=={'ABCDEF019182FAEB5374726D53704C62','ABCDEF011234ABCD5374726D53704C62','ABCDEF01C0DEF00D5374726D53704C62'}
+          screenshots=json.loads(pathlib.Path('docs/screenshots.json').read_text())
+          assert screenshots['version']==public and screenshots['subtitle']=='Audio Drama Spatial Environments' and screenshots['source_run']==os.environ['ACCEPTANCE_RUN']
+          for item in screenshots['screenshots']:
+            image=pathlib.Path(item['path']);assert image.is_file()
+            assert hashlib.sha256(image.read_bytes()).hexdigest()==item['sha256'],'Screenshot manifest mismatch'
+          assert len(screenshots['screenshots'])==4
           name=f'SpatialLab-{tag}-Windows-x64-VST3.zip'
           pathlib.Path(name).write_bytes(data)
           pathlib.Path('SHA256SUMS.txt').write_text(digest+'  '+name+'\n')
@@ -88,13 +101,14 @@ jobs:
       - name: Create draft with verified package, then publish stable latest release
         shell: bash
         run: |
-          gh release create "$RELEASE_TAG" --draft --verify-tag --title "SPATIAL LAB ${RELEASE_TAG%\.0}" --notes-file release-notes.md "SpatialLab-$RELEASE_TAG-Windows-x64-VST3.zip" SHA256SUMS.txt
+          gh release create "$RELEASE_TAG" --draft --verify-tag --title "SPATIAL LAB $RELEASE_TAG" --notes-file release-notes.md "SpatialLab-$RELEASE_TAG-Windows-x64-VST3.zip" SHA256SUMS.txt docs/screenshots.json
           gh release view "$RELEASE_TAG" --json assets > assets.json
           python3 - <<'PY'
           import json,os
           a={a['name']:a for a in json.load(open('assets.json'))['assets']}
           assert a['SpatialLab-'+os.environ['RELEASE_TAG']+'-Windows-x64-VST3.zip']['size']>10000000
           assert a['SHA256SUMS.txt']['size']>64
+          assert a['screenshots.json']['size']>100
           PY
           gh release edit "$RELEASE_TAG" --draft=false --prerelease=false --latest
           gh api repos/$GH_REPO/releases/latest --jq '{tag_name,draft,prerelease,html_url,assets:[.assets[].name]}'

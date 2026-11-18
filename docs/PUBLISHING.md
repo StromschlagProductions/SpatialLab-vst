@@ -15,3 +15,11 @@
 Ein Git-Push oder erfolgreicher Build ist **nicht** automatisch eine Freigabe. Keine automatische öffentliche Veröffentlichung bei jedem Commit. So werden unfertige Builds und unnötige Windows-CI-Kosten vermieden.
 
 Übergreifender Standard: https://github.com/StromschlagProductions/StromschlagProductions.github.io/blob/main/docs/RELEASE_STANDARD.md
+
+## Öffentliches Versionsschema ab 1.3
+
+CMake ist die Versionsquelle. Intern kann JUCE/VST3 beispielsweise 1.3.0 verwenden; öffentlich werden Patch-Nullen weggelassen: Tag `v1.3`, Titel `SPATIAL LAB v1.3`, Paket `SpatialLab-v1.3-Windows-x64-VST3.zip`. Historische Tags werden nicht umbenannt. Die GUI verwendet den generierten Header `SpatialLabBranding.h`, keine manuell eingetragene Versionszahl.
+
+Vor dem Taggen werden die vier echten Windows-Aufnahmen aus der erfolgreichen Abnahme mit `Tools/package_branding_screenshots.py <capture-root> . --run <run-id>` bytegleich nach `docs/` übernommen. Das Werkzeug erstellt `docs/screenshots.json` mit tatsächlicher Capture-Version und Prüfsummen. Bilder und Manifest gemeinsam committen; keine Versionsnummer im Manifest nachträglich ersetzen. Den Tag auf dem finalen `main` mit Dokumentation und Bildern anlegen. Der Veröffentlichungsworkflow vergleicht alle Build-Eingaben mit dem akzeptierten Build; reine Dokumentations-/Bildnachträge benötigen keinen zweiten Build.
+
+Der Workflow hängt das geprüfte Installationspaket, `SHA256SUMS.txt` und `screenshots.json` an das stabile Release. Erst anschließend Homepage, dynamische Versionsanzeige, native Bilddatei und tatsächliches ZIP-Ziel prüfen. Andere Plugin-Einträge bleiben unverändert.
