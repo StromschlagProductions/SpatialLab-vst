@@ -5,7 +5,15 @@
   <img src="docs/logo-hell.png" alt="Stromschlag Audio" height="64">
 </picture>
 
-## Weniger suchen. Mehr Geschichten erzählen.
+VST3-Send-Effekt für Hörspiel-Produktion. SPATIAL LAB bringt 26 typische Räume und Umgebungen mit, vom Wohnzimmer
+über Keller, Wald und Schlucht bis zum Autoinneren, als verlässliche Ausgangspunkte. Zwei Regler, **SIZE** und
+**TONE**, passen den Raum an die Szene an; den Hallanteil stellst du wie gewohnt mit dem Send in der DAW ein.
+
+**⬇ Download (Windows · VST3 · Mono/Stereo):** https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest
+
+## Warum es dieses Plugin gibt
+
+**Weniger suchen. Mehr Geschichten erzählen.**
 
 Bei der Arbeit an Hörspielen habe ich immer wieder festgestellt, wie viel Zeit allein die Suche nach dem passenden Raumklang verschlingen kann. Man klickt sich durch Hunderte oder Tausende Impulsantworten, findet endlich ein vermeintlich passendes Wohnzimmer – und merkt beim Einsetzen in die Szene, dass es überhaupt nicht nach dem Wohnzimmer klingt, das man sich vorgestellt hat. Also beginnt die Suche von vorn.
 
@@ -17,50 +25,7 @@ Denn am Ende möchte ich meine Zeit nicht damit verbringen, den vermeintlich per
 
 – Lars Eickstädt, Stromschlag Audio
 
-**[SPATIAL LAB für Windows herunterladen (neueste Version)](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest)**
-
-[Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.4/SpatialLab-v1.4-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung, Oberflächen und Version](docs/classic/CLASSIC_GUI.md)
-
-## Version 1.4 – nutzbare Wet-Pegel für Hörspiel-Sends
-
-Neun normale Innenräume und sechs Außenräume: **+6 dB Wet** gegenüber v1.3. Offene Landschaft: **+18 dB insgesamt**, weiterhin trocken und ohne neue Echos. Wald behält seinen kurzen diffusen Anteil. Fahrzeuge, Kapelle/Kathedrale/Höhle und Cockpits bleiben unverändert. Feste Preset-Verstärkung, keine zusätzlichen Regler oder Änderungen an der Raumakustik.
-
-[Messungen aller 26 Presets, Hördateien und Headroom](docs/v1.4/WET_LEVELS.md) · [Release Notes v1.4](docs/RELEASE_v1.4.md). Referenz: Send −6 dB, FX 0 dB, SIZE/TONE 50 %. Sehr laute Dry+Wet-Summen benötigen DAW-Headroom; es gibt keinen versteckten Limiter.
-
-## Produktkennung seit Version 1.3
-
-**Audio Drama Spatial Environments** ist der gemeinsame Untertitel von Plugin, Dokumentation und Homepage. Classic Dunkel/Hell zeigen eine automatisch erzeugte Hersteller-/Versionszeile unter Titel und Untertitel; Retro zeigt dieselbe Produkt-/Versionskennung im vorhandenen Metadatenbereich. Die Version stammt automatisch aus dem CMake-Projekt. [Release-Hinweise](docs/RELEASE_v1.3.md) · [Prüfbericht und Screenshot-Herkunft](docs/v1.3/UPDATE.md).
-
-Die in v1.3 freigegebenen akustischen Koeffizienten bleiben unverändert; v1.4 ergänzt ausschließlich die oben beschriebene feste Wet-Verstärkung.
-
-## Raumakustik seit v1.2.0
-
-Alle 26 Umgebungen sind für Sprachräume neu abgestimmt: geometrisch begründete frühe Reflexionen, deutlichere Kabinenrückwürfe, ein dichterer Tunnel-/Unterführungscharakter und unregelmäßige Canyon-Reflexionen statt Pingpong. Die offene Landschaft bleibt bewusst nahezu trocken. Keine pauschale Ausgangsanhebung, kein Loudness-Matching und keine zusätzlichen Regler.
-
-[Release-Hinweise v1.2.0](docs/RELEASE_v1.2.0.md) · [Vorher-/Nachher-Messungen](docs/issue6/COMPARISON.md) · [Erfolgreiche Windows-/Linux-Abnahme und Hördateien](docs/issue6/ACCEPTANCE.md)
-
-## 26 Umgebungen, vier Kategorien
-
-| Kategorie | Umgebungen |
-|---|---|
-| **INNENRÄUME** | Wohnzimmer, Küche, Badezimmer, Schlafzimmer, Flur, Treppenhaus, Keller, Dachboden, Garage/Werkstatt |
-| **AUSSENRÄUME** | Offene Landschaft, Wald, Straße/Gasse, Innenhof, Schlucht/Canyon, Tunnel, Unterführung |
-| **FAHRZEUGE** | Kleinwagen, großer PKW, Transporter, LKW-Kabine |
-| **SPEZIALRÄUME** | Kleine Kapelle, Kathedrale, Höhle, X-Wing Cockpit, Y-Wing Cockpit, Snowspeeder Cockpit |
-
-*Die Cockpits sind natürlich kreative Klanginterpretationen. Ich habe schließlich nicht persönlich neben Luke Skywalker im X-Wing gesessen und ihm ein Mikrofon über die Schulter gehalten. Aber ein bisschen so, wie man sich das Innere dieser Maschinen vorstellt, dürfen sie schon klingen.*
-
-*Coming next: Darth Vader & Boba Fett Helmet.*
-
-## Algorithmische Akustik
-
-Die **Indoor-Engine** leitet frühe Reflexionen aus dokumentierten neutralen Quell-/Empfänger-Geometrien ab und ergänzt ein Feedback-Delay-Netzwerk für frequenzabhängig gedämpften Nachhall. Die 19 Innenraum-, Fahrzeug- und Spezialprofile besitzen individuelle Begrenzungsflächen, Absorptions-/Streuannahmen, Laufzeiten, Diffusion und Dämpfung. Es sind eigenständige vereinfachte Modelle, keine Rekonstruktionen exakt vermessener Räume.
-
-Die separate **Outdoor-Engine** erzeugt diskrete Stereo-Reflexionen aus Schallwegdifferenzen, Wegdämpfung, Absorption, Streuung und Panorama. Für Wald, Straße, Innenhof, Canyon, Tunnel und Unterführung ergänzt ein kontrollierter dichter Anteil die Rückwürfe. Die offene Landschaft besitzt keinen diffusen Nachhall. Der Canyon kombiniert nahe unregelmäßige Felsreflexionen mit schwächeren entfernten Konturen. Keine Faltung, keine externen Preset-Dateien und kein Oversampling.
-
-SPATIAL LAB liefert **immer 100 % Wet** und ist für FX-/Send-Kanäle ausgelegt. Es gibt keinen Dry/Wet- oder Ausgangspegel-Regler. Den Effektanteil stellst du mit dem Send-Pegel in der DAW ein.
-
-## Oberflächen
+## Oberfläche
 
 **Retro ist das ursprüngliche, charakteristische Design von SPATIAL LAB:** Episode I zeigt das fabrikneue Gerät, Episode IV die verwitterte Standardansicht. Classic Dunkel und Classic Hell sind schlichte Alternativen.
 
@@ -84,24 +49,28 @@ Alle vier Bilder sind unveränderte echte Windows-Aufnahmen des geprüften v1.4-
 
 Über das Zahnrad oben rechts in Retro oder die Look-Auswahl in Classic wechselst du zwischen **Retro / Classic Dunkel / Classic Hell**. Episode I/IV wird weiterhin im Retro-Modus gewählt. Die Auswahl ist rein kosmetisch; alle Ansichten teilen dieselben Presets und Parameter. [GUI-Dokumentation und Bildherkunft](docs/classic/CLASSIC_GUI.md). Die historischen Screenshots bleiben im Repository erhalten.
 
-## Frühere GUI-Aktualisierung 1.1.2
+## Umgebungen
 
-Classic Dunkel und Classic Hell: Die Drehregler SIZE und TONE haben jetzt dieselben Proportionen wie in den anderen Stromschlag-Plugins (kräftiger Ring, dicker Wertebogen, großer Punkt). Klang, Räume, Parameter und Retro-Look sind unverändert. [Release-Hinweise](docs/RELEASE_v1.1.2.md)
+| Kategorie | Umgebungen |
+|---|---|
+| **INNENRÄUME** | Wohnzimmer, Küche, Badezimmer, Schlafzimmer, Flur, Treppenhaus, Keller, Dachboden, Garage/Werkstatt |
+| **AUSSENRÄUME** | Offene Landschaft, Wald, Straße/Gasse, Innenhof, Schlucht/Canyon, Tunnel, Unterführung |
+| **FAHRZEUGE** | Kleinwagen, großer PKW, Transporter, LKW-Kabine |
+| **SPEZIALRÄUME** | Kleine Kapelle, Kathedrale, Höhle, X-Wing Cockpit, Y-Wing Cockpit, Snowspeeder Cockpit |
 
-## Technische Aktualisierung 1.1.1
+*Die Cockpits sind natürlich kreative Klanginterpretationen. Ich habe schließlich nicht persönlich neben Luke Skywalker im X-Wing gesessen und ihm ein Mikrofon über die Schulter gehalten. Aber ein bisschen so, wie man sich das Innere dieser Maschinen vorstellt, dürfen sie schon klingen.*
 
-Weniger redundante Outdoor-Berechnungen, Schutz vor ungültigen Eingangs-/Steuerwerten und zusätzliche Grenzfalltests. [Release-Hinweise](docs/RELEASE_v1.1.1.md).
+*Coming next: Darth Vader & Boba Fett Helmet.*
 
-## Installation
+## So klingt es: algorithmische Akustik
 
-1. Die Datei **SpatialLab-v1.4-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
-2. DAW schließen und das ZIP vollständig entpacken.
-3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
-4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.
+Die **Indoor-Engine** leitet frühe Reflexionen aus dokumentierten neutralen Quell-/Empfänger-Geometrien ab und ergänzt ein Feedback-Delay-Netzwerk für frequenzabhängig gedämpften Nachhall. Die 19 Innenraum-, Fahrzeug- und Spezialprofile besitzen individuelle Begrenzungsflächen, Absorptions-/Streuannahmen, Laufzeiten, Diffusion und Dämpfung. Es sind eigenständige vereinfachte Modelle, keine Rekonstruktionen exakt vermessener Räume.
 
-Das Release-ZIP enthält direkt den vollständigen VST3-Ordner; ein Installer oder eine weitere ZIP-Ebene ist nicht erforderlich.
+Die separate **Outdoor-Engine** erzeugt diskrete Stereo-Reflexionen aus Schallwegdifferenzen, Wegdämpfung, Absorption, Streuung und Panorama. Für Wald, Straße, Innenhof, Canyon, Tunnel und Unterführung ergänzt ein kontrollierter dichter Anteil die Rückwürfe. Die offene Landschaft besitzt keinen diffusen Nachhall. Der Canyon kombiniert nahe unregelmäßige Felsreflexionen mit schwächeren entfernten Konturen. Keine Faltung, keine externen Preset-Dateien und kein Oversampling.
 
-## Bedienung
+SPATIAL LAB liefert **immer 100 % Wet** und ist für FX-/Send-Kanäle ausgelegt. Es gibt keinen Dry/Wet- oder Ausgangspegel-Regler. Den Effektanteil stellst du mit dem Send-Pegel in der DAW ein.
+
+## Anwendung
 
 - SPATIAL LAB auf einen FX-/Send-Kanal laden und die Quelle dorthin senden.
 - Im großen CRT Kategorien aufklappen, mit Mausrad/Scrollleiste navigieren und ein Preset direkt anklicken. Die Pfeile links wählen den vorigen/nächsten Eintrag.
@@ -111,7 +80,9 @@ Das Release-ZIP enthält direkt den vollständigen VST3-Ordner; ein Installer od
 
 Host-Auswahl und Session-Recall machen den aktiven Eintrag im Browser sichtbar. Klappzustände und Scrollposition werden nicht über das Schließen des Editors hinweg gespeichert. Es gibt kein Suchfeld und keine zusätzliche Tastatur-Navigation.
 
-## System und Formate
+## Hinweise
+
+### System und Formate
 
 - Windows x64, Windows 10/11 und ein kompatibler **64-Bit-VST3-Host**.
 - **Microsoft Visual C++ Redistributable v14 für x64 (2015–2022)**; falls noch nicht vorhanden: [offizieller Microsoft-Installer](https://aka.ms/vs/17/release/vc_redist.x64.exe).
@@ -120,7 +91,7 @@ Host-Auswahl und Session-Recall machen den aktiven Eintrag im Browser sichtbar. 
 - Fenster: mindestens **1003×565**, Standard **1504×846**, maximal **2174×1223**, proportional skalierbar. Für die vollständige Maximalansicht ist ein entsprechend großer Desktop erforderlich.
 - Windows-x64-VST3 ist das bereitgestellte Format. Keine AU-, AAX-, VST2- oder Standalone-Ausgabe.
 
-## Kompatibilität und bekannte Grenzen
+### Kompatibilität und bekannte Grenzen
 
 Version 1.4 behält 26 linear kodierte Raumwerte, Preset-Keys, drei Parameter und Session-Schema 5 bei. Hersteller-/Plugin-Kennungen und Parameter-IDs bleiben unverändert. Die Raumabstimmungen wurden gezielt überarbeitet; ein Legacy-Klangmodus oder zusätzliche Session-Migrationen werden nicht eingeführt.
 
@@ -128,7 +99,29 @@ Raumwechsel blenden das Wet-Signal kurz aus und wieder ein, um harte Abrisse zu 
 
 Die CI prüft Layout und Eingaben bei 2174×1223. Ihr Desktop ist jedoch auf 1920×1080 begrenzt: Maximalgrößen-Bildnachweise sind dort native JUCE-Komponentenrender, keine Desktop-Screenshots. Die obigen Standardansichten sind echte Desktop-Aufnahmen.
 
-## Entwicklung und Qualitätssicherung
+## Installation (Windows)
+
+1. Die Datei **SpatialLab-v1.4-Windows-x64-VST3.zip** vom [neuesten Release](https://github.com/StromschlagProductions/SpatialLab-vst/releases/latest) herunterladen.
+2. DAW schließen und das ZIP vollständig entpacken.
+3. Den **gesamten Ordner `SpatialLab.vst3`** nach `C:\Program Files\Common Files\VST3\` kopieren. Nicht nur die innere Moduldatei kopieren.
+4. DAW starten und bei Bedarf die VST3-Suche erneut ausführen.
+
+Das Release-ZIP enthält direkt den vollständigen VST3-Ordner; ein Installer oder eine weitere ZIP-Ebene ist nicht erforderlich.
+
+## Versionen
+
+Die Versionsnummer steht im Plugin-Kopf und im Namen der Release. Alle Einzelheiten stehen im
+[Changelog](docs/CHANGELOG.md).
+
+- **1.4** – Nutzbare Wet-Pegel für Hörspiel-Sends: neun normale Innenräume und sechs Außenräume **+6 dB Wet** gegenüber 1.3, offene Landschaft **+18 dB**, weiterhin trocken und ohne neue Echos. Wald behält seinen kurzen diffusen Anteil; Fahrzeuge, Kapelle/Kathedrale/Höhle und Cockpits bleiben unverändert. Keine zusätzlichen Regler. [Messungen aller 26 Presets, Hördateien und Headroom](docs/v1.4/WET_LEVELS.md) · [Release Notes v1.4](docs/RELEASE_v1.4.md). Referenz: Send −6 dB, FX 0 dB, SIZE/TONE 50 %. Sehr laute Dry+Wet-Summen brauchen Headroom in der DAW, es gibt keinen versteckten Limiter.
+- **1.3** – Gemeinsamer Untertitel **Audio Drama Spatial Environments** für Plugin, Dokumentation und Homepage; Hersteller- und Versionszeile in allen Looks, Version automatisch aus dem Projekt. Akustik unverändert. [Release-Hinweise](docs/RELEASE_v1.3.md) · [Prüfbericht und Screenshot-Herkunft](docs/v1.3/UPDATE.md).
+- **1.2.0** – Alle 26 Umgebungen für Sprachräume neu abgestimmt: geometrisch begründete frühe Reflexionen, deutlichere Kabinenrückwürfe, dichterer Tunnel-/Unterführungscharakter, unregelmäßige Canyon-Reflexionen statt Pingpong. Die offene Landschaft bleibt bewusst nahezu trocken. [Release-Hinweise](docs/RELEASE_v1.2.0.md) · [Vorher-/Nachher-Messungen](docs/issue6/COMPARISON.md) · [Windows-/Linux-Abnahme und Hördateien](docs/issue6/ACCEPTANCE.md) · [Analyse, Modellbeschreibung und Hörtestanleitung](docs/issue6/IMPLEMENTATION.md).
+- **1.1.2** – Classic Dunkel/Hell: SIZE und TONE in denselben Proportionen wie in den anderen Stromschlag-Plugins. Klang unverändert. [Release-Hinweise](docs/RELEASE_v1.1.2.md).
+- **1.1.1** – Weniger redundante Outdoor-Berechnungen, Schutz vor ungültigen Eingangs- und Steuerwerten, zusätzliche Grenzfalltests. [Release-Hinweise](docs/RELEASE_v1.1.1.md).
+- **1.1.0** – Drei Looks im selben Plugin: Retro, Classic Dunkel und Classic Hell. Klang unverändert. [Release-Hinweise](docs/RELEASE_v1.1.0.md).
+- **1.0.0** – Erste stabile Veröffentlichung: 26 Umgebungen in vier Kategorien, Indoor- und Outdoor-Engine, Retro Episode I und IV.
+
+## Aufbau
 
 C++17, JUCE **8.0.6** an festem Commit, CMake **3.31.6**, Visual Studio 2022 x64. Der Build lädt JUCE einschließlich VST3-SDK selbst; kein gesonderter SDK-Checkout nötig.
 
@@ -139,6 +132,8 @@ ctest --test-dir build -C Release --output-on-failure
 ```
 
 Vollständige Windows-/GUI- und Linux-Sanitizer-Prüfungen laufen bei relevanten Pull-Request-Änderungen und gezielter manueller Abnahme. Kein doppelter Push-Trigger und keine automatische Veröffentlichung. Die bisherigen 19 Raumantworten werden gegen den eingefrorenen Vorgänger geprüft. Weitere Architektur- und Messdetails stehen in [der technischen Dokumentation](docs/phase3b/PHASE3B.md); ältere Phasenberichte sind historische Entwicklungsnachweise.
+
+Weitere Unterlagen: [Offizielles Windows-x64-VST3-ZIP](https://github.com/StromschlagProductions/SpatialLab-vst/releases/download/v1.4/SpatialLab-v1.4-Windows-x64-VST3.zip) · [Changelog](docs/CHANGELOG.md) · [Bedienung, Oberflächen und Version](docs/classic/CLASSIC_GUI.md)
 
 ## Qualität und Prüfung
 
@@ -171,7 +166,3 @@ Das Projekt wird laufend weiterentwickelt. Trotz sorgfältiger Tests können Feh
 **Feedback, Fehlermeldungen und Verbesserungsvorschläge sind herzlich willkommen!**
 
 Wenn dieses kleine Werkzeug auch anderen die Hörspielarbeit erleichtert und mehr Raum für Geschichten und menschliche Kreativität schafft, freut mich das ganz besonders.
-
-## DSP-Audit und Messdaten – Issue #6
-
-Die Umsetzung von Issue #6 enthält die [Analyse vor Änderung, Modellbeschreibung und Studio-One-Hörtestanleitung](docs/issue6/IMPLEMENTATION.md). [Prüflauf, Herkunftsnachweis und unveränderte Vorher-/Nachher-Hördateien](docs/issue6/ACCEPTANCE.md) dokumentieren alle 26 Umgebungen. [SPATIAL LAB v1.2.0 ist offiziell veröffentlicht](https://github.com/StromschlagProductions/SpatialLab-vst/releases/tag/v1.2.0).
